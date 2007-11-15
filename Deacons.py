@@ -10,7 +10,8 @@ class Deacons(ceGUI.Application):
 
 
 class Config(object):
-    baseDsn = 'Driver=PostgreSQL;Servername=localhost;Database=deacons'
+    baseDsn = 'Driver=PostgreSQL;Servername=localhost;Database=deacons;' \
+            'readonly=0'
 
     def __init__(self, app):
         dsn = "%s;uid=%s" % (self.baseDsn, os.environ["LOGNAME"])
