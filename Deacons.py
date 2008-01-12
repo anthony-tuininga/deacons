@@ -1,6 +1,7 @@
 import ceGUI
-import ceODBC
 import os
+
+import Database
 
 class Deacons(ceGUI.Application):
     description = "Deacons"
@@ -15,7 +16,7 @@ class Config(object):
 
     def __init__(self, app):
         dsn = "%s;uid=%s" % (self.baseDsn, os.environ["LOGNAME"])
-        self.connection = ceODBC.Connection(dsn)
+        self.connection = Database.Connection(dsn)
 
 app = Deacons()
 app.MainLoop()
