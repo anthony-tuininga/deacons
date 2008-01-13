@@ -18,6 +18,8 @@ class DataSet(ceDatabase.DataSet):
     tableName = "Elders"
     attrNames = "elderId name"
     pkAttrNames = "elderId"
+    pkIsGenerated = True
+    pkSequenceName = "ElderId_s"
 
 
 class DistrictSubWindow(ceGUI.SubWindow):
