@@ -5,7 +5,12 @@ from wx.lib.flatnotebook import FlatNotebook
 
 class Frame(ceGUI.TopLevelFrame):
     title = "Deacons"
-    createToolbar = False
+
+    def __AddDepositPage(self, depositId, dateDeposited):
+        text = dateDeposited.strftime("%a, %b %d/%y")
+        page = self.__AddPage("w_Deposits.Panel", text)
+        page.Retrieve(depositId)
+        return page
 
     def __AddPage(self, name, text):
         currentPage = self.notebook.GetCurrentPage()
@@ -61,8 +66,34 @@ class Frame(ceGUI.TopLevelFrame):
         self.__CreateEditMenu()
         self.__CreateHelpMenu()
 
+    def OnCreateToolbar(self):
+        self.AddToolbarItem("New", wx.ART_NEW,
+                shortHelp = "New deposit",
+                longHelp = "Create new deposit.",
+                method = self.OnNew)
+        self.AddToolbarItem("Open", wx.ART_FILE_OPEN,
+                shortHelp = "Open deposit",
+                longHelp = "Open deposit created earlier.",
+                method = self.OnOpen)
+        self.toolbar.AddSeparator()
+        self.AddToolbarItem("Exit", wx.ART_QUIT,
+                shortHelp = "Exit the application",
+                longHelp = "Exit the application.",
+                method = self.OnExit)
+
     def OnEditElders(self):
         self.__AddPage("w_Elders.Panel", "Elders")
+
+    def OnNew(self, event):
+        pass
+
+    def OnOpen(self, event):
+        dialog = self.OpenWindow("w_SelectDeposit.Dialog")
+        if dialog.ShowModal() == wx.ID_OK:
+            depositInfo = dialog.GetSelectedItem()
+            self.__AddDepositPage(depositInfo.depositId,
+                    depositInfo.dateDeposited)
+        dialog.Destroy()
 
     def OnPageClosing(self, event):
         page = self.notebook.GetCurrentPage()

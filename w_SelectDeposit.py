@@ -1,8 +1,6 @@
 import ceDatabase
 import ceGUI
 
-import ealib
-
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Deposit"
 
@@ -13,9 +11,10 @@ class Dialog(ceGUI.SelectionListDialog):
 
 class List(ceGUI.List):
     singleSelection = True
+    sortOnRetrieve = False
 
     def OnCreate(self):
-        self.AddColumn("dateDeposited", "Date")
+        self.AddColumn("dateDeposited", "Date", cls = DateColumn)
 
 
 class DataSet(ceDatabase.DataSet):
@@ -27,4 +26,8 @@ class DataSet(ceDatabase.DataSet):
     def _GetSqlForRetrieve(self):
         sql = super(DataSet, self)._GetSqlForRetrieve()
         return sql + " desc"
+
+
+class DateColumn(ceGUI.ListDateColumn):
+    dateFormat = "%a, %b %d/%y"
 
