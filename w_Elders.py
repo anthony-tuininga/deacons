@@ -1,28 +1,18 @@
 import ceDatabase
 import ceGUI
 
-class EditWindow(ceGUI.GridEditWindow):
-    title = "Elders"
+class Panel(ceGUI.DataListPanel):
+    pass
+
+
+class List(ceGUI.DataList):
 
     def OnCreate(self):
-        self.AddSubWindow(DistrictSubWindow)
-
-
-class Grid(ceGUI.Grid):
-    
-    def OnCreate(self):
-        self.AddColumn(ceGUI.GridColumnStr, "Name", "name")
+        self.AddColumn("name", "Name")
 
 
 class DataSet(ceDatabase.DataSet):
     tableName = "Elders"
     attrNames = "elderId name"
     pkAttrNames = "elderId"
-    pkIsGenerated = True
-    pkSequenceName = "ElderId_s"
-
-
-class DistrictSubWindow(ceGUI.SubWindow):
-    childWindowName = "w_ElderDistricts.EditWindow"
-    label = "District"
 
