@@ -1,53 +1,45 @@
 import ceDatabase
 import ceGUI
+import cx_Exceptions
+import wx
 
-class EditWindow(ceGUI.GridEditWindow):
-    title = "Deposits"
+class Panel(ceGUI.Panel):
 
     def OnCreate(self):
-        self.AddSubWindow(CollectionsSubWindow)
-        self.AddSubWindow(SummarySubWindow)
-        self.AddSubWindow(ChequesSubWindow)
-        self.AddSubWindow(TreasurerSubWindow)
-        self.AddSubWindow(ChequeReportSubWindow)
+        self.depositedDateLabel = self.AddLabel()
+        self.notebook = ceGUI.Notebook(self)
+        page = CollectionsPanel(self.notebook)
+        page.RestoreSettings()
+        self.notebook.AddPage(page, "Collections")
+
+    def OnLayout(self):
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.depositedDateLabel, flag = wx.ALL, border = 5)
+        sizer.Add(self.notebook, flag = wx.EXPAND, proportion = 1)
+        return sizer
+
+    def Retrieve(self, depositId, dateDeposited):
+        label = "Deposited %s" % dateDeposited.strftime("%A, %B %d, %Y")
+        self.depositedDateLabel.SetLabel(label)
+        for page in self.notebook.IterPages():
+            page.Retrieve()
 
 
-class Grid(ceGUI.Grid):
-    
+class CollectionsPanel(ceGUI.DataListPanel):
+    listClassName = "CollectionsList"
+
+
+class CollectionsList(ceGUI.DataList):
+    dataSetClassName = "CollectionsDataSet"
+
     def OnCreate(self):
-        self.AddColumn(ceGUI.GridColumnStr, "Date", "dateDeposited")
+        self.AddColumn("dateCollected", "Date")
+        self.AddColumn("description", "Description")
 
 
-class DataSet(ceDatabase.DataSet):
-    tableName = "Deposits"
-    attrNames = "depositId dateDeposited"
-    pkAttrNames = "depositId"
-    sortByAttrNames = "dateDeposited"
-    pkIsGenerated = True
-    pkSequenceName = "DepositId_s"
-
-
-class ChequeReportSubWindow(ceGUI.SubWindow):
-    childWindowName = "w_ChequeReport.EditWindow"
-    label = "Chq Report..."
-
-
-class ChequesSubWindow(ceGUI.SubWindow):
-    childWindowName = "w_Cheques.EditWindow"
-    label = "Summary..."
-
-
-class CollectionsSubWindow(ceGUI.SubWindow):
-    childWindowName = "w_DepositCollections.EditWindow"
-    label = "Collections..."
-
-
-class SummarySubWindow(ceGUI.SubWindow):
-    childWindowName = "w_DepositSummary.EditWindow"
-    label = "Summary..."
-
-
-class TreasurerSubWindow(ceGUI.SubWindow):
-    childWindowName = "w_TreasurerSummary.EditWindow"
-    label = "Treasurer..."
+class CollectionsDataSet(ceDatabase.DataSet):
+    tableName = "Collections"
+    attrNames = "collectionId causeId dateCollected reconciled description"
+    retrievalAttrNames = "depositId"
+    pkAttrNames = "collectionId"
 
