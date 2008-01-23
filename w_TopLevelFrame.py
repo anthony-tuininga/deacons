@@ -9,7 +9,7 @@ class Frame(ceGUI.TopLevelFrame):
     def __AddDepositPage(self, depositId, dateDeposited):
         text = dateDeposited.strftime("%a, %b %d/%y")
         page = self.__AddPage("w_Deposits.Panel", text)
-        page.Retrieve(depositId)
+        page.Retrieve(depositId, dateDeposited)
         return page
 
     def __AddPage(self, name, text):
