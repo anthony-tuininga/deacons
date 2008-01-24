@@ -84,6 +84,12 @@ class Frame(ceGUI.TopLevelFrame):
     def OnEditElders(self):
         self.__AddPage("w_Elders.Panel", "Elders")
 
+    def OnExit(self, event):
+        for pageIndex in range(self.notebook.GetPageCount()):
+            page = self.notebook.GetPage(pageIndex)
+            page.SaveSettings()
+        super(Frame, self).OnExit(event)
+
     def OnNew(self, event):
         pass
 
