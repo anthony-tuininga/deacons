@@ -29,5 +29,5 @@ class DataSet(ceDatabase.DataSet):
 
 
 class DateColumn(ceGUI.ListDateColumn):
-    dateFormat = "%a, %b %d/%y"
+    dateFormat = "%a, %b %d, %Y"
 
