@@ -22,18 +22,36 @@ class Panel(ceGUI.Panel):
         label = "Deposited %s" % dateDeposited.strftime("%A, %B %d, %Y")
         self.depositedDateLabel.SetLabel(label)
         for page in self.notebook.IterPages():
-            page.Retrieve()
+            page.list.Retrieve(depositId)
+
+    def RestoreSettings(self):
+        for page in self.notebook.IterPages():
+            page.RestoreSettings()
+
+    def SaveSettings(self):
+        for page in self.notebook.IterPages():
+            page.SaveSettings()
 
 
-class CollectionsPanel(ceGUI.DataListPanel):
+class SubPanel(ceGUI.DataListPanel):
+
+    def RestoreSettings(self):
+        self.list.RestoreColumnWidths(self.settingsName)
+
+    def SaveSettings(self):
+        self.list.SaveColumnWidths(self.settingsName)
+
+
+class CollectionsPanel(SubPanel):
     listClassName = "CollectionsList"
+    settingsName = "CollectionsColumnWidths"
 
 
 class CollectionsList(ceGUI.DataList):
     dataSetClassName = "CollectionsDataSet"
 
     def OnCreate(self):
-        self.AddColumn("dateCollected", "Date")
+        self.AddColumn("dateCollected", "Date", 150, cls = DateColumn)
         self.AddColumn("description", "Description")
 
 
@@ -42,4 +60,8 @@ class CollectionsDataSet(ceDatabase.DataSet):
     attrNames = "collectionId causeId dateCollected reconciled description"
     retrievalAttrNames = "depositId"
     pkAttrNames = "collectionId"
+
+
+class DateColumn(ceGUI.ListDateColumn):
+    dateFormat = "%b/%d/%Y (%a)"
 
