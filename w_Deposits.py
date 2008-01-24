@@ -3,6 +3,8 @@ import ceGUI
 import cx_Exceptions
 import wx
 
+import Common
+
 class Panel(ceGUI.Panel):
 
     def OnCreate(self):
@@ -52,6 +54,7 @@ class CollectionsList(ceGUI.DataList):
 
     def OnCreate(self):
         self.AddColumn("dateCollected", "Date", 150, cls = DateColumn)
+        self.AddColumn("causeId", "Cause", 225, cls = Common.CauseColumn)
         self.AddColumn("description", "Description")
 
 
