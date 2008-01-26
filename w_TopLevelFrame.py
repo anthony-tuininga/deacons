@@ -7,7 +7,7 @@ class Frame(ceGUI.TopLevelFrame):
     title = "Deacons"
 
     def __AddDepositPage(self, depositId, dateDeposited):
-        text = dateDeposited.strftime("%a, %b %d/%y")
+        text = dateDeposited.strftime("%A, %B %d, %Y")
         page = self.__AddPage("w_Deposits.Panel", text)
         page.Retrieve(depositId, dateDeposited)
         return page
