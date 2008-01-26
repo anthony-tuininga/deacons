@@ -79,7 +79,8 @@ class ChequesList(ceGUI.DataList):
     def OnCreate(self):
         self.AddColumn("chequeNumber", "Number", 75)
         self.AddColumn("causeId", "Cause", 225, cls = Common.CauseColumn)
-        self.AddColumn("amount", "Amount")
+        self.AddColumn("amount", "Amount", cls = Common.AmountColumn,
+                justification = wx.LIST_FORMAT_RIGHT)
 
 
 class ChequesDataSet(ceDatabase.DataSet):
