@@ -7,7 +7,8 @@ import Database
 class Deacons(ceGUI.Application):
     description = "Deacons"
     copyrightOwner = "Anthony Tuininga"
-    copyrightStartYear = copyrightEndYear = 2007
+    copyrightStartYear = 1998
+    copyrightEndYear = 2008
     version = "0.1"
 
 

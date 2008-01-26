@@ -3,10 +3,13 @@ import cx_Freeze
 executables = [cx_Freeze.Executable("Deacons.py")]
 
 includes = [
+        "Cache",
+        "Common",
         "Database",
         "encodings.utf_8",
         "w_Deposits",
         "w_Elders",
+        "w_SelectDeposit",
         "w_TopLevelFrame"
 ]
 
