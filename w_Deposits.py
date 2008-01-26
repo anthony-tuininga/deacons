@@ -10,9 +10,10 @@ class Panel(ceGUI.Panel):
     def OnCreate(self):
         self.depositedDateLabel = self.AddLabel()
         self.notebook = ceGUI.Notebook(self)
-        page = CollectionsPanel(self.notebook)
-        page.RestoreSettings()
-        self.notebook.AddPage(page, "Collections")
+        for cls in (CollectionsPanel, ChequesPanel):
+            page = cls(self.notebook)
+            page.RestoreSettings()
+            self.notebook.AddPage(page, page.labelText)
 
     def OnLayout(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
@@ -47,6 +48,7 @@ class SubPanel(ceGUI.DataListPanel):
 class CollectionsPanel(SubPanel):
     listClassName = "CollectionsList"
     settingsName = "CollectionsColumnWidths"
+    labelText = "Collections"
 
 
 class CollectionsList(ceGUI.DataList):
@@ -63,6 +65,52 @@ class CollectionsDataSet(ceDatabase.DataSet):
     attrNames = "collectionId causeId dateCollected reconciled description"
     retrievalAttrNames = "depositId"
     pkAttrNames = "collectionId"
+
+
+class ChequesPanel(SubPanel):
+    listClassName = "ChequesList"
+    settingsName = "ChequesColumnWidths"
+    labelText = "Cheques"
+
+
+class ChequesList(ceGUI.DataList):
+    dataSetClassName = "ChequesDataSet"
+
+    def OnCreate(self):
+        self.AddColumn("chequeNumber", "Number", 75)
+        self.AddColumn("causeId", "Cause", 225, cls = Common.CauseColumn)
+        self.AddColumn("amount", "Amount")
+
+
+class ChequesDataSet(ceDatabase.DataSet):
+    attrNames = "chequeId chequeNumber causeId amount"
+    retrievalAttrNames = "depositId"
+    pkAttrNames = "chequeId"
+
+    def _GetSqlForRetrieve(self):
+        return """
+                select
+                  ChequeId,
+                  ChequeNumber,
+                  CauseId,
+                  ( select sum(ca.ChequeAmount + ca.CashAmount)
+                    from
+                      ChequeAmounts cqa
+                      join CollectionAmounts ca
+                          on ca.CollectionId = cqa.CollectionId
+                          and ca.CauseId = cqa.CauseId
+                    where cqa.ChequeId = c.ChequeId
+                  )
+                from Cheques c
+                where ChequeId in
+                    ( select ca.ChequeId
+                      from
+                        Collections c
+                        join ChequeAmounts ca
+                            on ca.CollectionId = c.CollectionId
+                      where c.DepositId = ?
+                    )
+                order by ChequeNumber"""
 
 
 class DateColumn(ceGUI.ListDateColumn):
