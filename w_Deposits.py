@@ -8,22 +8,28 @@ import Common
 class Panel(ceGUI.Panel):
 
     def OnCreate(self):
-        self.depositedDateLabel = self.AddLabel()
         self.notebook = ceGUI.Notebook(self)
         for cls in (CollectionsPanel, ChequesPanel):
             page = cls(self.notebook)
             page.RestoreSettings()
             self.notebook.AddPage(page, page.labelText)
+        self.bankReportButton = self.AddButton("Bank")
+        self.treasurerReportButton = self.AddButton("Treasurer")
+        self.chequesButton = self.AddButton("Cheques")
+        self.staticBox = wx.StaticBox(self, -1, "Reports")
 
     def OnLayout(self):
+        buttonSizer = wx.StaticBoxSizer(self.staticBox, wx.HORIZONTAL)
+        buttonSizer.Add(self.bankReportButton, flag = wx.ALL, border = 5)
+        buttonSizer.Add(self.treasurerReportButton, flag = wx.ALL, border = 5)
+        buttonSizer.Add(self.chequesButton, flag = wx.ALL, border = 5)
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.depositedDateLabel, flag = wx.ALL, border = 5)
-        sizer.Add(self.notebook, flag = wx.EXPAND, proportion = 1)
+        sizer.Add(buttonSizer, flag = wx.ALL, border = 5)
+        sizer.Add(self.notebook, flag = wx.EXPAND | wx.ALL, proportion = 1,
+                border = 5)
         return sizer
 
     def Retrieve(self, depositId, dateDeposited):
-        label = "Deposited %s" % dateDeposited.strftime("%A, %B %d, %Y")
-        self.depositedDateLabel.SetLabel(label)
         for page in self.notebook.IterPages():
             page.list.Retrieve(depositId)
 
