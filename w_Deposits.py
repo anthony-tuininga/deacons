@@ -10,6 +10,9 @@ class Panel(Common.Panel):
     def OnBankReport(self, event):
         self.PrintReport("r_DepositSummary")
 
+    def OnChequesReport(self, event):
+        self.PrintReport("r_DepositCheques")
+
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
         for cls in (CollectionsPanel, ChequesPanel):
@@ -20,7 +23,8 @@ class Panel(Common.Panel):
                 method = self.OnBankReport)
         self.treasurerReportButton = self.AddButton("Treasurer",
                 method = self.OnTreasurerReport)
-        self.chequesReportButton = self.AddButton("Cheques")
+        self.chequesReportButton = self.AddButton("Cheques",
+                method = self.OnChequesReport)
         self.staticBox = wx.StaticBox(self, -1, "Reports")
 
     def OnLayout(self):
