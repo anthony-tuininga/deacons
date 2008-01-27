@@ -9,6 +9,8 @@ includes = [
         "Common",
         "Database",
         "encodings.utf_8",
+        "Reports",
+        "r_DepositSummary",
         "w_Deposits",
         "w_Elders",
         "w_SelectDeposit",

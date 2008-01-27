@@ -7,22 +7,28 @@ import Common
 
 class Panel(ceGUI.Panel):
 
+    def OnBankReport(self, event):
+        cls = ceGUI.GetModuleItem("r_DepositSummary", "Report")
+        report = cls(self)
+        report.Print()
+
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
         for cls in (CollectionsPanel, ChequesPanel):
             page = cls(self.notebook)
             page.RestoreSettings()
             self.notebook.AddPage(page, page.labelText)
-        self.bankReportButton = self.AddButton("Bank")
+        self.bankReportButton = self.AddButton("Bank",
+                method = self.OnBankReport)
         self.treasurerReportButton = self.AddButton("Treasurer")
-        self.chequesButton = self.AddButton("Cheques")
+        self.chequesReportButton = self.AddButton("Cheques")
         self.staticBox = wx.StaticBox(self, -1, "Reports")
 
     def OnLayout(self):
         buttonSizer = wx.StaticBoxSizer(self.staticBox, wx.HORIZONTAL)
         buttonSizer.Add(self.bankReportButton, flag = wx.ALL, border = 5)
         buttonSizer.Add(self.treasurerReportButton, flag = wx.ALL, border = 5)
-        buttonSizer.Add(self.chequesButton, flag = wx.ALL, border = 5)
+        buttonSizer.Add(self.chequesReportButton, flag = wx.ALL, border = 5)
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(buttonSizer, flag = wx.ALL, border = 5)
         sizer.Add(self.notebook, flag = wx.EXPAND | wx.ALL, proportion = 1,
@@ -30,6 +36,8 @@ class Panel(ceGUI.Panel):
         return sizer
 
     def Retrieve(self, depositId, dateDeposited):
+        self.depositId = depositId
+        self.dateDeposited = dateDeposited
         for page in self.notebook.IterPages():
             page.list.Retrieve(depositId)
 
