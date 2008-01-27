@@ -1,4 +1,6 @@
-"""Print a report of the cheques, coin and cash deposited."""
+"""
+Print a report of the cheques, coin and cash deposited.
+"""
 
 import Common
 import Reports
