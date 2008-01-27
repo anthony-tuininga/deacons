@@ -5,12 +5,10 @@ import wx
 
 import Common
 
-class Panel(ceGUI.Panel):
+class Panel(Common.Panel):
 
     def OnBankReport(self, event):
-        cls = ceGUI.GetModuleItem("r_DepositSummary", "Report")
-        report = cls(self)
-        report.Print()
+        self.PrintReport("r_DepositSummary")
 
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
@@ -20,7 +18,8 @@ class Panel(ceGUI.Panel):
             self.notebook.AddPage(page, page.labelText)
         self.bankReportButton = self.AddButton("Bank",
                 method = self.OnBankReport)
-        self.treasurerReportButton = self.AddButton("Treasurer")
+        self.treasurerReportButton = self.AddButton("Treasurer",
+                method = self.OnTreasurerReport)
         self.chequesReportButton = self.AddButton("Cheques")
         self.staticBox = wx.StaticBox(self, -1, "Reports")
 
@@ -34,6 +33,9 @@ class Panel(ceGUI.Panel):
         sizer.Add(self.notebook, flag = wx.EXPAND | wx.ALL, proportion = 1,
                 border = 5)
         return sizer
+
+    def OnTreasurerReport(self, event):
+        self.PrintReport("r_TreasurerSummary")
 
     def Retrieve(self, depositId, dateDeposited):
         self.depositId = depositId

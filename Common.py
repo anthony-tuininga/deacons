@@ -31,3 +31,11 @@ class AmountColumn(ceGUI.ListColumn):
         value = getattr(row, self.attrName)
         return FormattedAmount(value)
 
+
+class Panel(ceGUI.Panel):
+
+    def PrintReport(self, name):
+        cls = ceGUI.GetModuleItem(name, "Report")
+        report = cls(self)
+        report.Print()
+
