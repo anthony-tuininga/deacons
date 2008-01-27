@@ -11,6 +11,7 @@ includes = [
         "encodings.utf_8",
         "Reports",
         "r_DepositSummary",
+        "r_TreasurerSummary",
         "w_Deposits",
         "w_Elders",
         "w_SelectDeposit",
