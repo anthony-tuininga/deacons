@@ -6,7 +6,7 @@ import Common
 import Reports
 
 class Report(Reports.ReportWithPreview):
-    title = "Treasurer Summary"
+    title = "Deposit Summary"
 
     def _GetPrintArgs(self):
         return self.parentWindow.depositId, self.parentWindow.dateDeposited
