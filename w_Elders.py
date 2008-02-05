@@ -2,7 +2,7 @@ import ceDatabase
 import ceGUI
 
 class Panel(ceGUI.DataListPanel):
-    pass
+    editDialogName = "w_ElderEdit.Dialog"
 
 
 class List(ceGUI.DataList):

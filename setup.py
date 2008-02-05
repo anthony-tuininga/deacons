@@ -13,10 +13,17 @@ includes = [
         "r_DepositCheques",
         "r_DepositSummary",
         "r_TreasurerSummary",
+        "w_CauseEdit",
+        "w_Causes",
         "w_Deposits",
+        "w_Donators",
+        "w_DonatorEdit",
+        "w_ElderEdit",
         "w_Elders",
         "w_SelectDeposit",
-        "w_TopLevelFrame"
+        "w_TopLevelFrame",
+        "w_YearEdit",
+        "w_Years"
 ]
 
 binIncludes = []

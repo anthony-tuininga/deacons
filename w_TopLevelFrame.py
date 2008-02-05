@@ -35,16 +35,17 @@ class Frame(ceGUI.TopLevelFrame):
 
     def __CreateFileMenu(self):
         menu = self.AddMenu("&File")
+        self.AddMenuItem(menu, "&New", "New deposit", method = self.OnNew)
+        self.AddMenuItem(menu, "&Open", "Open deposit", method = self.OnOpen)
+        menu.AppendSeparator()
         self.AddMenuItem(menu, "&Elders", "Edit elders",
                 method = self.OnEditElders, passEvent = False)
         self.AddMenuItem(menu, "&Causes", "Edit causes",
-                windowName = "w_Causes.EditWindow")
-        self.AddMenuItem(menu, "De&posits", "Edit deposits",
-                windowName = "w_Deposits.EditWindow")
+                method = self.OnEditCauses, passEvent = False)
         self.AddMenuItem(menu, "&Donators", "Edit donators",
-                windowName = "w_Donators.EditWindow")
+                method = self.OnEditDonators, passEvent = False)
         self.AddMenuItem(menu, "&Years", "Edit years",
-                windowName = "w_Years.EditWindow")
+                method = self.OnEditYears, passEvent = False)
         menu.AppendSeparator()
         self.AddStockMenuItem(menu, wx.ID_EXIT, self.OnExit)
 
@@ -81,8 +82,17 @@ class Frame(ceGUI.TopLevelFrame):
                 longHelp = "Exit the application.",
                 method = self.OnExit)
 
+    def OnEditCauses(self):
+        self.__AddPage("w_Causes.Panel", "Causes")
+
+    def OnEditDonators(self):
+        self.__AddPage("w_Donators.Panel", "Donators")
+
     def OnEditElders(self):
         self.__AddPage("w_Elders.Panel", "Elders")
+
+    def OnEditYears(self):
+        self.__AddPage("w_Years.Panel", "Years")
 
     def OnExit(self, event):
         for pageIndex in range(self.notebook.GetPageCount()):
