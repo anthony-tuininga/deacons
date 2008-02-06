@@ -17,10 +17,13 @@ includes = [
         "w_Causes",
         "w_Deposits",
         "w_Donators",
+        "w_DonatorsForYear",
         "w_DonatorEdit",
+        "w_DonatorForYearEdit",
         "w_ElderEdit",
         "w_Elders",
         "w_SelectDeposit",
+        "w_SelectDonator",
         "w_TopLevelFrame",
         "w_YearEdit",
         "w_Years"
