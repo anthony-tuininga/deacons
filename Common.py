@@ -16,6 +16,13 @@ def FormattedAmount(value):
     return "$%s,%s" % (str(thousands), number[1:])
 
 
+class AmountColumn(ceGUI.ListColumn):
+
+    def GetValue(self, row):
+        value = getattr(row, self.attrName)
+        return FormattedAmount(value)
+
+
 class CauseColumn(ceGUI.ListColumn):
 
     def GetValue(self, row):
@@ -24,14 +31,37 @@ class CauseColumn(ceGUI.ListColumn):
             cause = self.config.cache.CauseForId(causeId)
             return cause.description
 
-    GetSortValue = GetValue
+    def GetSortValue(self, row):
+        causeId = getattr(row, self.attrName)
+        if causeId is not None:
+            cause = self.config.cache.CauseForId(causeId)
+            return cause.description.upper()
 
 
-class AmountColumn(ceGUI.ListColumn):
+class GivenNamesColumn(ceGUI.ListColumn):
 
     def GetValue(self, row):
-        value = getattr(row, self.attrName)
-        return FormattedAmount(value)
+        if row.donatorId is not None:
+            donator = self.config.cache.DonatorForId(row.donatorId)
+            return donator.givenNames
+
+    def GetSortValue(self, row):
+        if row.donatorId is not None:
+            donator = self.config.cache.DonatorForId(row.donatorId)
+            return donator.givenNames.upper()
+
+
+class LastNameColumn(ceGUI.ListColumn):
+
+    def GetValue(self, row):
+        if row.donatorId is not None:
+            donator = self.config.cache.DonatorForId(row.donatorId)
+            return donator.lastName
+
+    def GetSortValue(self, row):
+        if row.donatorId is not None:
+            donator = self.config.cache.DonatorForId(row.donatorId)
+            return donator.lastName.upper()
 
 
 class AmountField(ceGUI.TextField):

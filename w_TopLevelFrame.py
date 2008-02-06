@@ -7,7 +7,7 @@ class Frame(ceGUI.TopLevelFrame):
     title = "Deacons"
 
     def __AddDepositPage(self, depositId, dateDeposited):
-        text = dateDeposited.strftime("%A, %B %d, %Y")
+        text = dateDeposited.strftime("Deposit - %A, %B %d, %Y")
         page = self.__AddPage("w_Deposits.Panel", text)
         page.Retrieve(depositId, dateDeposited)
         return page
@@ -52,6 +52,11 @@ class Frame(ceGUI.TopLevelFrame):
     def __CreateHelpMenu(self):
         menu = self.AddMenu("&Help")
         self.AddStockMenuItem(menu, wx.ID_ABOUT, self.OnAbout)
+
+    def _AddDonatorsForYearPage(self, year):
+        text = "%s - Donators" % year
+        page = self.__AddPage("w_DonatorsForYear.Panel", text)
+        page.list.Retrieve(year)
 
     def OnCreate(self):
         self.notebook = FlatNotebook(self,
