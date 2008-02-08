@@ -74,10 +74,22 @@ class CollectionsPanel(SubPanel):
 class CollectionsList(ceGUI.DataList):
     dataSetClassName = "CollectionsDataSet"
 
+    def _CreateContextMenu(self):
+        super(CollectionsList, self)._CreateContextMenu()
+        self.menu.AppendSeparator()
+        self._AddMenuItem(self.menu, "Edit Cash...",
+                method = self.OnEditCash, passEvent = False)
+
     def OnCreate(self):
         self.AddColumn("dateCollected", "Date", 150, cls = DateColumn)
         self.AddColumn("causeId", "Cause", 225, cls = Common.CauseColumn)
         self.AddColumn("description", "Description")
+
+    def OnEditCash(self):
+        parent = self.GetParent()
+        dialog = parent.OpenWindow("w_CashEdit.Dialog")
+        dialog.ShowModal()
+        dialog.Destroy()
 
 
 class CollectionsDataSet(ceDatabase.DataSet):
