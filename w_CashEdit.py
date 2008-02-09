@@ -7,14 +7,23 @@ import ceGUI
 import decimal
 import wx
 
+import Common
+
 class Dialog(ceGUI.StandardDialog):
     title = "Edit Cash"
+
+    def GetKeyedDataSet(self):
+        return ceDatabase.KeyedDataSet(self.dataSet, "causeId",
+                "cashDenominationId")
 
     def OnCreate(self):
         parent = self.GetParent()
         self.notebook = ceGUI.Notebook(self)
         self.collection = parent.list.contextItem
         cursor = self.config.connection.cursor()
+        self.dataSet = DataSet(self.config.connection)
+        self.dataSet.Retrieve(self.collection.collectionId)
+        keyedDataSet = self.GetKeyedDataSet()
         cursor.execute("""
                 select CauseId
                 from CollectionCauses
@@ -25,6 +34,7 @@ class Dialog(ceGUI.StandardDialog):
         causes = [c for k, c in sorted(itemsToSort)]
         for cause in causes:
             page = Panel(self.notebook)
+            page.Populate(keyedDataSet, cause)
             self.notebook.AddPage(page, cause.description)
 
     def OnLayout(self):
@@ -33,19 +43,28 @@ class Dialog(ceGUI.StandardDialog):
                 border = 5)
         return sizer
 
+    def OnOk(self):
+        keyedDataSet = self.GetKeyedDataSet()
+        for page in self.notebook.IterPages():
+            page.Update(self.collection, keyedDataSet)
+        self.dataSet.Update()
+
 
 class Panel(ceGUI.Panel):
 
-    def CreateSizer(self, fields):
-        sizer = wx.FlexGridSizer(rows = len(fields), cols = 4, vgap = 5,
+    def CreateSizer(self, fields, staticBoxLabel):
+        staticBox = wx.StaticBox(self, -1, staticBoxLabel)
+        fieldsSizer = wx.FlexGridSizer(rows = len(fields), cols = 4, vgap = 5,
                 hgap = 5)
         for field in fields:
-            field.AddToSizer(sizer)
+            field.AddToSizer(fieldsSizer)
+        sizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
+        sizer.Add(fieldsSizer, flag = wx.ALL, border = 5)
         return sizer
 
     def OnCreate(self):
-        self.coinFields = []
-        self.cashFields = []
+        self.fields = []
+        self.fieldsById = {}
         Field(self, 1, "0.01", "roll(s) of pennies", 50)
         Field(self, 2, "0.05", "roll(s) of nickels", 40)
         Field(self, 3, "0.10", "roll(s) of dimes", 50)
@@ -57,14 +76,48 @@ class Panel(ceGUI.Panel):
         Field(self, 9, "20.00", "$20 bill(s)", 1)
         Field(self, 10, "50.00", "$50 bill(s)", 1)
         Field(self, 11, "100.00", "$100 bill(s)", 1)
+        afterThis = self.fields[-1].quantityField
+        for field in self.fields:
+            field.totalValueField.MoveAfterInTabOrder(afterThis)
+            afterThis = field.totalValueField
 
     def OnLayout(self):
-        coinFieldsSizer = self.CreateSizer(self.coinFields)
-        cashFieldsSizer = self.CreateSizer(self.cashFields)
+        coinFields = [f for f in self.fields if f.quantityMultiple > 1]
+        cashFields = [f for f in self.fields if f.quantityMultiple == 1]
+        coinFieldsSizer = self.CreateSizer(coinFields, "Coin")
+        cashFieldsSizer = self.CreateSizer(cashFields, "Cash")
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(coinFieldsSizer, flag = wx.ALL | wx.EXPAND, border = 5)
         sizer.Add(cashFieldsSizer, flag = wx.ALL | wx.EXPAND, border = 5)
         return sizer
+
+    def Populate(self, keyedDataSet, cause):
+        self.cause = cause
+        for field in self.fields:
+            row = keyedDataSet.FindRow(cause.causeId,
+                    field.cashDenominationId)
+            if row is None:
+                value = 0
+            else:
+                value = row.quantity / field.quantityMultiple
+            field.quantityField.SetValue(value)
+            field.SetTotalValue(value)
+
+    def Update(self, collection, keyedDataSet):
+        for field in self.fields:
+            quantity = field.GetQuantity()
+            if quantity == 0:
+                keyedDataSet.DeleteRow(self.cause.causeId,
+                        field.cashDenominationId)
+            else:
+                row = keyedDataSet.FindRow(self.cause.causeId,
+                        field.cashDenominationId)
+                if row is None:
+                    row = keyedDataSet.InsertRow()
+                    row.collectionId = collection.collectionId
+                    row.causeId = self.cause.causeId
+                    row.cashDenominationId = field.cashDenominationId
+                row.quantity = quantity
 
 
 class Field(object):
@@ -74,19 +127,38 @@ class Field(object):
         self.cashDenominationId = cashDenominationId
         self.value = decimal.Decimal(stringValue)
         self.quantityMultiple = quantityMultiple
-        self.quantityField = wx.SpinCtrl(parent, min = 0, max = 9999,
-                value = "0")
+        self.quantityField = wx.SpinCtrl(parent, min = 0, max = 9999)
+        parent.BindEvent(self.quantityField, wx.EVT_SPINCTRL,
+                method = self.OnQuantitySet)
         self.label = parent.AddLabel(label)
         self.equalsLabel = parent.AddLabel("=")
         self.totalValueField = parent.AddTextField(wx.TE_READONLY)
-        if quantityMultiple == 1:
-            parent.cashFields.append(self)
-        else:
-            parent.coinFields.append(self)
+        parent.fields.append(self)
+        parent.fieldsById[cashDenominationId] = self
 
     def AddToSizer(self, sizer):
         sizer.Add(self.quantityField, flag = wx.ALIGN_CENTER_VERTICAL)
         sizer.Add(self.label, flag = wx.ALIGN_CENTER_VERTICAL)
         sizer.Add(self.equalsLabel, flag = wx.ALIGN_CENTER_VERTICAL)
         sizer.Add(self.totalValueField, flag = wx.ALIGN_CENTER_VERTICAL)
+
+    def GetQuantity(self):
+        return self.quantityField.GetValue() * self.quantityMultiple
+
+    def OnQuantitySet(self, event):
+        self.SetTotalValue(self.quantityField.GetValue())
+
+    def SetTotalValue(self, value):
+        totalValue = value * self.quantityMultiple * self.value
+        self.totalValueField.SetValue(Common.FormattedAmount(totalValue))
+
+
+class DataSet(ceDatabase.DataSet):
+    tableName = "CollectionCash"
+    attrNames = """collectionCashId collectionId causeId cashDenominationId
+            quantity"""
+    pkAttrNames = "collectionCashId"
+    retrievalAttrNames = "collectionId"
+    pkSequenceName = "CollectionCashId_s"
+    pkIsGenerated = True
 
