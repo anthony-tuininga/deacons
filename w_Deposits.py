@@ -79,6 +79,8 @@ class CollectionsList(ceGUI.DataList):
         self.menu.AppendSeparator()
         self._AddMenuItem(self.menu, "Edit Cash...",
                 method = self.OnEditCash, passEvent = False)
+        self._AddMenuItem(self.menu, "Edit Donations...",
+                method = self.OnEditDonations, passEvent = False)
 
     def OnCreate(self):
         self.AddColumn("dateCollected", "Date", 150, cls = DateColumn)
@@ -88,6 +90,12 @@ class CollectionsList(ceGUI.DataList):
     def OnEditCash(self):
         parent = self.GetParent()
         dialog = parent.OpenWindow("w_CashEdit.Dialog")
+        dialog.ShowModal()
+        dialog.Destroy()
+
+    def OnEditDonations(self):
+        parent = self.GetParent()
+        dialog = parent.OpenWindow("w_DonationsEdit.Dialog")
         dialog.ShowModal()
         dialog.Destroy()
 
