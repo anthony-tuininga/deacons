@@ -10,7 +10,6 @@ import wx
 import Common
 
 class Dialog(ceGUI.StandardDialog):
-    title = "Edit Cash"
 
     def GetKeyedDataSet(self):
         return ceDatabase.KeyedDataSet(self.dataSet, "causeId",
@@ -20,6 +19,9 @@ class Dialog(ceGUI.StandardDialog):
         parent = self.GetParent()
         self.notebook = ceGUI.Notebook(self)
         self.collection = parent.list.contextItem
+        title = "Edit Cash - %s" % \
+                self.collection.dateCollected.strftime("%A, %B %d, %Y")
+        self.SetTitle(title)
         cursor = self.config.connection.cursor()
         self.dataSet = DataSet(self.config.connection)
         self.dataSet.Retrieve(self.collection.collectionId)
