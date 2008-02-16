@@ -37,23 +37,22 @@ class Dialog(ceGUI.StandardDialog):
 class Grid(ceGUI.Grid):
 
     def OnCreate(self):
-        self.AddColumn(GridColumnAssignedNumber, "Number", "assignedNumber")
-        self.AddColumn(GridColumnName, "Name", "name")
-        self.AddColumn(GridColumnCause, "Cause", "causeId")
-        self.AddColumn(ceGUI.GridColumnBool, "Cash", "cash")
-        self.AddColumn(GridColumnAmount, "Amount", "amount")
+        self.AddColumn("assignedNumber", "Number", 70,
+                cls = GridColumnAssignedNumber)
+        self.AddColumn("name", "Name", 220, cls = GridColumnName)
+        self.AddColumn("causeId", "Cause", 175, cls = GridColumnCause)
+        self.AddColumn("cash", "Cash", 65, cls = ceGUI.GridColumnBool)
+        self.AddColumn("amount", "Amount", cls = GridColumnAmount)
 
 
 class GridColumnAmount(ceGUI.GridColumn):
-
-    def _Initialize(self):
-        self.attr.SetAlignment(wx.ALIGN_RIGHT, wx.ALIGN_CENTRE)
+    defaultHorizontalAlignment = wx.ALIGN_RIGHT
 
     def GetValue(self, row):
         return Common.FormattedAmount(row.amount)
 
 
-class GridColumnAssignedNumber(ceGUI.GridColumn):
+class GridColumnAssignedNumber(ceGUI.GridColumnInt):
 
     def GetSortValue(self, row):
         return None
@@ -81,13 +80,13 @@ class GridColumnName(ceGUI.GridColumn):
     def GetSortValue(self, row):
         if row.donatorId is not None:
             donator = self.config.cache.DonatorForId(row.donatorId)
-            return donator.name.upper()
+            return (donator.lastName.upper(), donator.givenNames.upper())
 
     def GetValue(self, row):
         if row.donatorId is None:
             return ""
         donator = self.config.cache.DonatorForId(row.donatorId)
-        return donator.name
+        return "%s, %s" % (donator.lastName, donator.givenNames)
 
 
 class DataSet(ceDatabase.DataSet):
