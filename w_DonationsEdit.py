@@ -18,14 +18,16 @@ class Dialog(ceGUI.StandardDialog):
         title = "Edit Donations - %s" % \
                 self.collection.dateCollected.strftime("%A, %B %d, %Y")
         self.SetTitle(title)
-        self.grid.Retrieve(self.collection.collectionId)
-        self.grid.table.dataSet.claimYear = self.collection.dateCollected.year
+        self.grid.Retrieve(self.collection)
 
     def OnLayout(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.grid, flag = wx.EXPAND | wx.ALL, proportion = 1,
                 border = 5)
         return sizer
+
+    def OnOk(self):
+        self.grid.Update()
 
     def RestoreSettings(self):
         self.grid.RestoreColumnWidths()
@@ -39,7 +41,7 @@ class Grid(ceGUI.Grid):
     def OnCreate(self):
         self.AddColumn("assignedNumber", "Number", 70,
                 cls = GridColumnAssignedNumber)
-        self.AddColumn("name", "Name", 220, cls = GridColumnName)
+        self.AddColumn("donatorId", "Name", 220, cls = GridColumnName)
         self.AddColumn("causeId", "Cause", 175, cls = GridColumnCause)
         self.AddColumn("cash", "Cash", 65, cls = ceGUI.GridColumnBool)
         self.AddColumn("amount", "Amount", cls = GridColumnAmount)
@@ -51,14 +53,48 @@ class GridColumnAmount(ceGUI.GridColumn):
     def GetValue(self, row):
         return Common.FormattedAmount(row.amount)
 
+    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
+        massagedValue = rawValue.replace("$", "").replace(",", "")
+        value = decimal.Decimal(massagedValue)
+        dataSet.SetValue(rowHandle, self.attrName, value)
+
 
 class GridColumnAssignedNumber(ceGUI.GridColumnInt):
 
     def GetSortValue(self, row):
-        return None
+        if row.donatorId is not None:
+            cache = self.config.cache
+            donator = cache.DonatorForId(row.donatorId)
+            return cache.AssignedNumberForDonator(donator, row.claimYear)
 
     def GetValue(self, row):
+        if row.donatorId is not None:
+            cache = self.config.cache
+            donator = cache.DonatorForId(row.donatorId)
+            num = cache.AssignedNumberForDonator(donator, row.claimYear)
+            if num is not None:
+                return str(num)
         return ""
+
+    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
+        if row.donatorId is None:
+            prevValue = None
+        else:
+            donator = grid.config.cache.DonatorForId(row.donatorId)
+            prevValue = grid.config.cache.AssignedNumberForDonator(donator,
+                    row.claimYear)
+        if not rawValue:
+            if prevValue:
+                dataSet.SetValue(rowHandle, "donatorId", None)
+                grid.Refresh()
+            return True
+        newDonator = grid.config.cache.DonatorForAssignedNumber(row.claimYear,
+                int(rawValue))
+        if newDonator is None:
+            return False
+        dataSet.SetValue(rowHandle, "donatorId", newDonator.donatorId)
+        grid.Refresh()
+        return True
 
 
 class GridColumnCause(ceGUI.GridColumn):
@@ -74,19 +110,73 @@ class GridColumnCause(ceGUI.GridColumn):
         cause = self.config.cache.CauseForId(row.causeId)
         return cause.description
 
+    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
+        if row.causeId is not None:
+            cause = grid.config.cache.CauseForId(row.causeId)
+            if rawValue == cause.description:
+                return True
+        if not rawValue:
+            dataSet.SetValue(rowHandle, self.attrName, None)
+            return True
+        searchValue = rawValue.upper()
+        causes = [c for c in grid.config.cache.Causes() \
+                if c.active and c.searchDescription.startswith(searchValue)]
+        selectedCause = None
+        if len(causes) == 1:
+            selectedCause, = causes
+        elif causes:
+            parent = grid.GetParent()
+            dialog = parent.OpenWindow("w_SelectCause.Dialog")
+            dialog.Retrieve(causes)
+            if dialog.ShowModal() == wx.ID_OK:
+                selectedCause = dialog.GetSelectedItem()
+            dialog.Destroy()
+        if selectedCause is None:
+            return False
+        dataSet.SetValue(rowHandle, self.attrName, selectedCause.causeId)
+        return True
+
 
 class GridColumnName(ceGUI.GridColumn):
 
     def GetSortValue(self, row):
         if row.donatorId is not None:
             donator = self.config.cache.DonatorForId(row.donatorId)
-            return (donator.lastName.upper(), donator.givenNames.upper())
+            return donator.reversedName.upper()
 
     def GetValue(self, row):
         if row.donatorId is None:
             return ""
         donator = self.config.cache.DonatorForId(row.donatorId)
-        return "%s, %s" % (donator.lastName, donator.givenNames)
+        return donator.reversedName
+
+    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
+        if row.donatorId is not None:
+            donator = grid.config.cache.DonatorForId(row.donatorId)
+            if rawValue == donator.reversedName:
+                return True
+        if not rawValue:
+            dataSet.SetValue(rowHandle, self.attrName, None)
+            grid.Refresh()
+            return True
+        searchValue = rawValue.upper()
+        donators = [d for d in grid.config.cache.Donators() \
+                if d.active and d.searchReversedName.startswith(searchValue)]
+        selectedDonator = None
+        if len(donators) == 1:
+            selectedDonator, = donators
+        elif donators:
+            parent = grid.GetParent()
+            dialog = parent.OpenWindow("w_SelectDonator.Dialog")
+            dialog.Retrieve(donators)
+            if dialog.ShowModal() == wx.ID_OK:
+                selectedDonator = dialog.GetSelectedItem()
+            dialog.Destroy()
+        if selectedDonator is None:
+            return False
+        dataSet.SetValue(rowHandle, self.attrName, selectedDonator.donatorId)
+        grid.Refresh()
+        return True
 
 
 class DataSet(ceDatabase.DataSet):
@@ -99,8 +189,39 @@ class DataSet(ceDatabase.DataSet):
     pkSequenceName = "DonationId_s"
     pkIsGenerated = True
 
+    def _GetRows(self, collection):
+        self.collection = collection
+        cursor = self.connection.cursor()
+        cursor.execute("""
+                select CauseId
+                from CollectionCauses
+                where CollectionId = ?""",
+                collection.collectionId)
+        self.causes = dict.fromkeys(i for i, in cursor)
+        rows = super(DataSet, self)._GetRows(collection.collectionId)
+        for row in rows:
+            row.amount = decimal.Decimal(str(row.amount))
+        return rows
+
+    def __EnsureCause(self, cursor, row):
+        if row.causeId not in self.causes:
+            cursor.execute("""
+                    insert into CollectionCauses
+                    (CollectionId, CauseId)
+                    values (?, ?)""",
+                    self.collection.collectionId, row.causeId)
+            self.causes[row.causeId] = None
+
     def _OnInsertRow(self, row, choice):
         row.amount = decimal.Decimal("0.00")
-        row.claimYear = self.claimYear
+        row.claimYear = self.collection.dateCollected.year
         row.cash = False
+
+    def InsertRowInDatabase(self, cursor, row):
+        self.__EnsureCause(cursor, row)
+        super(DataSet, self).InsertRowInDatabase(cursor, row)
+
+    def UpdateRowInDatabase(self, cursor, row, origRow):
+        self.__EnsureCause(cursor, row)
+        super(DataSet, self).UpdateRowInDatabase(cursor, row, origRow)
 
