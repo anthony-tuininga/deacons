@@ -18,8 +18,11 @@ class Dialog(ceGUI.EditDialog):
         year, = parent.list.dataSet.retrievalArgs
         row.year = year
         dialog = parent.OpenWindow("w_SelectDonator.Dialog")
-        dialog.Retrieve(parent.config.cache,
-                parent.list.dataSet.rows.itervalues())
+        existingValues = dict.fromkeys(d.donatorId \
+                for d in parent.list.dataSet.rows.itervalues())
+        donators = [d for d in parent.config.cache.Donators() \
+                if d.active and d.donatorId not in existingValues]
+        dialog.Retrieve(donators)
         if dialog.ShowModal() == wx.ID_OK:
             donator = dialog.GetSelectedItem()
             row.donatorId = donator.donatorId

@@ -19,8 +19,6 @@ class List(ceGUI.List):
 
 class DataSet(ceDatabase.DataSet):
 
-    def _GetRows(self, cache, existingDonators = []):
-        existingValues = dict.fromkeys(d.donatorId for d in existingDonators)
-        return [d for d in cache.Donators() \
-                if d.active and d.donatorId not in existingValues]
+    def _GetRows(self, donators):
+        return donators
 
