@@ -21,11 +21,8 @@ class DataSet(ceDatabase.DataSet):
     tableName = "Deposits"
     attrNames = "depositId dateDeposited"
     sortByAttrNames = "dateDeposited"
+    sortReversed = True
     pkAttrNames = "depositId"
-
-    def _GetSqlForRetrieve(self):
-        sql = super(DataSet, self)._GetSqlForRetrieve()
-        return sql + " desc"
 
 
 class DateColumn(ceGUI.ListDateColumn):
