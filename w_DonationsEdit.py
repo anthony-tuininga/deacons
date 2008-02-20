@@ -20,6 +20,36 @@ class Dialog(ceGUI.StandardDialog):
         self.SetTitle(title)
         self.grid.Retrieve(self.collection)
         self.grid.SetFocus()
+        self.grid.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+
+    def OnKeyDown(self, event):
+        if event.GetKeyCode() != wx.WXK_TAB:
+            event.Skip()
+            return
+        if event.ControlDown():
+            event.Skip()
+            return
+        self.grid.SaveEditControlValue()
+        self.grid.DisableCellEditControl()
+        shifted = event.ShiftDown()
+        if shifted:
+            success = self.grid.MoveCursorLeft(False)
+        else:
+            success = self.grid.MoveCursorRight(False)
+        if not success:
+            if shifted:
+                newRow = self.grid.GetGridCursorRow() - 1
+                if newRow >= 0:
+                    colIndex = self.grid.GetNumberCols() - 1
+                    self.grid.SetGridCursor(newRow, colIndex)
+                    self.grid.MakeCellVisible(newRow, colIndex)
+            else:
+                newRow = self.grid.GetGridCursorRow() + 1
+                if newRow < self.grid.GetNumberRows():
+                    self.grid.SetGridCursor(newRow, 0)
+                    self.grid.MakeCellVisible(newRow, 0)
+                else:
+                    self.grid.InsertRows(newRow)
 
     def OnLayout(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
