@@ -19,6 +19,7 @@ class Dialog(ceGUI.StandardDialog):
                 self.collection.dateCollected.strftime("%A, %B %d, %Y")
         self.SetTitle(title)
         self.grid.Retrieve(self.collection)
+        self.grid.SetFocus()
 
     def OnLayout(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
