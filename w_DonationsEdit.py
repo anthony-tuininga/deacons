@@ -29,7 +29,6 @@ class Dialog(ceGUI.StandardDialog):
         if event.ControlDown():
             event.Skip()
             return
-        self.grid.SaveEditControlValue()
         self.grid.DisableCellEditControl()
         shifted = event.ShiftDown()
         if shifted:
@@ -88,6 +87,7 @@ class GridColumnAmount(ceGUI.GridColumn):
         massagedValue = rawValue.replace("$", "").replace(",", "")
         value = decimal.Decimal(massagedValue)
         dataSet.SetValue(rowHandle, self.attrName, value)
+        return True
 
 
 class GridColumnAssignedNumber(ceGUI.GridColumnInt):
