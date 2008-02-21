@@ -87,6 +87,8 @@ class GridColumnAmount(ceGUI.GridColumn):
 
     def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
         massagedValue = rawValue.replace("$", "").replace(",", "")
+        if not massagedValue:
+            massagedValue = "0"
         value = decimal.Decimal(massagedValue)
         dataSet.SetValue(rowHandle, self.attrName, value)
         return True
