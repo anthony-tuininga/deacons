@@ -71,8 +71,10 @@ class Grid(ceGUI.Grid):
     def OnCreate(self):
         self.AddColumn("assignedNumber", "Number", 70,
                 cls = GridColumnAssignedNumber)
-        self.AddColumn("donatorId", "Name", 220, cls = GridColumnName)
-        self.AddColumn("causeId", "Cause", 175, cls = GridColumnCause)
+        self.AddColumn("donatorId", "Name", 220, cls = GridColumnName,
+                required = True)
+        self.AddColumn("causeId", "Cause", 175, cls = GridColumnCause,
+                required = True)
         self.AddColumn("cash", "Cash", 65, cls = ceGUI.GridColumnBool)
         self.AddColumn("amount", "Amount", cls = GridColumnAmount)
 
