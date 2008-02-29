@@ -27,6 +27,7 @@ includes = [
         "w_SelectCause",
         "w_SelectDeposit",
         "w_SelectDonator",
+        "w_TaxReceipts",
         "w_TopLevelFrame",
         "w_YearEdit",
         "w_Years"

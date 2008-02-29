@@ -15,9 +15,13 @@ class List(ceGUI.DataList):
         self.menu.AppendSeparator()
         self.donatorsMenuItem = self._AddMenuItem(self.menu, "Donators",
                 method = self.OnDonators, passEvent = False)
+        self.taxReceiptsMenuItem = self._AddMenuItem(self.menu,
+                "Tax Receipts", method = self.OnTaxReceipts,
+                passEvent = False)
 
     def OnContextMenu(self):
         self.donatorsMenuItem.Enable(self.contextItem is not None)
+        self.taxReceiptsMenuItem.Enable(self.contextItem is not None)
         super(List, self).OnContextMenu()
 
     def OnCreate(self):
@@ -29,6 +33,10 @@ class List(ceGUI.DataList):
     def OnDonators(self):
         app = wx.GetApp()
         app.topWindow._AddDonatorsForYearPage(self.contextItem.year)
+
+    def OnTaxReceipts(self):
+        app = wx.GetApp()
+        app.topWindow._AddTaxReceiptsPage(self.contextItem.year)
 
 
 class DataSet(ceDatabase.DataSet):
