@@ -107,8 +107,8 @@ class AmountField(ceGUI.TextField):
 
 class Panel(ceGUI.Panel):
 
-    def PrintReport(self, name):
+    def PrintReport(self, name, *args):
         cls = ceGUI.GetModuleItem(name, "Report")
         report = cls(self)
-        report.Print()
+        report.Print(*args)
 

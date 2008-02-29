@@ -11,9 +11,6 @@ import Reports
 class Report(Reports.ReportWithPreview):
     title = "Cheques for Deposit"
 
-    def _GetPrintArgs(self):
-        return (self.parentWindow.depositId, self.parentWindow.dateDeposited)
-
 
 class ReportBody(Reports.ReportBody):
 

@@ -98,7 +98,7 @@ class Cause(ceDatabase.Row):
 
 
 class Donator(ceDatabase.Row):
-    attrNames = "donatorId active lastName givenNames addresss"
+    attrNames = "donatorId active lastName givenNames address"
     charBooleanAttrNames = "active"
     extraAttrNames = "name reversedName searchName searchReversedName"
 

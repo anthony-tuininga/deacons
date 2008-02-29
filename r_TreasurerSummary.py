@@ -9,9 +9,6 @@ import Reports
 class Report(Reports.ReportWithPreview):
     title = "Treasurer Summary"
 
-    def _GetPrintArgs(self):
-        return (self.parentWindow.depositId,)
-
 
 class ReportBody(Reports.ReportBody):
     causeWidth = 530

@@ -8,10 +8,12 @@ import Common
 class Panel(Common.Panel):
 
     def OnBankReport(self, event):
-        self.PrintReport("r_DepositSummary")
+        self.PrintReport("r_DepositSummary", self.depositId,
+                self.dateDeposited)
 
     def OnChequesReport(self, event):
-        self.PrintReport("r_DepositCheques")
+        self.PrintReport("r_DepositCheques", self.depositId,
+                self.dateDeposited)
 
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
@@ -39,7 +41,7 @@ class Panel(Common.Panel):
         return sizer
 
     def OnTreasurerReport(self, event):
-        self.PrintReport("r_TreasurerSummary")
+        self.PrintReport("r_TreasurerSummary", self.depositId)
 
     def Retrieve(self, depositId, dateDeposited):
         self.depositId = depositId

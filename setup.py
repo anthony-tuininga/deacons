@@ -12,6 +12,7 @@ includes = [
         "Reports",
         "r_DepositCheques",
         "r_DepositSummary",
+        "r_TaxReceipts",
         "r_TreasurerSummary",
         "w_CashEdit",
         "w_CauseEdit",
