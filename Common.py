@@ -48,7 +48,8 @@ class GivenNamesColumn(ceGUI.ListColumn):
     def GetSortValue(self, row):
         if row.donatorId is not None:
             donator = self.config.cache.DonatorForId(row.donatorId)
-            return donator.givenNames.upper()
+            if donator.givenNames is not None:
+                return donator.givenNames.upper()
 
 
 class LastNameColumn(ceGUI.ListColumn):
