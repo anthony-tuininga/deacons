@@ -23,7 +23,7 @@ class Dialog(ceGUI.StandardDialog):
         self.grid.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
 
     def OnKeyDown(self, event):
-        if event.GetKeyCode() != wx.WXK_TAB:
+        if event.GetKeyCode() not in (wx.WXK_TAB, wx.WXK_RETURN):
             event.Skip()
             return
         if event.ControlDown():
