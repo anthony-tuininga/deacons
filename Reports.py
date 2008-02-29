@@ -32,11 +32,8 @@ class ReportWithPreview(Report):
         self.printout = bodyClass(self.connection, self.cache)
         self.printoutForPrinting = bodyClass(self.connection, self.cache)
 
-    def Print(self):
+    def Print(self, *args):
         busyCursor = wx.BusyCursor()
-        args = self._GetPrintArgs()
-        if args is None:
-            return
         self.printout.Retrieve(*args)
         self.printoutForPrinting.Retrieve(*args)
         self.printData = wx.PrintData()

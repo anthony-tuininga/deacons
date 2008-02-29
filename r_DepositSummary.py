@@ -8,9 +8,6 @@ import Reports
 class Report(Reports.ReportWithPreview):
     title = "Deposit Summary"
 
-    def _GetPrintArgs(self):
-        return self.parentWindow.depositId, self.parentWindow.dateDeposited
-
 
 class ReportBody(Reports.ReportBody):
     chequeColumns = 8
