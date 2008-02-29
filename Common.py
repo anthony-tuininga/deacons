@@ -65,6 +65,19 @@ class LastNameColumn(ceGUI.ListColumn):
             return donator.lastName.upper()
 
 
+class NameColumn(ceGUI.ListColumn):
+
+    def GetValue(self, row):
+        if row.donatorId is not None:
+            donator = self.config.cache.DonatorForId(row.donatorId)
+            return donator.name
+
+    def GetSortValue(self, row):
+        if row.donatorId is not None:
+            donator = self.config.cache.DonatorForId(row.donatorId)
+            return donator.name.upper()
+
+
 class AmountField(ceGUI.TextField):
 
     def _Initialize(self):

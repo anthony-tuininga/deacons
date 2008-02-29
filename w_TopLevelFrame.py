@@ -58,6 +58,11 @@ class Frame(ceGUI.TopLevelFrame):
         page = self.__AddPage("w_DonatorsForYear.Panel", text)
         page.list.Retrieve(year)
 
+    def _AddTaxReceiptsPage(self, year):
+        text = "%s - Tax Receipts" % year
+        page = self.__AddPage("w_TaxReceipts.Panel", text)
+        page.list.Retrieve(year)
+
     def OnCreate(self):
         self.notebook = FlatNotebook(self,
                 style = wx.lib.flatnotebook.FNB_NO_NAV_BUTTONS | \
