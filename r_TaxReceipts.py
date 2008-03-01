@@ -24,35 +24,8 @@ class ReportBody(Reports.ReportBody):
         self.pointsPerLine = 51
 
     def Retrieve(self, year, receipts):
-
-        # retrieve all of the receipts for the year
-        cursor = self.connection.cursor()
-        cursor.execute("""
-                select
-                  r.ReceiptNumber,
-                  r.DonatorId,
-                  r.Amount,
-                  r.DateIssued,
-                  r.IsDuplicate,
-                  ( select AssignedNumber
-                    from DonatorsForYear
-                    where DonatorId = r.DonatorId
-                      and Year = r.Year
-                  )
-                from TaxReceipts r
-                where r.Year = ?""",
-                year)
-        rows = {}
-        for receiptNumber, donatorId, amount, dateIssued, isDup, \
-                assignedNumber in cursor:
-            rows[receiptNumber] = (receiptNumber, donatorId, amount, \
-                    dateIssued, isDup, assignedNumber)
-
-        # determine the data that needs to be printed
         self.year = year
-        self.data = [rows[r.receiptNumber] for r in receipts]
-
-        # set the number of pages to print
+        self.data = receipts
         numPages = len(self.data) / self.receiptsPerPage
         if len(self.data) % self.receiptsPerPage:
             numPages += 1
@@ -75,17 +48,18 @@ class ReportBody(Reports.ReportBody):
 
         # print each label
         topMargin = 140
-        for receiptNumber, donatorId, amount, dateIssued, isDup, \
-                assignedNumber in data:
+        for receipt in data:
 
             # determine name and address of the donator
-            donator = self.cache.DonatorForId(donatorId)
+            donator = self.cache.DonatorForId(receipt.donatorId)
             name = donator.name
             address = donator.address or "UNKNOWN"
+            assignedNumber = self.cache.AssignedNumberForDonator(donator,
+                    self.year)
 
             # set the value for the receipt number field
-            receiptNumber = str(receiptNumber)
-            if isDup:
+            receiptNumber = str(receipt.receiptNumber)
+            if receipt.isDuplicate:
                 receiptNumber += " (DUPLICATE)"
 
             # print the name and address of the church
@@ -129,10 +103,11 @@ class ReportBody(Reports.ReportBody):
             self.DrawField(dc, "Receipt Number", receiptNumber,
                     self.leftMargin_2, topMargin + self.pointsPerLine * 6)
             self.DrawField(dc, "Date Issued",
-                    dateIssued.strftime("%B %d, %Y"),
+                    receipt.dateIssued.strftime("%B %d, %Y"),
                     self.leftMargin_2, topMargin + self.pointsPerLine * 7)
-            self.DrawField(dc, "Amount", Common.FormattedAmount(amount),
-                    self.leftMargin_2, topMargin + self.pointsPerLine * 8)
+            self.DrawField(dc, "Amount",
+                    Common.FormattedAmount(receipt.amount), self.leftMargin_2,
+                    topMargin + self.pointsPerLine * 8)
             dc.DrawText("PER: " + "_" * 25,
                     self.leftMargin_2, topMargin + self.pointsPerLine * 10)
 

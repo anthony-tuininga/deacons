@@ -42,7 +42,7 @@ class List(ceGUI.DataList):
 
 class DataSet(ceDatabase.DataSet):
     tableName = "TaxReceipts"
-    attrNames = "receiptNumber donatorId amount"
+    attrNames = "receiptNumber donatorId amount dateIssued isDuplicate"
     pkAttrNames = "receiptNumber"
     sortByAttrNames = "receiptNumber"
     retrievalAttrNames = "year"
