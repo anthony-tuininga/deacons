@@ -111,7 +111,19 @@ class Frame(ceGUI.TopLevelFrame):
         super(Frame, self).OnExit(event)
 
     def OnNew(self, event):
-        pass
+        dialog = self.OpenWindow("w_SelectDate.Dialog")
+        if dialog.ShowModal() == wx.ID_OK:
+            dateDeposited = dialog.GetDate()
+            cursor = self.config.connection.cursor()
+            cursor.execute("select nextval('DepositId_s')::integer")
+            depositId, = cursor.fetchone()
+            cursor.execute("""
+                        insert into Deposits (DepositId, DateDeposited)
+                        values (?, ?)""",
+                        depositId, dateDeposited)
+            self.config.connection.commit()
+            self.__AddDepositPage(depositId, dateDeposited)
+        dialog.Destroy()
 
     def OnOpen(self, event):
         dialog = self.OpenWindow("w_SelectDeposit.Dialog")

@@ -26,6 +26,7 @@ includes = [
         "w_ElderEdit",
         "w_Elders",
         "w_SelectCause",
+        "w_SelectDate",
         "w_SelectDeposit",
         "w_SelectDonator",
         "w_TaxReceipts",
