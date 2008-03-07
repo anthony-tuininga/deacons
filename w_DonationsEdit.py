@@ -154,7 +154,7 @@ class GridColumnCause(ceGUI.GridColumn):
             dataSet.SetValue(rowHandle, self.attrName, None)
             return True
         searchValue = rawValue.upper()
-        causes = [c for c in grid.config.cache.Causes() \
+        causes = [c for c in grid.config.cache.Causes(sortItems = False) \
                 if c.active and c.searchDescription.startswith(searchValue)]
         selectedCause = None
         if len(causes) == 1:
