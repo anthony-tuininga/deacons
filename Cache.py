@@ -70,8 +70,14 @@ class Cache(object):
     def CauseForId(self, causeId):
         return self.causesById[causeId]
 
-    def Causes(self):
-        return self.causes
+    def Causes(self, sortItems = True, activeOnly = True):
+        if not sortItems:
+            if not activeOnly:
+                return self.causes
+            return [c for c in self.causes if c.active]
+        itemsToSort = [(c.description.upper(), c) for c in self.causes \
+                if c.active or not activeOnly]
+        return [c for d, c in sorted(itemsToSort)]
 
     def Clear(self):
         cursor = self.connection.cursor()

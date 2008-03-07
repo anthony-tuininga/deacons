@@ -31,10 +31,10 @@ class Dialog(ceGUI.StandardDialog):
                 from CollectionCauses
                 where CollectionId = ?""",
                 self.collection.collectionId)
-        causes = [self.config.cache.CauseForId(i) for i, in cursor]
-        itemsToSort = [(c.description.upper(), c) for c in causes]
-        causes = [c for k, c in sorted(itemsToSort)]
-        for cause in causes:
+        causeIds = [i for i, in cursor]
+        for cause in self.config.cache.Causes():
+            if cause.causeId not in causeIds:
+                continue
             page = Panel(self.notebook)
             page.Populate(keyedDataSet, cause)
             self.notebook.AddPage(page, cause.description)
