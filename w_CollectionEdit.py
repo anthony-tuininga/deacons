@@ -40,3 +40,25 @@ class DataSet(ceDatabase.DataSet):
     pkSequenceName = "CollectionId_s"
     pkIsGenerated = True
 
+    def InsertRowInDatabase(self, cursor, row):
+        super(DataSet, self).InsertRowInDatabase(cursor, row)
+        cursor.execute("""
+                insert into CollectionCauses
+                (CollectionId, CauseId)
+                values (?, ?)""",
+                row.collectionId, row.causeId)
+        app = wx.GetApp()
+        cause = app.config.cache.CauseForId(row.causeId)
+        if cause.address is not None:
+            cursor.execute("""
+                    insert into UnremittedAmounts
+                    (CollectionId, CauseId)
+                    values (?, ?)""",
+                    row.collectionId, row.causeId)
+        if row.dateCollected.weekday() == 6: # Sunday
+            cursor.execute("""
+                    insert into CollectionCauses
+                    (CollectionId, CauseId)
+                    values (?, 1)""",
+                    row.collectionId)
+

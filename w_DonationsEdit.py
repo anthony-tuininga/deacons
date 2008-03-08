@@ -246,6 +246,14 @@ class DataSet(ceDatabase.DataSet):
                     values (?, ?)""",
                     self.collection.collectionId, row.causeId)
             self.causes[row.causeId] = None
+            app = wx.GetApp()
+            cause = app.config.cache.CauseForId(row.causeId)
+            if cause.address is not None:
+                cursor.execute("""
+                        insert into UnremittedAmounts
+                        (CollectionId, CauseId)
+                        values (?, ?)""",
+                        self.collection.collectionId, row.causeId)
 
     def _OnInsertRow(self, row, choice):
         row.amount = decimal.Decimal("0.00")
