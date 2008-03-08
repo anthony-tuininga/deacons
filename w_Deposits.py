@@ -69,6 +69,7 @@ class SubPanel(ceGUI.DataListPanel):
 
 class CollectionsPanel(SubPanel):
     listClassName = "CollectionsList"
+    editDialogName = "w_CollectionEdit.Dialog"
     settingsName = "CollectionsColumnWidths"
     labelText = "Collections"
 

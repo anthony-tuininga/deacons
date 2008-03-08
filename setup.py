@@ -17,6 +17,7 @@ includes = [
         "w_CashEdit",
         "w_CauseEdit",
         "w_Causes",
+        "w_CollectionEdit",
         "w_Deposits",
         "w_DonationsEdit",
         "w_Donators",
