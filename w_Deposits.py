@@ -112,8 +112,15 @@ class CollectionsDataSet(ceDatabase.DataSet):
 
 class ChequesPanel(SubPanel):
     listClassName = "ChequesList"
+    editDialogName = "w_ChequeEdit.Dialog"
     settingsName = "ChequesColumnWidths"
     labelText = "Cheques"
+
+    def GetEditWindow(self, item = None):
+        editWindow = super(ChequesPanel, self).GetEditWindow(item)
+        if editWindow.dataSet.rows[0].causeId is not None:
+            return editWindow
+        editWindow.Destroy()
 
 
 class ChequesList(ceGUI.DataList):
