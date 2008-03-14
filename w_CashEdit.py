@@ -18,7 +18,7 @@ class Dialog(ceGUI.StandardDialog):
     def OnCreate(self):
         parent = self.GetParent()
         self.notebook = ceGUI.Notebook(self)
-        self.collection = parent.list.contextItem
+        self.collection = parent.list.GetSelectedItem()
         title = "Edit Cash - %s" % \
                 self.collection.dateCollected.strftime("%A, %B %d, %Y")
         self.SetTitle(title)
