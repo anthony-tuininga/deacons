@@ -45,11 +45,13 @@ for name in glob.glob("/usr/lib/libwx*"):
     while parts[-1].isdigit():
         parts.pop(-1)
     binIncludes.append(".".join(parts))
+includeFiles = [("CauseLetter.txt", "CauseLetter.txt")]
 
 buildOptions = dict(
         compressed = True,
         includes = includes,
-        bin_includes = binIncludes)
+        bin_includes = binIncludes,
+        include_files = includeFiles)
 
 cx_Freeze.setup(
         name = "Deacons",
