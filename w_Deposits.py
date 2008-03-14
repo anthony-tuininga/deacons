@@ -80,10 +80,17 @@ class CollectionsList(ceGUI.DataList):
     def _CreateContextMenu(self):
         super(CollectionsList, self)._CreateContextMenu()
         self.menu.AppendSeparator()
-        self._AddMenuItem(self.menu, "Edit Cash...",
+        self.editCashMenuItem = self._AddMenuItem(self.menu, "Edit Cash...",
                 method = self.OnEditCash, passEvent = False)
-        self._AddMenuItem(self.menu, "Edit Donations...",
-                method = self.OnEditDonations, passEvent = False)
+        self.editDonationsMenuItem = self._AddMenuItem(self.menu,
+                "Edit Donations...", method = self.OnEditDonations,
+                passEvent = False)
+
+    def OnContextMenu(self):
+        enabled = (len(self.GetSelectedItems()) == 1)
+        self.editCashMenuItem.Enable(enabled)
+        self.editDonationsMenuItem.Enable(enabled)
+        super(CollectionsList, self).OnContextMenu()
 
     def OnCreate(self):
         self.AddColumn("dateCollected", "Date", 150, cls = DateColumn)
@@ -126,11 +133,28 @@ class ChequesPanel(SubPanel):
 class ChequesList(ceGUI.DataList):
     dataSetClassName = "ChequesDataSet"
 
+    def _CreateContextMenu(self):
+        super(ChequesList, self)._CreateContextMenu()
+        self.menu.AppendSeparator()
+        self.printMenuItem = self._AddMenuItem(self.menu, "Print Letter...",
+                method = self.OnPrintLetter, passEvent = False)
+
+    def OnContextMenu(self):
+        enabled = (len(self.GetSelectedItems()) == 1)
+        self.printMenuItem.Enable(enabled)
+        super(ChequesList, self).OnContextMenu()
+
     def OnCreate(self):
         self.AddColumn("chequeNumber", "Number", 75)
         self.AddColumn("causeId", "Cause", 225, cls = Common.CauseColumn)
         self.AddColumn("amount", "Amount", cls = Common.AmountColumn,
                 justification = wx.LIST_FORMAT_RIGHT)
+
+    def OnPrintLetter(self):
+        cheque = self.GetSelectedItem()
+        cls = ceGUI.GetModuleItem("r_ChequeLetter", "Report")
+        report = cls(self)
+        report.Print(cheque)
 
 
 class ChequesDataSet(ceDatabase.DataSet):

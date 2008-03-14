@@ -14,7 +14,7 @@ class Dialog(ceGUI.StandardDialog):
     def OnCreate(self):
         self.grid = Grid(self)
         parent = self.GetParent()
-        self.collection = parent.list.contextItem
+        self.collection = parent.list.GetSelectedItem()
         title = "Edit Donations - %s" % \
                 self.collection.dateCollected.strftime("%A, %B %d, %Y")
         self.SetTitle(title)
