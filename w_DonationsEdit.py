@@ -4,6 +4,7 @@ Dialog for editing donations.
 
 import ceDatabase
 import ceGUI
+import cx_Exceptions
 import decimal
 import wx
 
@@ -102,6 +103,10 @@ class GridColumnAmount(ceGUI.GridColumn):
         value = decimal.Decimal(massagedValue)
         dataSet.SetValue(rowHandle, self.attrName, value)
         return True
+
+    def VerifyValue(self, row):
+        if row.amount == 0:
+            return AmountCannotBeZero()
 
 
 class GridColumnAssignedNumber(ceGUI.GridColumnInt):
@@ -222,6 +227,10 @@ class GridColumnName(ceGUI.GridColumn):
         dataSet.SetValue(rowHandle, self.attrName, selectedDonator.donatorId)
         grid.Refresh()
         return True
+
+
+class AmountCannotBeZero(cx_Exceptions.BaseException):
+    message = "Amount cannot be zero."
 
 
 class DataSet(ceDatabase.DataSet):
