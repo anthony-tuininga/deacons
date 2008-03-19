@@ -68,6 +68,16 @@ class Dialog(ceGUI.StandardDialog):
 
 class Grid(ceGUI.Grid):
 
+    def InsertRows(self, pos, numRows = 1):
+        super(Grid, self).InsertRows(pos, numRows)
+        if pos > 0 and pos < len(self.table.rowHandles):
+            sourceHandle = self.table.rowHandles[pos - 1]
+            targetHandle = self.table.rowHandles[pos]
+            sourceRow = self.table.dataSet.rows[sourceHandle]
+            targetRow = self.table.dataSet.rows[targetHandle]
+            targetRow.causeId = sourceRow.causeId
+            targetRow.cash = sourceRow.cash
+
     def OnCreate(self):
         self.AddColumn("assignedNumber", "Number", 70,
                 cls = GridColumnAssignedNumber)
