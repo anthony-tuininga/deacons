@@ -68,6 +68,7 @@ class Dialog(ceGUI.StandardDialog):
 
 
 class Grid(ceGUI.Grid):
+    sortOnRetrieve = False
 
     def InsertRows(self, pos, numRows = 1):
         super(Grid, self).InsertRows(pos, numRows)
@@ -240,6 +241,7 @@ class DataSet(ceDatabase.DataSet):
     charBooleanAttrNames = "cash"
     pkAttrNames = "donationId"
     retrievalAttrNames = "collectionId"
+    sortByAttrNames = "donationId"
     pkSequenceName = "DonationId_s"
     pkIsGenerated = True
 
