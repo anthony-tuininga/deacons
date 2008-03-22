@@ -3,12 +3,17 @@ Print a report of the cheques written for a particular deposit, providing the
 details of the which amounts were taken from each collection.
 """
 
+import ceGUI
 import wx
 
 import Common
 import Reports
 
 class Report(Reports.ReportWithPreview):
+    pass
+
+
+class PreviewFrame(ceGUI.PreviewFrame):
     title = "Cheques for Deposit"
 
 

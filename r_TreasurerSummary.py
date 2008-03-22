@@ -3,10 +3,16 @@ Print a report of the collections and cheques for the deposit which is given
 to the treasurer.
 """
 
+import ceGUI
+
 import Common
 import Reports
 
 class Report(Reports.ReportWithPreview):
+    pass
+
+
+class PreviewFrame(ceGUI.PreviewFrame):
     title = "Treasurer Summary"
 
 
@@ -115,9 +121,11 @@ class ReportBody(Reports.ReportBody):
                 order by DateCollected""",
                 depositId)
         collections = cursor.fetchall()
+        allCauses = {}
+        for collectionId, dateCollected in collections:
+            allCauses[collectionId] = []
 
         # retrieve the collection cause rows for the deposit
-        allCauses = {}
         cursor.execute("""
                 select
                   ct.CollectionId,
@@ -138,10 +146,8 @@ class ReportBody(Reports.ReportBody):
                   c.Description""",
                 depositId)
         for collectionId, cause, cheques, envelopeCash, looseCash in cursor:
-            causes = allCauses.get(collectionId)
-            if causes is None:
-                causes = allCauses[collectionId] = []
-            causes.append((cause, cheques, envelopeCash, looseCash))
+            info = (cause, cheques, envelopeCash, looseCash)
+            allCauses[collectionId].append(info)
 
         # calculate the number of pages to use
         y = self.topMargin

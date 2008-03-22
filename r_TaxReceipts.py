@@ -2,6 +2,7 @@
 Print tax receipts.
 """
 
+import ceGUI
 import wx
 
 import Cache
@@ -9,6 +10,10 @@ import Common
 import Reports
 
 class Report(Reports.ReportWithPreview):
+    pass
+
+
+class PreviewFrame(ceGUI.PreviewFrame):
     title = "Tax Receipts"
 
 

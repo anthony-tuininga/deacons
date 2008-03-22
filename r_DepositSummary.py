@@ -2,10 +2,15 @@
 Print a report of the cheques, coin and cash deposited.
 """
 
+import ceGUI
 import Common
 import Reports
 
 class Report(Reports.ReportWithPreview):
+    pass
+
+
+class PreviewFrame(ceGUI.PreviewFrame):
     title = "Deposit Summary"
 
 

@@ -2,6 +2,7 @@
 Print the letter sent to the causes along with a cheque.
 """
 
+import ceGUI
 import datetime
 import wx
 import os
@@ -11,6 +12,10 @@ import Common
 import Reports
 
 class Report(Reports.ReportWithPreview):
+    pass
+
+
+class PreviewFrame(ceGUI.PreviewFrame):
     title = "Cover Letter for Cheque"
 
 
