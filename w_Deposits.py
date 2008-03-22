@@ -187,6 +187,25 @@ class ChequesDataSet(ceDatabase.DataSet):
                     )
                 order by ChequeNumber"""
 
+    def DeleteRowInDatabase(self, cursor, row):
+        cursor.execute("""
+                insert into UnremittedAmounts
+                (CollectionId, CauseId)
+                select
+                  CollectionId,
+                  CauseId
+                from ChequeAmounts
+                where ChequeId = ?""",
+                row.chequeId)
+        cursor.execute("""
+                delete from ChequeAmounts
+                where ChequeId = ?""",
+                row.chequeId)
+        cursor.execute("""
+                delete from Cheques
+                where ChequeId = ?""",
+                row.chequeId)
+
 
 class DateColumn(ceGUI.ListDateColumn):
     dateFormat = "%b/%d/%Y (%a)"
