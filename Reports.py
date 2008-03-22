@@ -1,5 +1,6 @@
 """Defines the base class for printing reports."""
 
+import ceGUI
 import cx_Logging
 import wx
 
@@ -28,7 +29,8 @@ class ReportWithPreview(Report):
 
     def __init__(self, parentWindow):
         super(ReportWithPreview, self).__init__(parentWindow)
-        bodyClass = __import__(self.__class__.__module__).ReportBody
+        bodyClass = ceGUI.GetModuleItem(self.__class__.__module__,
+                "ReportBody")
         self.printout = bodyClass(self.connection, self.cache)
         self.printoutForPrinting = bodyClass(self.connection, self.cache)
 
@@ -41,11 +43,10 @@ class ReportWithPreview(Report):
         printData = wx.PrintDialogData(self.printData)
         self.preview = wx.PrintPreview(self.printout, self.printoutForPrinting,
                 printData)
+        previewFrameClass = ceGUI.GetModuleItem(self.__class__.__module__,
+                "PreviewFrame")
         topWindow = wx.GetApp().topWindow
-        self.previewFrame = wx.PreviewFrame(self.preview, topWindow,
-                self.title, size = (500, 600))
-        self.previewFrame.Initialize()
-        self.previewFrame.Show(True)
+        self.previewFrame = previewFrameClass(self.preview, topWindow)
 
 
 class ReportBody(wx.Printout):
