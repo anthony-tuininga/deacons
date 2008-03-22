@@ -21,8 +21,9 @@ class Dialog(ceGUI.EditDialog):
                 self.AddTextField(style = wx.TE_READONLY), cls = AmountColumn)
 
     def OnNewRow(self, parent, row):
+        depositId = parent.GetParent().GetParent().depositId
         dialog = parent.OpenWindow("w_SelectUnremitted.Dialog")
-        dialog.Retrieve()
+        dialog.Retrieve(depositId)
         if dialog.ShowModal() == wx.ID_OK:
             selectedItem = dialog.GetSelectedItem()
             row.causeId = selectedItem.causeId
