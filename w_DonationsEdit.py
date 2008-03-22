@@ -72,7 +72,10 @@ class Grid(ceGUI.Grid):
 
     def InsertRows(self, pos, numRows = 1):
         super(Grid, self).InsertRows(pos, numRows)
-        if pos > 0 and pos < len(self.table.rowHandles):
+        if len(self.table.rowHandles) == 1:
+            targetRow = self.table.dataSet.rows[0]
+            targetRow.causeId = self.GetParent().collection.causeId
+        elif pos > 0 and pos < len(self.table.rowHandles):
             sourceHandle = self.table.rowHandles[pos - 1]
             targetHandle = self.table.rowHandles[pos]
             sourceRow = self.table.dataSet.rows[sourceHandle]
