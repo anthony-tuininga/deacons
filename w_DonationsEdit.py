@@ -258,6 +258,7 @@ class DataSet(ceDatabase.DataSet):
                 collection.collectionId)
         self.causes = dict.fromkeys(i for i, in cursor)
         rows = super(DataSet, self)._GetRows(collection.collectionId)
+        self.retrievalArgs = (collection,)
         for row in rows:
             row.amount = decimal.Decimal(str(row.amount))
         return rows
