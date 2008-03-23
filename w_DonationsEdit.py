@@ -11,6 +11,7 @@ import wx
 import Common
 
 class Dialog(ceGUI.StandardDialog):
+    createCancelButton = False
 
     def OnCreate(self):
         self.grid = Grid(self)
@@ -22,6 +23,8 @@ class Dialog(ceGUI.StandardDialog):
         self.grid.Retrieve(self.collection)
         self.grid.SetFocus()
         self.grid.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        self.BindEvent(self.grid, wx.grid.EVT_GRID_SELECT_CELL,
+                self.OnSelectCell)
 
     def OnKeyDown(self, event):
         if event.GetKeyCode() not in (wx.WXK_TAB, wx.WXK_RETURN):
@@ -58,7 +61,29 @@ class Dialog(ceGUI.StandardDialog):
         return sizer
 
     def OnOk(self):
+        row = self.grid.GetCurrentRow()
+        if row.donatorId is None and row.amount == 0:
+            self.grid.DeleteRows(self.grid.GetGridCursorRow())
         self.grid.Update()
+
+    def OnSelectCell(self, event):
+        newRow = event.GetRow()
+        origRow = self.grid.GetGridCursorRow()
+        if newRow != origRow:
+            self.grid.SaveEditControlValue()
+            handle = self.grid.table.rowHandles[origRow]
+            row = self.grid.table.dataSet.rows[handle]
+            if row.donatorId is None and row.amount == 0:
+                self.grid.DeleteRows(origRow)
+                return
+            for column in self.grid.table.columns:
+                exc = column.VerifyValue(row)
+                if exc is not None:
+                    colIndex = self.grid.table.columns.index(column)
+                    self.grid.SetGridCursor(origRow, colIndex)
+                    self.grid.EnableCellEditControl()
+                    raise exc
+            self.grid.table.dataSet.UpdateSingleRow(handle)
 
     def RestoreSettings(self):
         self.grid.RestoreColumnWidths()
@@ -82,6 +107,10 @@ class Grid(ceGUI.Grid):
             targetRow = self.table.dataSet.rows[targetHandle]
             targetRow.causeId = sourceRow.causeId
             targetRow.cash = sourceRow.cash
+
+    def DeleteRows(self, row, numRows = 1):
+        super(Grid, self).DeleteRows(row, numRows)
+        self.Update()
 
     def OnCreate(self):
         self.AddColumn("assignedNumber", "Number", 70,
@@ -240,7 +269,7 @@ class AmountCannotBeZero(cx_Exceptions.BaseException):
 class DataSet(ceDatabase.DataSet):
     tableName = "Donations"
     attrNames = """donationId causeId claimYear amount cash donatorId
-            splitDonationId"""
+            collectionId splitDonationId"""
     charBooleanAttrNames = "cash"
     pkAttrNames = "donationId"
     retrievalAttrNames = "collectionId"
@@ -281,7 +310,9 @@ class DataSet(ceDatabase.DataSet):
                         self.collection.collectionId, row.causeId)
 
     def _OnInsertRow(self, row, choice):
+        collection, = self.retrievalArgs
         row.amount = decimal.Decimal("0.00")
+        row.collectionId = collection.collectionId
         row.claimYear = self.collection.dateCollected.year
         row.cash = False
 
