@@ -72,7 +72,7 @@ class Panel(ceGUI.Panel):
         Field(self, 3, "0.10", "roll(s) of dimes", 50)
         Field(self, 4, "0.25", "roll(s) of quarters", 40)
         Field(self, 5, "1.00", "roll(s) of $1 coins", 25)
-        Field(self, 5, "2.00", "roll(s) of $2 coins", 25)
+        Field(self, 6, "2.00", "roll(s) of $2 coins", 25)
         Field(self, 7, "5.00", "$5 bill(s)", 1)
         Field(self, 8, "10.00", "$10 bill(s)", 1)
         Field(self, 9, "20.00", "$20 bill(s)", 1)
