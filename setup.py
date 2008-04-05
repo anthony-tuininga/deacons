@@ -33,6 +33,7 @@ includes = [
         "w_SelectDeposit",
         "w_SelectDonator",
         "w_SelectUnremitted",
+        "w_SplitDonationsEdit",
         "w_TaxReceipts",
         "w_TopLevelFrame",
         "w_YearEdit",
