@@ -25,6 +25,8 @@ class Dialog(Common.DonationsDialog):
         self.SetTitle(title)
         super(Dialog, self).OnCreate()
         self.grid.Retrieve()
+        if len(self.grid.table.rowHandles) == 0:
+            self.grid.InsertRows(0)
 
 
 class Grid(ceGUI.Grid):
@@ -35,6 +37,12 @@ class Grid(ceGUI.Grid):
         self.menu.AppendSeparator()
         self.splitMenuItem = self._AddMenuItem(self.menu, "Split\tCtrl-T",
                 method = self.OnSplit, skipEvent = False, passEvent = False)
+
+    def _GetAccelerators(self):
+        accelerators = super(Grid, self)._GetAccelerators()
+        accelerators.append((wx.ACCEL_CTRL, ord('T'),
+                self.splitMenuItem.GetId()))
+        return accelerators
 
     def _GetTable(self):
         parent = self.GetParent()
@@ -64,16 +72,22 @@ class Grid(ceGUI.Grid):
                 cls = GridColumnAssignedNumber)
         self.AddColumn("donatorId", "Name", 220, cls = GridColumnName,
                 required = True)
-        self.AddColumn("causeId", "Cause", 175, cls = Common.GridColumnCause,
+        self.AddColumn("causeId", "Cause", 175, cls = GridColumnCause,
                 required = True)
         self.AddColumn("cash", "Cash", 65, cls = ceGUI.GridColumnBool)
         self.AddColumn("amount", "Amount", cls = Common.GridColumnAmount)
+
+    def OnContextMenu(self):
+        self.splitMenuItem.Enable(self.contextRow != wx.NOT_FOUND)
+        super(Grid, self).OnContextMenu()
 
     def OnSplit(self):
         if self.contextRow is None:
             rowNum = self.GetGridCursorRow()
         else:
             rowNum = self.contextRow
+        if rowNum == wx.NOT_FOUND:
+            return
         handle = self.table.rowHandles[rowNum]
         row = self.table.dataSet.rows[handle]
         if row.splitDonation is None:
@@ -95,6 +109,7 @@ class Grid(ceGUI.Grid):
                     splitDonation.amount = newRow.amount
                     self.table.dataSet.UpdateRowInDatabase(cursor, newRow,
                             row)
+            self.table.dataSet.ClearChanges()
             row.splitDonation = splitDonation
         parent = self.GetParent()
         dialog = parent.OpenWindow("w_SplitDonationsEdit.Dialog")
@@ -156,6 +171,16 @@ class GridColumnAssignedNumber(ceGUI.GridColumnInt):
         dataSet.SetValue(rowHandle, "donatorId", newDonator.donatorId)
         grid.Refresh()
         return True
+
+
+class GridColumnCause(Common.GridColumnCause):
+
+    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
+        if row.splitDonation is None and rawValue.startswith("-"):
+            grid.OnSplit()
+        else:
+            super(GridColumnCause, self).SetValue(grid, dataSet, rowHandle,
+                    row, rawValue)
 
 
 class GridColumnName(ceGUI.GridColumn):
