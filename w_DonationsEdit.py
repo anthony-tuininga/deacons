@@ -2,104 +2,51 @@
 Dialog for editing donations.
 """
 
+from __future__ import with_statement
+
 import ceDatabase
 import ceGUI
-import cx_Exceptions
 import decimal
 import wx
 
 import Common
 
-class Dialog(ceGUI.StandardDialog):
-    createCancelButton = False
+class Dialog(Common.DonationsDialog):
+
+    def _RowIsEmpty(self, row):
+        return row.donatorId is None and row.amount == 0
 
     def OnCreate(self):
-        self.grid = Grid(self)
         parent = self.GetParent()
         self.collection = parent.list.GetSelectedItem()
+        self.grid = Grid(self)
         title = "Edit Donations - %s" % \
                 self.collection.dateCollected.strftime("%A, %B %d, %Y")
         self.SetTitle(title)
-        self.grid.Retrieve(self.collection)
-        self.grid.SetFocus()
-        self.grid.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
-        self.BindEvent(self.grid, wx.grid.EVT_GRID_SELECT_CELL,
-                self.OnSelectCell)
-
-    def OnKeyDown(self, event):
-        if event.GetKeyCode() not in (wx.WXK_TAB, wx.WXK_RETURN):
-            event.Skip()
-            return
-        if event.ControlDown():
-            event.Skip()
-            return
-        self.grid.DisableCellEditControl()
-        shifted = event.ShiftDown()
-        if shifted:
-            success = self.grid.MoveCursorLeft(False)
-        else:
-            success = self.grid.MoveCursorRight(False)
-        if not success:
-            if shifted:
-                newRow = self.grid.GetGridCursorRow() - 1
-                if newRow >= 0:
-                    colIndex = self.grid.GetNumberCols() - 1
-                    self.grid.SetGridCursor(newRow, colIndex)
-                    self.grid.MakeCellVisible(newRow, colIndex)
-            else:
-                newRow = self.grid.GetGridCursorRow() + 1
-                if newRow < self.grid.GetNumberRows():
-                    self.grid.SetGridCursor(newRow, 0)
-                    self.grid.MakeCellVisible(newRow, 0)
-                else:
-                    self.grid.InsertRows(newRow)
-
-    def OnLayout(self):
-        sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.grid, flag = wx.EXPAND | wx.ALL, proportion = 1,
-                border = 5)
-        return sizer
-
-    def OnOk(self):
-        row = self.grid.GetCurrentRow()
-        if row.donatorId is None and row.amount == 0:
-            self.grid.DeleteRows(self.grid.GetGridCursorRow())
-        self.grid.Update()
-
-    def OnSelectCell(self, event):
-        newRow = event.GetRow()
-        origRow = self.grid.GetGridCursorRow()
-        if newRow != origRow:
-            self.grid.SaveEditControlValue()
-            handle = self.grid.table.rowHandles[origRow]
-            row = self.grid.table.dataSet.rows[handle]
-            if row.donatorId is None and row.amount == 0:
-                self.grid.DeleteRows(origRow)
-                return
-            for column in self.grid.table.columns:
-                exc = column.VerifyValue(row)
-                if exc is not None:
-                    colIndex = self.grid.table.columns.index(column)
-                    self.grid.SetGridCursor(origRow, colIndex)
-                    self.grid.EnableCellEditControl()
-                    raise exc
-            self.grid.table.dataSet.UpdateSingleRow(handle)
-
-    def RestoreSettings(self):
-        self.grid.RestoreColumnWidths()
-
-    def SaveSettings(self):
-        self.grid.SaveColumnWidths()
+        super(Dialog, self).OnCreate()
+        self.grid.Retrieve()
 
 
 class Grid(ceGUI.Grid):
     sortOnRetrieve = False
 
+    def _CreateContextMenu(self):
+        super(Grid, self)._CreateContextMenu()
+        self.menu.AppendSeparator()
+        self.splitMenuItem = self._AddMenuItem(self.menu, "Split\tCtrl-T",
+                method = self.OnSplit, skipEvent = False, passEvent = False)
+
+    def _GetDataSet(self):
+        parent = self.GetParent()
+        self.collection = parent.collection
+        dataSet = DataSet(self.config.connection, parent.collection)
+        return dataSet
+
     def InsertRows(self, pos, numRows = 1):
         super(Grid, self).InsertRows(pos, numRows)
         if len(self.table.rowHandles) == 1:
             targetRow = self.table.dataSet.rows[0]
-            targetRow.causeId = self.GetParent().collection.causeId
+            targetRow.causeId = self.collection.causeId
         elif pos > 0 and pos < len(self.table.rowHandles):
             sourceHandle = self.table.rowHandles[pos - 1]
             targetHandle = self.table.rowHandles[pos]
@@ -117,29 +64,45 @@ class Grid(ceGUI.Grid):
                 cls = GridColumnAssignedNumber)
         self.AddColumn("donatorId", "Name", 220, cls = GridColumnName,
                 required = True)
-        self.AddColumn("causeId", "Cause", 175, cls = GridColumnCause,
+        self.AddColumn("causeId", "Cause", 175, cls = Common.GridColumnCause,
                 required = True)
         self.AddColumn("cash", "Cash", 65, cls = ceGUI.GridColumnBool)
-        self.AddColumn("amount", "Amount", cls = GridColumnAmount)
+        self.AddColumn("amount", "Amount", cls = Common.GridColumnAmount)
 
-
-class GridColumnAmount(ceGUI.GridColumn):
-    defaultHorizontalAlignment = wx.ALIGN_RIGHT
-
-    def GetValue(self, row):
-        return Common.FormattedAmount(row.amount)
-
-    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
-        massagedValue = rawValue.replace("$", "").replace(",", "")
-        if not massagedValue:
-            massagedValue = "0"
-        value = decimal.Decimal(massagedValue)
-        dataSet.SetValue(rowHandle, self.attrName, value)
-        return True
-
-    def VerifyValue(self, row):
-        if row.amount == 0:
-            return AmountCannotBeZero()
+    def OnSplit(self):
+        if self.contextRow is None:
+            rowNum = self.GetGridCursorRow()
+        else:
+            rowNum = self.contextRow
+        handle = self.table.rowHandles[rowNum]
+        row = self.table.dataSet.rows[handle]
+        if row.splitDonation is None:
+            dataSet = self.table.dataSet.splitDonationsDataSet
+            splitDonation = dataSet.rowClass.New()
+            splitDonation.donatorId = row.donatorId
+            splitDonation.collectionId = row.collectionId
+            splitDonation.claimYear = row.claimYear
+            splitDonation.donations = []
+            splitDonation.amount = decimal.Decimal(0)
+            with self.config.connection:
+                cursor = self.config.connection.cursor()
+                dataSet.InsertRowInDatabase(cursor, splitDonation)
+                if row.donationId is not None:
+                    newRow = row.Copy()
+                    newRow.splitDonation = None
+                    newRow.splitDonationId = splitDonation.splitDonationId
+                    splitDonation.donations.append(newRow)
+                    splitDonation.amount = newRow.amount
+                    self.table.dataSet.UpdateRowInDatabase(cursor, newRow,
+                            row)
+            row.splitDonation = splitDonation
+        parent = self.GetParent()
+        dialog = parent.OpenWindow("w_SplitDonationsEdit.Dialog")
+        dialog.Setup(self.collection, row.splitDonation,
+                self.table.dataSet.causes)
+        dialog.ShowModal()
+        row.amount = row.splitDonation.amount
+        self.Refresh()
 
 
 class GridColumnAssignedNumber(ceGUI.GridColumnInt):
@@ -177,46 +140,6 @@ class GridColumnAssignedNumber(ceGUI.GridColumnInt):
             return False
         dataSet.SetValue(rowHandle, "donatorId", newDonator.donatorId)
         grid.Refresh()
-        return True
-
-
-class GridColumnCause(ceGUI.GridColumn):
-
-    def GetSortValue(self, row):
-        if row.causeId is not None:
-            cause = self.config.cache.CauseForId(row.causeId)
-            return cause.description.upper()
-
-    def GetValue(self, row):
-        if row.causeId is None:
-            return ""
-        cause = self.config.cache.CauseForId(row.causeId)
-        return cause.description
-
-    def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
-        if row.causeId is not None:
-            cause = grid.config.cache.CauseForId(row.causeId)
-            if rawValue == cause.description:
-                return True
-        if not rawValue:
-            dataSet.SetValue(rowHandle, self.attrName, None)
-            return True
-        searchValue = rawValue.upper()
-        causes = [c for c in grid.config.cache.Causes(sortItems = False) \
-                if c.active and c.searchDescription.startswith(searchValue)]
-        selectedCause = None
-        if len(causes) == 1:
-            selectedCause, = causes
-        elif causes:
-            parent = grid.GetParent()
-            dialog = parent.OpenWindow("w_SelectCause.Dialog")
-            dialog.Retrieve(causes)
-            if dialog.ShowModal() == wx.ID_OK:
-                selectedCause = dialog.GetSelectedItem()
-            dialog.Destroy()
-        if selectedCause is None:
-            return False
-        dataSet.SetValue(rowHandle, self.attrName, selectedCause.causeId)
         return True
 
 
@@ -262,65 +185,95 @@ class GridColumnName(ceGUI.GridColumn):
         return True
 
 
-class AmountCannotBeZero(cx_Exceptions.BaseException):
-    message = "Amount cannot be zero."
-
-
-class DataSet(ceDatabase.DataSet):
-    tableName = "Donations"
-    attrNames = """donationId causeId claimYear amount cash donatorId
-            collectionId splitDonationId"""
-    charBooleanAttrNames = "cash"
-    pkAttrNames = "donationId"
+class SplitDonationsDataSet(ceDatabase.DataSet):
+    tableName = "SplitDonations"
+    attrNames = "splitDonationId collectionId donatorId"
+    extraAttrNames = "donations amount claimYear"
+    pkAttrNames = "splitDonationId"
     retrievalAttrNames = "collectionId"
-    sortByAttrNames = "donationId"
-    pkSequenceName = "DonationId_s"
+    sortByAttrNames = "splitDonationId"
+    pkSequenceName = "SplitDonationId_s"
     pkIsGenerated = True
 
-    def _GetRows(self, collection):
-        self.collection = collection
+    def _GetRows(self, collectionId):
+        rows = super(SplitDonationsDataSet, self)._GetRows(collectionId)
+        for row in rows:
+            row.claimYear = self.contextItem.dateCollected.year
+            row.amount = decimal.Decimal(0)
+            row.donations = []
+        return rows
+
+
+class DataSet(Common.DonationsDataSet):
+
+    def __Setup(self):
         cursor = self.connection.cursor()
         cursor.execute("""
                 select CauseId
                 from CollectionCauses
                 where CollectionId = ?""",
-                collection.collectionId)
+                self.contextItem.collectionId)
         self.causes = dict.fromkeys(i for i, in cursor)
-        rows = super(DataSet, self)._GetRows(collection.collectionId)
-        self.retrievalArgs = (collection,)
-        for row in rows:
-            row.amount = decimal.Decimal(str(row.amount))
+        self.splitDonationsDataSet = SplitDonationsDataSet(self.connection,
+                self.contextItem)
+        self.splitDonationsDataSet.Retrieve()
+
+    def _GenerateRow(self, splitDonation):
+        generatedRow = self.rowClass.New()
+        generatedRow.amount = splitDonation.amount
+        generatedRow.donatorId = splitDonation.donatorId
+        generatedRow.claimYear = splitDonation.claimYear
+        generatedRow.collectionId = splitDonation.collectionId
+        generatedRow.splitDonationId = splitDonation.splitDonationId
+        generatedRow.splitDonation = splitDonation
+        return generatedRow
+
+    def _GetRows(self, collectionId):
+        self.__Setup()
+        rows = []
+        splitDonations = {}
+        for row in self.splitDonationsDataSet.rows.itervalues():
+            splitDonations[row.splitDonationId] = row
+        generatedRows = {}
+        rawRows = super(DataSet, self)._GetRows(collectionId)
+        for row in rawRows:
+            if row.splitDonationId is None:
+                rows.append(row)
+            else:
+                splitDonation = splitDonations[row.splitDonationId]
+                generatedRow = generatedRows.get(row.splitDonationId)
+                if generatedRow is None:
+                    generatedRow = self._GenerateRow(splitDonation)
+                    rows.append(generatedRow)
+                    generatedRows[row.splitDonationId] = generatedRow
+                splitDonation.amount += row.amount
+                splitDonation.donations.append(row)
+                generatedRow.amount = splitDonation.amount
+        for splitDonation in splitDonations.itervalues():
+            if splitDonation.splitDonationId in generatedRows:
+                continue
+            generatedRow = self._GenerateRow(splitDonation)
+            rows.append(generatedRow)
         return rows
 
-    def __EnsureCause(self, cursor, row):
-        if row.causeId not in self.causes:
-            cursor.execute("""
-                    insert into CollectionCauses
-                    (CollectionId, CauseId)
-                    values (?, ?)""",
-                    self.collection.collectionId, row.causeId)
-            self.causes[row.causeId] = None
-            app = wx.GetApp()
-            cause = app.config.cache.CauseForId(row.causeId)
-            if cause.address is not None:
-                cursor.execute("""
-                        insert into UnremittedAmounts
-                        (CollectionId, CauseId)
-                        values (?, ?)""",
-                        self.collection.collectionId, row.causeId)
-
-    def _OnInsertRow(self, row, choice):
-        collection, = self.retrievalArgs
-        row.amount = decimal.Decimal("0.00")
-        row.collectionId = collection.collectionId
-        row.claimYear = self.collection.dateCollected.year
-        row.cash = False
-
-    def InsertRowInDatabase(self, cursor, row):
-        self.__EnsureCause(cursor, row)
-        super(DataSet, self).InsertRowInDatabase(cursor, row)
+    def DeleteRowInDatabase(self, cursor, row):
+        if row.splitDonation is None:
+            super(DataSet, self).DeleteRowInDatabase(cursor, row)
+        else:
+            for subRow in row.splitDonation.donations:
+                super(DataSet, self).DeleteRowInDatabase(cursor, subRow)
+            self.splitDonationsDataSet.DeleteRowInDatabase(cursor,
+                    row.splitDonation)
 
     def UpdateRowInDatabase(self, cursor, row, origRow):
-        self.__EnsureCause(cursor, row)
-        super(DataSet, self).UpdateRowInDatabase(cursor, row, origRow)
+        if row.splitDonation is None:
+            super(DataSet, self).UpdateRowInDatabase(cursor, row, origRow)
+        else:
+            for subRow in row.splitDonation.donations:
+                origSubRow = subRow.Copy()
+                subRow.donatorId = row.donatorId
+                super(DataSet, self).UpdateRowInDatabase(cursor, subRow,
+                        origSubRow)
+            self.splitDonationsDataSet.UpdateRowInDatabase(cursor, row,
+                    origRow)
 
