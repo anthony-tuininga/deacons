@@ -34,8 +34,13 @@ class DataSet(ceDatabase.DataSet):
                   join CollectionAmounts ca
                       on ca.CollectionId = ua.CollectionId
                       and ca.CauseId = ua.CauseId
-                  join Collections c
-                      on c.CollectionId = ca.CollectionId
-                where c.DepositId = ?
+                where ua.CauseId in
+                    ( select ua.CauseId
+                      from
+                        UnremittedAmounts ua
+                        join Collections c
+                            on c.CollectionId = ua.CollectionId
+                      where c.DepositId = ?
+                    )
                 group by ua.CauseId"""
 
