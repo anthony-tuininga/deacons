@@ -167,7 +167,7 @@ class DonationsDialog(ceGUI.StandardDialog):
     def OnSelectCell(self, event):
         newRow = event.GetRow()
         origRow = self.grid.GetGridCursorRow()
-        if newRow != origRow:
+        if newRow != origRow and origRow >= 0:
             self.grid.SaveEditControlValue()
             handle = self.grid.table.rowHandles[origRow]
             row = self.grid.table.dataSet.rows[handle]

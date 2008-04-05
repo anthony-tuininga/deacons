@@ -45,6 +45,8 @@ class Dialog(Common.DonationsDialog):
         self._SetAmountField()
         self.grid.table.dataSet.Setup(collection, splitDonation, causes)
         self.grid.Retrieve()
+        if len(self.grid.table.rowHandles) == 0:
+            self.grid.InsertRows(0)
 
 
 class Grid(ceGUI.Grid):
