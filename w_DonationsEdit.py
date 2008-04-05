@@ -36,11 +36,11 @@ class Grid(ceGUI.Grid):
         self.splitMenuItem = self._AddMenuItem(self.menu, "Split\tCtrl-T",
                 method = self.OnSplit, skipEvent = False, passEvent = False)
 
-    def _GetDataSet(self):
+    def _GetTable(self):
         parent = self.GetParent()
         self.collection = parent.collection
         dataSet = DataSet(self.config.connection, parent.collection)
-        return dataSet
+        return Table(dataSet)
 
     def InsertRows(self, pos, numRows = 1):
         super(Grid, self).InsertRows(pos, numRows)
@@ -103,6 +103,21 @@ class Grid(ceGUI.Grid):
         dialog.ShowModal()
         row.amount = row.splitDonation.amount
         self.Refresh()
+
+
+class Table(ceGUI.GridTable):
+
+    def GetAttr(self, rowIndex, colIndex, kind):
+        if rowIndex < len(self.rowHandles) and colIndex < len(self.columns):
+            handle = self.rowHandles[rowIndex]
+            row = self.dataSet.rows[handle]
+            column = self.columns[colIndex]
+            if row.splitDonation is not None \
+                    and column.attrName in ("causeId", "cash", "amount"):
+                attr = column.attr.Clone()
+                attr.SetReadOnly()
+                return attr
+        return super(Table, self).GetAttr(rowIndex, colIndex, kind)
 
 
 class GridColumnAssignedNumber(ceGUI.GridColumnInt):
