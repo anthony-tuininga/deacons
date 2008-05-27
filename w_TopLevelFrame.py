@@ -53,6 +53,20 @@ class Frame(ceGUI.TopLevelFrame):
         menu = self.AddMenu("&Help")
         self.AddStockMenuItem(menu, wx.ID_ABOUT, self.OnAbout)
 
+    def __CreateReportsMenu(self):
+        menu = self.AddMenu("&Reports")
+        self.AddMenuItem(menu, "Monthly Report", "Monthly Report",
+                method = self.OnMonthlyReport, passEvent = False)
+        self.AddMenuItem(menu, "Quarterly Report", "Quarterly Report",
+                method = self.OnQuarterlyReport, passEvent = False)
+        self.AddMenuItem(menu, "Yearly Report", "Yearly Report",
+                method = self.OnYearlyReport, passEvent = False)
+
+    def __PrintReport(self, name):
+        cls = ceGUI.GetModuleItem(name, "Report")
+        report = cls(self)
+        report.Print()
+
     def _AddDonatorsForYearPage(self, year):
         text = "%s - Donators" % year
         page = self.__AddPage("w_DonatorsForYear.Panel", text)
@@ -71,10 +85,13 @@ class Frame(ceGUI.TopLevelFrame):
         self.BindEvent(self.notebook,
                 wx.lib.flatnotebook.EVT_FLATNOTEBOOK_PAGE_CLOSING,
                 self.OnPageClosing, skipEvent = False)
+        self.statusBar = wx.StatusBar(self)
+        self.SetStatusBar(self.statusBar)
 
     def OnCreateMenus(self):
         self.__CreateFileMenu()
         self.__CreateEditMenu()
+        self.__CreateReportsMenu()
         self.__CreateHelpMenu()
 
     def OnCreateToolbar(self):
@@ -110,6 +127,9 @@ class Frame(ceGUI.TopLevelFrame):
             page.SaveSettings()
         super(Frame, self).OnExit(event)
 
+    def OnMonthlyReport(self):
+        self.__PrintReport("r_MonthlyReport")
+
     def OnNew(self, event):
         dialog = self.OpenWindow("w_SelectDate.Dialog")
         if dialog.ShowModal() == wx.ID_OK:
@@ -140,4 +160,13 @@ class Frame(ceGUI.TopLevelFrame):
         else:
             page.SaveSettings()
             event.Skip()
+
+    def OnQuarterlyReport(self):
+        self.__PrintReport("r_QuarterlyReport")
+
+    def OnYearlyReport(self):
+        self.__PrintReport("r_YearlyReport")
+
+    def SetStatusBarText(self, message):
+        self.statusBar.SetStatusText(message)
 
