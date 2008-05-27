@@ -11,6 +11,19 @@ class Report(object):
         self.connection = parentWindow.config.connection
         self.cache = parentWindow.config.cache
 
+    def GetBudgetAmountForYear(self, year):
+        cursor = self.connection.cursor()
+        cursor.execute("""
+                select BudgetAmount
+                from Years
+                where Year = ?""",
+                year)
+        row = cursor.fetchone()
+        if row is None:
+            return 0
+        amount, = row
+        return amount
+
     def Print(self):
         args = self._GetPrintArgs()
         if args is None:

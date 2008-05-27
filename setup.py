@@ -13,8 +13,11 @@ includes = [
         "r_ChequeLetter",
         "r_DepositCheques",
         "r_DepositSummary",
+        "r_MonthlyReport",
+        "r_QuarterlyReport",
         "r_TaxReceipts",
         "r_TreasurerSummary",
+        "r_YearlyReport",
         "w_CashEdit",
         "w_CauseEdit",
         "w_Causes",
@@ -33,6 +36,7 @@ includes = [
         "w_SelectDeposit",
         "w_SelectDonator",
         "w_SelectUnremitted",
+        "w_SelectYear",
         "w_SplitDonationsEdit",
         "w_TaxReceipts",
         "w_TopLevelFrame",
@@ -56,7 +60,7 @@ buildOptions = dict(
 
 cx_Freeze.setup(
         name = "Deacons",
-        version = "0.1",
+        version = "0.2",
         description = "Application for managing deacon data.",
         author = "Anthony Tuininga",
         author_email = "anthony.tuininga@gmail.com",
