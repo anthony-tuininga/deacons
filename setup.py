@@ -20,7 +20,9 @@ includes = [
         "r_YearlyReport",
         "w_CashEdit",
         "w_CauseEdit",
+        "w_CauseForYearEdit",
         "w_Causes",
+        "w_CausesForYear",
         "w_ChequeEdit",
         "w_CollectionEdit",
         "w_Deposits",
@@ -60,7 +62,7 @@ buildOptions = dict(
 
 cx_Freeze.setup(
         name = "Deacons",
-        version = "0.2",
+        version = "0.3",
         description = "Application for managing deacon data.",
         author = "Anthony Tuininga",
         author_email = "anthony.tuininga@gmail.com",

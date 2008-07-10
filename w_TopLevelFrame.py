@@ -67,6 +67,11 @@ class Frame(ceGUI.TopLevelFrame):
         report = cls(self)
         report.Print()
 
+    def _AddCausesForYearPage(self, year):
+        text = "%s - Causes" % year
+        page = self.__AddPage("w_CausesForYear.Panel", text)
+        page.list.Retrieve(year)
+
     def _AddDonatorsForYearPage(self, year):
         text = "%s - Donators" % year
         page = self.__AddPage("w_DonatorsForYear.Panel", text)
