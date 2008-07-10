@@ -25,6 +25,15 @@ class AmountColumn(ceGUI.ListColumn):
         return FormattedAmount(value)
 
 
+class BooleanColumn(ceGUI.ListColumn):
+
+    def GetValue(self, row):
+        value = getattr(row, self.attrName)
+        if value:
+            return "Yes"
+        return "No"
+
+
 class CauseColumn(ceGUI.ListColumn):
 
     def GetValue(self, row):

@@ -13,6 +13,8 @@ class List(ceGUI.DataList):
     def _CreateContextMenu(self):
         super(List, self)._CreateContextMenu()
         self.menu.AppendSeparator()
+        self.causesMenuItem = self._AddMenuItem(self.menu, "Causes",
+                method = self.OnCauses, passEvent = False)
         self.donatorsMenuItem = self._AddMenuItem(self.menu, "Donators",
                 method = self.OnDonators, passEvent = False)
         self.taxReceiptsMenuItem = self._AddMenuItem(self.menu,
@@ -29,6 +31,10 @@ class List(ceGUI.DataList):
         self.AddColumn("budgetAmount", "Budget Amount",
                 justification = wx.LIST_FORMAT_RIGHT,
                 cls = Common.AmountColumn)
+
+    def OnCauses(self):
+        app = wx.GetApp()
+        app.topWindow._AddCausesForYearPage(self.contextItem.year)
 
     def OnDonators(self):
         app = wx.GetApp()
