@@ -7,6 +7,10 @@ import Common
 
 class Panel(Common.Panel):
 
+    def OnBankChequesReport(self, event):
+        self.PrintReport("r_DepositedCheques", self.depositId,
+                self.dateDeposited)
+
     def OnBankReport(self, event):
         self.PrintReport("r_DepositSummary", self.depositId,
                 self.dateDeposited)
@@ -21,17 +25,21 @@ class Panel(Common.Panel):
             page = cls(self.notebook)
             page.RestoreSettings()
             self.notebook.AddPage(page, page.labelText)
+        self.staticBox = wx.StaticBox(self, -1, "Reports")
         self.bankReportButton = self.AddButton("Bank",
                 method = self.OnBankReport)
+        self.bankChequesReportButton = self.AddButton("Bank Cheques",
+                method = self.OnBankChequesReport)
         self.treasurerReportButton = self.AddButton("Treasurer",
                 method = self.OnTreasurerReport)
         self.chequesReportButton = self.AddButton("Cheques",
                 method = self.OnChequesReport)
-        self.staticBox = wx.StaticBox(self, -1, "Reports")
 
     def OnLayout(self):
         buttonSizer = wx.StaticBoxSizer(self.staticBox, wx.HORIZONTAL)
         buttonSizer.Add(self.bankReportButton, flag = wx.ALL, border = 5)
+        buttonSizer.Add(self.bankChequesReportButton, flag = wx.ALL,
+                border = 5)
         buttonSizer.Add(self.treasurerReportButton, flag = wx.ALL, border = 5)
         buttonSizer.Add(self.chequesReportButton, flag = wx.ALL, border = 5)
         sizer = wx.BoxSizer(wx.VERTICAL)
