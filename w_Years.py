@@ -12,14 +12,13 @@ class List(ceGUI.DataList):
 
     def _CreateContextMenu(self):
         super(List, self)._CreateContextMenu()
-        self.menu.AppendSeparator()
-        self.causesMenuItem = self._AddMenuItem(self.menu, "Causes",
+        self.menu.AddSeparator()
+        self.causesMenuItem = self.menu.AddEntry(self, "Causes",
                 method = self.OnCauses, passEvent = False)
-        self.donatorsMenuItem = self._AddMenuItem(self.menu, "Donators",
+        self.donatorsMenuItem = self.menu.AddEntry(self, "Donators",
                 method = self.OnDonators, passEvent = False)
-        self.taxReceiptsMenuItem = self._AddMenuItem(self.menu,
-                "Tax Receipts", method = self.OnTaxReceipts,
-                passEvent = False)
+        self.taxReceiptsMenuItem = self.menu.AddEntry(self, "Tax Receipts",
+                method = self.OnTaxReceipts, passEvent = False)
 
     def OnContextMenu(self):
         self.donatorsMenuItem.Enable(self.contextItem is not None)

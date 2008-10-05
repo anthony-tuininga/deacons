@@ -37,7 +37,7 @@ class Frame(ceGUI.TopLevelFrame):
         menu = self.AddMenu("&File")
         self.AddMenuItem(menu, "&New", "New deposit", method = self.OnNew)
         self.AddMenuItem(menu, "&Open", "Open deposit", method = self.OnOpen)
-        menu.AppendSeparator()
+        menu.AddSeparator()
         self.AddMenuItem(menu, "&Elders", "Edit elders",
                 method = self.OnEditElders, passEvent = False)
         self.AddMenuItem(menu, "&Causes", "Edit causes",
@@ -46,7 +46,7 @@ class Frame(ceGUI.TopLevelFrame):
                 method = self.OnEditDonators, passEvent = False)
         self.AddMenuItem(menu, "&Years", "Edit years",
                 method = self.OnEditYears, passEvent = False)
-        menu.AppendSeparator()
+        menu.AddSeparator()
         self.AddStockMenuItem(menu, wx.ID_EXIT, self.OnExit)
 
     def __CreateHelpMenu(self):

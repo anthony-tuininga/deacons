@@ -34,9 +34,9 @@ class Grid(ceGUI.Grid):
 
     def _CreateContextMenu(self):
         super(Grid, self)._CreateContextMenu()
-        self.menu.AppendSeparator()
-        self.splitMenuItem = self._AddMenuItem(self.menu, "Split\tCtrl-T",
-                method = self.OnSplit, skipEvent = False, passEvent = False)
+        self.menu.AddSeparator()
+        self.splitMenuItem = self.menu.AddEntry(self, "Split\tCtrl-T",
+                method = self.OnSplit, passEvent = False)
 
     def _GetAccelerators(self):
         accelerators = super(Grid, self)._GetAccelerators()
@@ -169,6 +169,8 @@ class GridColumnAssignedNumber(ceGUI.GridColumnInt):
         if newDonator is None:
             return False
         dataSet.SetValue(rowHandle, "donatorId", newDonator.donatorId)
+        rowIndex = grid.GetGridCursorRow()
+        grid.SetGridCursor(rowIndex, 3)
         grid.Refresh()
         return True
 
@@ -221,6 +223,8 @@ class GridColumnName(ceGUI.GridColumn):
         if selectedDonator is None:
             return False
         dataSet.SetValue(rowHandle, self.attrName, selectedDonator.donatorId)
+        rowIndex = grid.GetGridCursorRow()
+        grid.SetGridCursor(rowIndex, 3)
         grid.Refresh()
         return True
 

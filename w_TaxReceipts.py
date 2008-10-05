@@ -17,8 +17,8 @@ class List(ceGUI.DataList):
 
     def _CreateContextMenu(self):
         super(List, self)._CreateContextMenu()
-        self.menu.AppendSeparator()
-        self.printReceiptsMenuItem = self._AddMenuItem(self.menu,
+        self.menu.AddSeparator()
+        self.printReceiptsMenuItem = self.menu.AddEntry(self,
                 "Print Receipts", method = self.OnPrintReceipts,
                 passEvent = False)
 
