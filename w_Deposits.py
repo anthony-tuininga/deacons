@@ -87,10 +87,10 @@ class CollectionsList(ceGUI.DataList):
 
     def _CreateContextMenu(self):
         super(CollectionsList, self)._CreateContextMenu()
-        self.menu.AppendSeparator()
-        self.editCashMenuItem = self._AddMenuItem(self.menu, "Edit Cash...",
+        self.menu.AddSeparator()
+        self.editCashMenuItem = self.menu.AddEntry(self, "Edit Cash...",
                 method = self.OnEditCash, passEvent = False)
-        self.editDonationsMenuItem = self._AddMenuItem(self.menu,
+        self.editDonationsMenuItem = self.menu.AddEntry(self,
                 "Edit Donations...", method = self.OnEditDonations,
                 passEvent = False)
 
@@ -143,8 +143,8 @@ class ChequesList(ceGUI.DataList):
 
     def _CreateContextMenu(self):
         super(ChequesList, self)._CreateContextMenu()
-        self.menu.AppendSeparator()
-        self.printMenuItem = self._AddMenuItem(self.menu, "Print Letter...",
+        self.menu.AddSeparator()
+        self.printMenuItem = self.menu.AddEntry(self, "Print Letter...",
                 method = self.OnPrintLetter, passEvent = False)
 
     def OnContextMenu(self):
