@@ -21,8 +21,10 @@ class List(ceGUI.DataList):
                 method = self.OnTaxReceipts, passEvent = False)
 
     def OnContextMenu(self):
-        self.donatorsMenuItem.Enable(self.contextItem is not None)
-        self.taxReceiptsMenuItem.Enable(self.contextItem is not None)
+        enabled = (len(self.GetSelectedItems()) == 1)
+        self.causesMenuItem.Enable(enabled)
+        self.donatorsMenuItem.Enable(enabled)
+        self.taxReceiptsMenuItem.Enable(enabled)
         super(List, self).OnContextMenu()
 
     def OnCreate(self):
@@ -33,15 +35,18 @@ class List(ceGUI.DataList):
 
     def OnCauses(self):
         app = wx.GetApp()
-        app.topWindow._AddCausesForYearPage(self.contextItem.year)
+        selectedItems = self.GetSelectedItems()
+        app.topWindow._AddCausesForYearPage(selectedItems[0].year)
 
     def OnDonators(self):
         app = wx.GetApp()
-        app.topWindow._AddDonatorsForYearPage(self.contextItem.year)
+        selectedItems = self.GetSelectedItems()
+        app.topWindow._AddDonatorsForYearPage(selectedItems[0].year)
 
     def OnTaxReceipts(self):
         app = wx.GetApp()
-        app.topWindow._AddTaxReceiptsPage(self.contextItem.year)
+        selectedItems = self.GetSelectedItems()
+        app.topWindow._AddTaxReceiptsPage(selectedItems[0].year)
 
 
 class DataSet(ceDatabase.DataSet):
