@@ -63,7 +63,7 @@ buildOptions = dict(
 
 cx_Freeze.setup(
         name = "Deacons",
-        version = "0.4",
+        version = "0.5",
         description = "Application for managing deacon data.",
         author = "Anthony Tuininga",
         author_email = "anthony.tuininga@gmail.com",
