@@ -9,11 +9,6 @@ import wx
 class Dialog(ceGUI.EditDialog):
     title = "Edit Donator Number"
 
-    def OnCreate(self):
-        self.AddColumn("name", "Name:", self.AddTextField(wx.TE_READONLY))
-        self.AddColumn("assignedNumber", "Number:", self.AddIntegerField(),
-                required = True)
-
     def OnNewRow(self, parent, row):
         year, = parent.list.dataSet.retrievalArgs
         row.year = year
@@ -28,14 +23,22 @@ class Dialog(ceGUI.EditDialog):
             row.donatorId = donator.donatorId
         dialog.Destroy()
 
-    def Retrieve(self, parent):
-        super(Dialog, self).Retrieve(parent)
-        row = self.dataSet.rows[0]
+
+class Panel(ceGUI.DataEditPanel):
+
+    def OnCreate(self):
+        self.AddColumn("name", "Name:", self.AddTextField(wx.TE_READONLY))
+        self.AddColumn("assignedNumber", "Number:", self.AddIntegerField(),
+                required = True)
+
+    def OnPostCreate(self):
+        row = self.GetRow()
         if row.donatorId is None:
             row.name = None
         else:
-            donator = parent.config.cache.DonatorForId(row.donatorId)
+            donator = self.config.cache.DonatorForId(row.donatorId)
             row.name = donator.name
+        super(Panel, self).OnPostCreate()
 
 
 class DataSet(ceDatabase.DataSet):

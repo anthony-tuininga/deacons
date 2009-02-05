@@ -9,6 +9,12 @@ import wx
 class Dialog(ceGUI.EditDialog):
     title = "Edit Donator"
 
+    def OnNewRow(self, parent, row):
+        row.isActive = True
+
+
+class Panel(ceGUI.DataEditPanel):
+
     def OnCreate(self):
         self.AddColumn("lastName", "Last Name:",
                 self.AddTextField(maxLength = 30), required = True)
@@ -18,9 +24,6 @@ class Dialog(ceGUI.EditDialog):
                 size = (-1, 105))
         self.AddColumn("address", "Address:", field)
         self.AddColumn("isActive", "Active?", self.AddCheckBox())
-
-    def OnNewRow(self, parent, row):
-        row.isActive = True
 
 
 class DataSet(ceDatabase.DataSet):

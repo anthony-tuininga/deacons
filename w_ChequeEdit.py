@@ -11,15 +11,6 @@ import Common
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cheque"
 
-    def OnCreate(self):
-        self.AddColumn("chequeNumber", "Cheque Number:",
-                self.AddTextField(cls = ceGUI.IntegerField),
-                required = True)
-        self.AddColumn("causeId", "Cause:",
-                self.AddTextField(style = wx.TE_READONLY), cls = CauseColumn)
-        self.AddColumn("amount", "Amount:",
-                self.AddTextField(style = wx.TE_READONLY), cls = AmountColumn)
-
     def OnNewRow(self, parent, row):
         depositId = parent.GetParent().GetParent().depositId
         dialog = parent.OpenWindow("w_SelectUnremitted.Dialog")
@@ -29,6 +20,18 @@ class Dialog(ceGUI.EditDialog):
             row.causeId = selectedItem.causeId
             row.amount = selectedItem.amount
         dialog.Destroy()
+
+
+class Panel(ceGUI.DataEditPanel):
+
+    def OnCreate(self):
+        self.AddColumn("chequeNumber", "Cheque Number:",
+                self.AddTextField(cls = ceGUI.IntegerField),
+                required = True)
+        self.AddColumn("causeId", "Cause:",
+                self.AddTextField(style = wx.TE_READONLY), cls = CauseColumn)
+        self.AddColumn("amount", "Amount:",
+                self.AddTextField(style = wx.TE_READONLY), cls = AmountColumn)
 
 
 class DataSet(ceDatabase.DataSet):
