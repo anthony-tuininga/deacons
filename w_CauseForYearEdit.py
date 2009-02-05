@@ -9,11 +9,6 @@ import wx
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cause Deductiblity"
 
-    def OnCreate(self):
-        self.AddColumn("description", "Description:",
-                self.AddTextField(wx.TE_READONLY))
-        self.AddColumn("deductible", "Deductible:", self.AddCheckBox())
-
     def OnNewRow(self, parent, row):
         year, = parent.list.dataSet.retrievalArgs
         row.year = year
@@ -28,14 +23,22 @@ class Dialog(ceGUI.EditDialog):
             row.causeId = cause.causeId
         dialog.Destroy()
 
-    def Retrieve(self, parent):
-        super(Dialog, self).Retrieve(parent)
-        row = self.dataSet.rows[0]
+
+class Panel(ceGUI.DataEditPanel):
+
+    def OnCreate(self):
+        self.AddColumn("description", "Description:",
+                self.AddTextField(wx.TE_READONLY))
+        self.AddColumn("deductible", "Deductible:", self.AddCheckBox())
+
+    def OnPostCreate(self):
+        row = self.GetRow()
         if row.causeId is None:
             row.description = None
         else:
-            cause = parent.config.cache.CauseForId(row.causeId)
+            cause = self.config.cache.CauseForId(row.causeId)
             row.description = cause.description
+        super(Panel, self).OnPostCreate()
 
 
 class DataSet(ceDatabase.DataSet):

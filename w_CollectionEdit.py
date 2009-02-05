@@ -10,6 +10,18 @@ import wx
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cause"
 
+    def OnNewRow(self, parent, row):
+        depositsPanel = parent.GetParent().GetParent()
+        row.reconciled = False
+        row.depositId = depositsPanel.depositId
+        row.dateCollected = datetime.date.today()
+        causes = parent.config.cache.Causes()
+        if causes:
+            row.causeId = causes[0].causeId
+
+
+class Panel(ceGUI.DataEditPanel):
+
     def OnCreate(self):
         self.AddColumn("dateCollected", "Date:", self.AddDateField(),
                 required = True)
@@ -20,15 +32,6 @@ class Dialog(ceGUI.EditDialog):
         self.AddColumn("description", "Description:",
                 self.AddTextField(maxLength = 60))
         self.AddColumn("reconciled", "Reconciled?", self.AddCheckBox())
-
-    def OnNewRow(self, parent, row):
-        depositsPanel = parent.GetParent().GetParent()
-        row.reconciled = False
-        row.depositId = depositsPanel.depositId
-        row.dateCollected = datetime.date.today()
-        causes = parent.config.cache.Causes()
-        if causes:
-            row.causeId = causes[0].causeId
 
 
 class DataSet(ceDatabase.DataSet):

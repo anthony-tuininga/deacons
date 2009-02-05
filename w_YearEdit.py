@@ -11,8 +11,12 @@ import Common
 class Dialog(ceGUI.EditDialog):
     title = "Edit Year"
 
+
+class Panel(ceGUI.DataEditPanel):
+
     def OnCreate(self):
-        if self.parentItem is not None:
+        parent = self.GetParent()
+        if parent.parentItem is not None:
             style = wx.TE_READONLY
         else:
             style = 0

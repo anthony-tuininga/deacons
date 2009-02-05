@@ -9,6 +9,12 @@ import wx
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cause"
 
+    def OnNewRow(self, parent, row):
+        row.isActive = row.isReported = True
+
+
+class Panel(ceGUI.DataEditPanel):
+
     def OnCreate(self):
         self.AddColumn("description", "Description:",
                 self.AddTextField(maxLength = 60), required = True)
@@ -17,9 +23,6 @@ class Dialog(ceGUI.EditDialog):
         self.AddColumn("address", "Address:", field)
         self.AddColumn("isReported", "Reported?", self.AddCheckBox())
         self.AddColumn("isActive", "Active?", self.AddCheckBox())
-
-    def OnNewRow(self, parent, row):
-        row.isActive = row.isReported = True
 
 
 class DataSet(ceDatabase.DataSet):

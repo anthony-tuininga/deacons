@@ -8,6 +8,9 @@ import ceGUI
 class Dialog(ceGUI.EditDialog):
     title = "Edit Elder"
 
+
+class Panel(ceGUI.DataEditPanel):
+
     def OnCreate(self):
         self.AddColumn("name", "Name:", self.AddTextField(maxLength = 60),
                 required = True)
