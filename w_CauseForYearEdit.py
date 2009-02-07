@@ -16,7 +16,7 @@ class Dialog(ceGUI.EditDialog):
         existingValues = dict.fromkeys(d.causeId \
                 for d in parent.list.dataSet.rows.itervalues())
         causes = [d for d in parent.config.cache.Causes() \
-                if d.active and d.causeId not in existingValues]
+                if d.isActive and d.causeId not in existingValues]
         dialog.Retrieve(causes)
         if dialog.ShowModal() == wx.ID_OK:
             cause = dialog.GetSelectedItem()

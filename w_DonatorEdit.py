@@ -14,6 +14,7 @@ class Dialog(ceGUI.EditDialog):
 
 
 class Panel(ceGUI.DataEditPanel):
+    updateSubCacheAttrName = "donators"
 
     def OnCreate(self):
         self.AddColumn("lastName", "Last Name:",

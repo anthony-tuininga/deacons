@@ -1,8 +1,18 @@
+"""
+Panel which displays causes and enables editing of them.
+"""
+
 import ceDatabase
 import ceGUI
 
+from Cache import Cache
+
 class Panel(ceGUI.DataListPanel):
     editDialogName = "w_CauseEdit.Dialog"
+    updateSubCacheAttrName = "causes"
+
+    def Retrieve(self):
+        self.list.Retrieve(self.cache)
 
 
 class List(ceGUI.DataList):
@@ -12,7 +22,9 @@ class List(ceGUI.DataList):
 
 
 class DataSet(ceDatabase.DataSet):
-    tableName = "Causes"
-    attrNames = "causeId description"
-    pkAttrNames = "causeId"
+    rowClass = Cache.CausesSubCache.rowClass
+    tableName = Cache.CausesSubCache.rowClass.tableName
+
+    def _GetRows(self, cache):
+        return cache.Causes()
 

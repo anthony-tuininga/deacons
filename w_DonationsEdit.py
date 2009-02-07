@@ -209,7 +209,7 @@ class GridColumnName(ceGUI.GridColumn):
             return True
         searchValue = rawValue.upper()
         donators = [d for d in grid.config.cache.Donators() \
-                if d.active and d.searchReversedName.startswith(searchValue)]
+                if d.isActive and d.searchReversedName.startswith(searchValue)]
         selectedDonator = None
         if len(donators) == 1:
             selectedDonator, = donators

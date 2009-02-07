@@ -7,7 +7,7 @@ executables = [cx_Freeze.Executable("Deacons.py")]
 includes = [
         "Cache",
         "Common",
-        "Database",
+        "Config",
         "encodings.utf_8",
         "Reports",
         "r_ChequeLetter",
