@@ -41,8 +41,7 @@ class Dialog(ceGUI.StandardDialog):
 
     def OnLayout(self):
         sizer = wx.BoxSizer(wx.VERTICAL)
-        sizer.Add(self.notebook, flag = wx.EXPAND | wx.ALL, proportion = 1,
-                border = 5)
+        sizer.Add(self.notebook, flag = wx.EXPAND | wx.ALL, border = 5)
         return sizer
 
     def OnOk(self):
@@ -54,19 +53,20 @@ class Dialog(ceGUI.StandardDialog):
 
 class Panel(ceGUI.Panel):
 
-    def CreateSizer(self, fields, staticBoxLabel):
-        staticBox = wx.StaticBox(self, -1, staticBoxLabel)
+    def CreateSizer(self, fields, staticBox):
         fieldsSizer = wx.FlexGridSizer(rows = len(fields), cols = 4, vgap = 5,
                 hgap = 5)
         for field in fields:
             field.AddToSizer(fieldsSizer)
         sizer = wx.StaticBoxSizer(staticBox, wx.VERTICAL)
-        sizer.Add(fieldsSizer, flag = wx.ALL, border = 5)
+        sizer.Add(fieldsSizer, flag = wx.ALL | wx.EXPAND, border = 5)
         return sizer
 
     def OnCreate(self):
         self.fields = []
         self.fieldsById = {}
+        self.coinsStaticBox = wx.StaticBox(self, label = "Coin")
+        self.cashStaticBox = wx.StaticBox(self, label = "Coin")
         Field(self, 1, "0.01", "roll(s) of pennies", 50)
         Field(self, 2, "0.05", "roll(s) of nickels", 40)
         Field(self, 3, "0.10", "roll(s) of dimes", 50)
@@ -86,8 +86,8 @@ class Panel(ceGUI.Panel):
     def OnLayout(self):
         coinFields = [f for f in self.fields if f.quantityMultiple > 1]
         cashFields = [f for f in self.fields if f.quantityMultiple == 1]
-        coinFieldsSizer = self.CreateSizer(coinFields, "Coin")
-        cashFieldsSizer = self.CreateSizer(cashFields, "Cash")
+        coinFieldsSizer = self.CreateSizer(coinFields, self.coinsStaticBox)
+        cashFieldsSizer = self.CreateSizer(cashFields, self.cashStaticBox)
         sizer = wx.BoxSizer(wx.HORIZONTAL)
         sizer.Add(coinFieldsSizer, flag = wx.ALL | wx.EXPAND, border = 5)
         sizer.Add(cashFieldsSizer, flag = wx.ALL | wx.EXPAND, border = 5)
