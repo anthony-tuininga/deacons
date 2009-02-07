@@ -1,9 +1,22 @@
 """
-Wrapper for ceODBC in order to manage Unicode input as the PostgreSQL
-ODBC driver does not handle it yet.
+Configuration for Deacons application.
 """
 
 import ceODBC
+import os
+
+import Cache
+
+class Config(object):
+    baseDsn = 'Driver=PostgreSQL;Servername=localhost;Database=deacons;' \
+            'readonly=0'
+
+    def __init__(self, app):
+        dsn = "%s;uid=%s" % (self.baseDsn, os.environ["LOGNAME"])
+        self.connection = Connection(dsn)
+        self.cache = app.cache = Cache.Cache(self.connection)
+        app.copyAttributes.append("cache")
+
 
 class Connection(ceODBC.Connection):
 

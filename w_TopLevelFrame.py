@@ -75,7 +75,7 @@ class Frame(ceGUI.TopLevelFrame):
     def _AddDonatorsForYearPage(self, year):
         text = "%s - Donators" % year
         page = self.__AddPage("w_DonatorsForYear.Panel", text)
-        page.list.Retrieve(year)
+        page.Setup(year)
 
     def _AddTaxReceiptsPage(self, year):
         text = "%s - Tax Receipts" % year

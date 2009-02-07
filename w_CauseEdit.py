@@ -14,6 +14,7 @@ class Dialog(ceGUI.EditDialog):
 
 
 class Panel(ceGUI.DataEditPanel):
+    updateSubCacheAttrName = "causes"
 
     def OnCreate(self):
         self.AddColumn("description", "Description:",

@@ -7,9 +7,11 @@ import ceGUI
 import wx
 
 import Common
+from Cache import Cache
 
 class Panel(ceGUI.DataListPanel):
     editDialogName = "w_DonatorForYearEdit.Dialog"
+    updateSubCacheAttrName = "donatorsForYear"
 
     def GetEditWindow(self, item = None):
         editWindow = super(Panel, self).GetEditWindow(item)
@@ -17,6 +19,12 @@ class Panel(ceGUI.DataListPanel):
             editWindow.Destroy()
         else:
             return editWindow
+
+    def Retrieve(self):
+        self.list.Retrieve(self.cache, self.year)
+
+    def Setup(self, year):
+        self.year = year
 
 
 class List(ceGUI.DataList):
@@ -31,8 +39,9 @@ class List(ceGUI.DataList):
 
 
 class DataSet(ceDatabase.DataSet):
-    tableName = "DonatorsForYear"
-    attrNames = "year donatorId assignedNumber"
-    pkAttrNames = "year donatorId"
-    retrievalAttrNames = "year"
+    rowClass = Cache.DonatorsForYearSubCache.rowClass
+    tableName = Cache.DonatorsForYearSubCache.rowClass.tableName
+
+    def _GetRows(self, cache, year):
+        return cache.DonatorsForYear(year)
 

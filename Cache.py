@@ -3,108 +3,87 @@ Define cache for commonly used items.
 """
 
 import ceDatabase
+import ceDatabaseCache
 
-class Cache(object):
+class Cache(ceDatabaseCache.Cache):
 
-    def __init__(self, connection):
-        self.connection = connection
-        self.Clear()
+    class CausesSubCache(ceDatabaseCache.SubCache):
+        allRowsMethodCacheAttrName = "Causes"
+        loadAllRowsOnFirstLoad = True
+        cacheAttrName = "causes"
 
-    def __PopulateCauses(self, cursor):
-        cursor.execute("""
-                select
-                  CauseId,
-                  Description,
-                  IsReported,
-                  IsActive,
-                  Address
-                from Causes""")
-        cursor.rowfactory = Cause
-        self.causes = cursor.fetchall()
-        self.causesById = dict((c.causeId, c) for c in self.causes)
-        for cause in self.causes:
-            cause.searchDescription = cause.description.upper()
+        class rowClass(ceDatabase.Row):
+            tableName = "Causes"
+            attrNames = "causeId description isReported isActive address"
+            charBooleanAttrNames = "isReported isActive"
+            extraAttrNames = sortByAttrNames = "searchDescription"
+            pkAttrNames = "causeId"
+            reprName = "Cause"
 
-    def __PopulateDonators(self, cursor):
-        cursor.execute("""
-                select
-                  DonatorId,
-                  IsActive,
-                  LastName,
-                  GivenNames,
-                  Address
-                from Donators""")
-        cursor.rowfactory = Donator
-        self.donators = cursor.fetchall()
-        self.donatorsById = dict((d.donatorId, d) for d in self.donators)
-        for donator in self.donators:
-            if donator.givenNames is None:
-                donator.name = donator.reversedName = donator.lastName
+        class Id(ceDatabaseCache.SingleRowPath):
+            retrievalAttrNames = "causeId"
+            cacheAttrName = "CauseForId"
+
+        def SetExtraAttrValues(self, cache, row):
+            row.searchDescription = row.description.upper()
+
+    class DonatorsSubCache(ceDatabaseCache.SubCache):
+        allRowsMethodCacheAttrName = "Donators"
+        loadAllRowsOnFirstLoad = True
+        cacheAttrName = "donators"
+
+        class rowClass(ceDatabase.Row):
+            tableName = "Donators"
+            attrNames = "donatorId isActive lastName givenNames address"
+            charBooleanAttrNames = "isActive"
+            extraAttrNames = "name reversedName searchName searchReversedName"
+            pkAttrNames = "donatorId"
+            reprName = "Donator"
+
+        class Id(ceDatabaseCache.SingleRowPath):
+            retrievalAttrNames = "donatorId"
+            cacheAttrName = "DonatorForId"
+
+        def SetExtraAttrValues(self, cache, row):
+            if row.givenNames is None:
+                row.name = row.reversedName = row.lastName
             else:
-                donator.name = "%s %s" % \
-                        (donator.givenNames, donator.lastName)
-                donator.reversedName = "%s, %s" % \
-                        (donator.lastName, donator.givenNames)
-            donator.searchName = donator.name.upper()
-            donator.searchReversedName = donator.reversedName.upper()
+                row.name = "%s %s" % (row.givenNames, row.lastName)
+                row.reversedName = "%s, %s" % (row.lastName, row.givenNames)
+            row.searchName = row.name.upper()
+            row.searchReversedName = row.reversedName.upper()
 
-    def __PopulateDonatorsForYear(self, year):
-        if year not in self.assignedNumbersByDonator:
-            cursor = self.connection.cursor()
-            cursor.execute("""
-                    select
-                      DonatorId,
-                      AssignedNumber
-                    from DonatorsForYear
-                    where Year = ?""",
-                    year)
-            rows = [(self.donatorsById[i], n) for i, n in cursor]
-            self.assignedNumbersByDonator[year] = dict(rows)
-            self.donatorsByAssignedNumber[year] = \
-                    dict((n, d) for d, n in rows)
+    class DonatorsForYearSubCache(ceDatabaseCache.SubCache):
+        loadAllRowsOnFirstLoad = True
+        cacheAttrName = "donatorsForYear"
+
+        class rowClass(ceDatabase.Row):
+            tableName = "DonatorsForYear"
+            attrNames = "donatorId year assignedNumber"
+            pkAttrNames = "year donatorId"
+            reprName = "DonatorForYear"
+
+        class Donator(ceDatabaseCache.SingleRowPath):
+            retrievalAttrNames = "donatorId year"
+            cacheAttrName = "_AssignedNumberForDonator"
+            ignoreRowNotCached = True
+
+        class AssignedNumber(ceDatabaseCache.SingleRowPath):
+            retrievalAttrNames = "year assignedNumber"
+            cacheAttrName = "_DonatorForAssignedNumber"
+            ignoreRowNotCached = True
+
+        class Year(ceDatabaseCache.MultipleRowPath):
+            retrievalAttrNames = "year"
+            cacheAttrName = "DonatorsForYear"
 
     def AssignedNumberForDonator(self, donator, year):
-        self.__PopulateDonatorsForYear(year)
-        return self.assignedNumbersByDonator[year].get(donator)
-
-    def CauseForId(self, causeId):
-        return self.causesById[causeId]
-
-    def Causes(self, sortItems = True, activeOnly = True):
-        if not sortItems:
-            if not activeOnly:
-                return self.causes
-            return [c for c in self.causes if c.active]
-        itemsToSort = [(c.description.upper(), c) for c in self.causes \
-                if c.active or not activeOnly]
-        return [c for d, c in sorted(itemsToSort)]
-
-    def Clear(self):
-        cursor = self.connection.cursor()
-        self.__PopulateCauses(cursor)
-        self.__PopulateDonators(cursor)
-        self.assignedNumbersByDonator = {}
-        self.donatorsByAssignedNumber = {}
+        row = self._AssignedNumberForDonator(donator.donatorId, year)
+        if row is not None:
+            return row.assignedNumber
 
     def DonatorForAssignedNumber(self, year, assignedNumber):
-        self.__PopulateDonatorsForYear(year)
-        return self.donatorsByAssignedNumber[year].get(assignedNumber)
-
-    def DonatorForId(self, donatorId):
-        return self.donatorsById[donatorId]
-
-    def Donators(self):
-        return self.donators
-
-
-class Cause(ceDatabase.Row):
-    attrNames = "causeId description reported active address"
-    charBooleanAttrNames = "reported active"
-    extraAttrNames = "searchDescription"
-
-
-class Donator(ceDatabase.Row):
-    attrNames = "donatorId active lastName givenNames address"
-    charBooleanAttrNames = "active"
-    extraAttrNames = "name reversedName searchName searchReversedName"
+        row = self._DonatorForAssignedNumber(year, assignedNumber)
+        if row is not None:
+            return self.DonatorForId(row.donatorId)
 

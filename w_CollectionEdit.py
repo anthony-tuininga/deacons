@@ -15,9 +15,6 @@ class Dialog(ceGUI.EditDialog):
         row.reconciled = False
         row.depositId = depositsPanel.depositId
         row.dateCollected = datetime.date.today()
-        causes = parent.config.cache.Causes()
-        if causes:
-            row.causeId = causes[0].causeId
 
 
 class Panel(ceGUI.DataEditPanel):
@@ -26,7 +23,7 @@ class Panel(ceGUI.DataEditPanel):
         self.AddColumn("dateCollected", "Date:", self.AddDateField(),
                 required = True)
         choices = [(c.causeId, c.description) \
-                for c in self.config.cache.Causes()]
+                for c in self.config.cache.Causes() if c.isActive]
         self.causeField = self.AddChoiceField(*choices)
         self.AddColumn("causeId", "Cause:", self.causeField, required = True)
         self.AddColumn("description", "Description:",

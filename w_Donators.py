@@ -1,8 +1,18 @@
+"""
+Panel which displays donators and enables editing of them.
+"""
+
 import ceDatabase
 import ceGUI
 
+from Cache import Cache
+
 class Panel(ceGUI.DataListPanel):
     editDialogName = "w_DonatorEdit.Dialog"
+    updateSubCacheAttrName = "donators"
+
+    def Retrieve(self):
+        self.list.Retrieve(self.cache)
 
 
 class List(ceGUI.DataList):
@@ -13,7 +23,9 @@ class List(ceGUI.DataList):
 
 
 class DataSet(ceDatabase.DataSet):
-    tableName = "Donators"
-    attrNames = "donatorId givenNames lastName"
-    pkAttrNames = "donatorId"
+    rowClass = Cache.DonatorsSubCache.rowClass
+    tableName = Cache.DonatorsSubCache.rowClass.tableName
+
+    def _GetRows(self, cache):
+        return cache.Donators()
 
