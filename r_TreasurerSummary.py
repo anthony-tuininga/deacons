@@ -33,7 +33,7 @@ class ReportBody(Reports.ReportBody):
         dc = self.GetDC()
         dc.SetFont(self.font)
         y = self.topMargin
-        for collectionId, dateCollected, causes in self.pageData[pageNum - 1]:
+        for dateCollected, causes in self.pageData[pageNum - 1]:
             y = self.PrintHeader(dc, dateCollected, y)
             y = self.PrintCauses(dc, causes, y)
         return True
@@ -110,58 +110,54 @@ class ReportBody(Reports.ReportBody):
 
     def Retrieve(self, depositId):
 
-        # retrieve the collections for the deposit
+        # retrieve the set of dates collected for the deposit
         cursor = self.connection.cursor()
         cursor.execute("""
-                select
-                  CollectionId,
-                  DateCollected
+                select distinct DateCollected
                 from Collections
                 where DepositId = ?
                 order by DateCollected""",
                 depositId)
-        collections = cursor.fetchall()
-        allCauses = {}
-        for collectionId, dateCollected in collections:
-            allCauses[collectionId] = []
+        datesCollected = [d for d, in cursor]
+        causesForDate = dict((d, []) for d in datesCollected)
 
-        # retrieve the collection cause rows for the deposit
+        # retrieve the cause rows for the deposit
         cursor.execute("""
                 select
-                  ct.CollectionId,
-                  c.Description,
-                  ca.ChequeAmount,
-                  ca.EnvelopeCash,
-                  ca.CashAmount - ca.EnvelopeCash
+                    ct.DateCollected,
+                    c.Description,
+                    ca.ChequeAmount,
+                    ca.EnvelopeCash,
+                    ca.CashAmount - ca.EnvelopeCash
                 from
-                  Causes c,
-                  CollectionAmounts ca,
-                  Collections ct
+                    Collections ct
+                    join CollectionAmounts ca
+                        on ca.CollectionId = ct.CollectionId
+                    join Causes c
+                        on c.CauseId = ca.CauseId
                 where ct.DepositId = ?
-                  and ca.CollectionId = ct.CollectionId
-                  and c.CauseId = ca.CauseId
                 order by
-                  ct.DateCollected,
-                  case when c.CauseId = 1 then 0 else 1 end,
-                  c.Description""",
+                    ct.DateCollected,
+                    case when c.CauseId = 1 then 0 else 1 end,
+                    c.Description""",
                 depositId)
-        for collectionId, cause, cheques, envelopeCash, looseCash in cursor:
+        for dateCollected, cause, cheques, envelopeCash, looseCash in cursor:
             info = (cause, cheques, envelopeCash, looseCash)
-            allCauses[collectionId].append(info)
+            causesForDate[dateCollected].append(info)
 
         # calculate the number of pages to use
         y = self.topMargin
         self.pageData = []
-        collectionsForPage = []
-        for collectionId, dateCollected in collections:
-            causes = allCauses[collectionId]
+        datesForPage = []
+        for dateCollected in datesCollected:
+            causes = causesForDate[dateCollected]
             size = self.headerHeight + self._GetBoxHeight(len(causes))
             if y + size > self.bottomMargin:
-                self.pageData.append(collectionsForPage)
-                collectionsForPage = []
+                self.pageData.append(datesForPage)
+                datesForPage = []
                 y = self.topMargin
-            collectionsForPage.append((collectionId, dateCollected, causes))
+            datesForPage.append((dateCollected, causes))
             y += size + self.separationPoints
-        self.pageData.append(collectionsForPage)
+        self.pageData.append(datesForPage)
         self.SetMaxPage(len(self.pageData))
 
