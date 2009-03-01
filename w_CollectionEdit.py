@@ -55,10 +55,4 @@ class DataSet(ceDatabase.DataSet):
                     (CollectionId, CauseId)
                     values (?, ?)""",
                     row.collectionId, row.causeId)
-        if row.dateCollected.weekday() == 6: # Sunday
-            cursor.execute("""
-                    insert into CollectionCauses
-                    (CollectionId, CauseId)
-                    values (?, 1)""",
-                    row.collectionId)
 
