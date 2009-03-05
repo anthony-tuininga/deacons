@@ -103,6 +103,11 @@ class CollectionsList(ceGUI.DataList):
     def OnCreate(self):
         self.AddColumn("dateCollected", "Date", 150, cls = DateColumn)
         self.AddColumn("causeId", "Cause", 225, cls = Common.CauseColumn)
+        self.AddColumn("chequeAmount", "Cheques", 150,
+                cls = Common.AmountColumn,
+                justification = wx.LIST_FORMAT_RIGHT)
+        self.AddColumn("cashAmount", "Cash", 150, cls = Common.AmountColumn,
+                justification = wx.LIST_FORMAT_RIGHT)
         self.AddColumn("description", "Description")
 
     def OnEditCash(self):
@@ -120,9 +125,29 @@ class CollectionsList(ceGUI.DataList):
 
 class CollectionsDataSet(ceDatabase.DataSet):
     tableName = "Collections"
-    attrNames = "collectionId causeId dateCollected reconciled description"
+    attrNames = """collectionId causeId dateCollected reconciled description
+            chequeAmount cashAmount"""
     retrievalAttrNames = "depositId"
     pkAttrNames = "collectionId"
+
+    def _GetSqlForRetrieve(self):
+        return """
+                select
+                    CollectionId,
+                    CauseId,
+                    DateCollected,
+                    Reconciled,
+                    Description,
+                    ( select sum(ChequeAmount)
+                      from CollectionAmounts
+                      where CollectionId = c.CollectionId
+                    ),
+                    ( select sum(CashAmount)
+                      from CollectionAmounts
+                      where CollectionId = c.CollectionId
+                    )
+                from Collections c
+                where DepositId = ?"""
 
 
 class ChequesPanel(SubPanel):
