@@ -126,9 +126,9 @@ class ReportBody(Reports.ReportBody):
                 select
                     ct.DateCollected,
                     c.Description,
-                    ca.ChequeAmount,
-                    ca.EnvelopeCash,
-                    ca.CashAmount - ca.EnvelopeCash
+                    sum(ca.ChequeAmount),
+                    sum(ca.EnvelopeCash),
+                    sum(ca.CashAmount - ca.EnvelopeCash)
                 from
                     Collections ct
                     join CollectionAmounts ca
@@ -136,6 +136,10 @@ class ReportBody(Reports.ReportBody):
                     join Causes c
                         on c.CauseId = ca.CauseId
                 where ct.DepositId = ?
+                group by
+                    ct.DateCollected,
+                    c.CauseId,
+                    c.Description
                 order by
                     ct.DateCollected,
                     case when c.CauseId = 1 then 0 else 1 end,
