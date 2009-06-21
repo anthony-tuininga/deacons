@@ -56,6 +56,8 @@ class Report(Reports.Report):
         print >> outFile, monthEnd.strftime("%B").center(14),
         print >> outFile, "Year to Date"
         for description, monthAmount, yearAmount in sorted(amounts):
+            if monthAmount is None:
+                continue
             print >> outFile, description.ljust(27),
             print >> outFile, Common.FormattedAmount(monthAmount).rjust(13),
             print >> outFile, Common.FormattedAmount(yearAmount).rjust(13)
