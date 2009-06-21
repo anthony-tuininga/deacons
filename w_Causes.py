@@ -11,14 +11,14 @@ class Panel(ceGUI.DataListPanel):
     editDialogName = "w_CauseEdit.Dialog"
     updateSubCacheAttrName = "causes"
 
-    def Retrieve(self):
-        self.list.Retrieve(self.cache)
-
 
 class List(ceGUI.DataList):
 
     def OnCreate(self):
         self.AddColumn("description", "Description")
+
+    def Retrieve(self):
+        super(List, self).Retrieve(self.cache)
 
 
 class DataSet(ceDatabase.DataSet):

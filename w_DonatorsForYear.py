@@ -37,6 +37,10 @@ class List(ceGUI.DataList):
         self.AddColumn("givenNames", "Given Names",
                 cls = Common.GivenNamesColumn)
 
+    def OnRefresh(self):
+        parent = self.GetParent()
+        parent.Retrieve()
+
 
 class DataSet(ceDatabase.DataSet):
     rowClass = Cache.DonatorsForYearSubCache.rowClass
