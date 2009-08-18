@@ -11,7 +11,7 @@ import wx
 import Common
 
 class Panel(ceGUI.DataListPanel):
-    editDialogName = "w_YearEdit.Dialog"
+    editDialogName = "EditDialogs.Years.Dialog"
 
 
 class List(ceGUI.DataList):

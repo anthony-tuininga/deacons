@@ -10,7 +10,7 @@ import Common
 from Cache import Cache
 
 class Panel(ceGUI.DataListPanel):
-    editDialogName = "w_DonatorForYearEdit.Dialog"
+    editDialogName = "EditDialogs.DonatorsForYear.Dialog"
     updateSubCacheAttrName = "donatorsForYear"
 
     def GetEditWindow(self, item = None):

@@ -19,20 +19,11 @@ includes = [
         "r_TaxReceipts",
         "r_TreasurerSummary",
         "r_YearlyReport",
-        "w_CashEdit",
-        "w_CauseEdit",
-        "w_CauseForYearEdit",
         "w_Causes",
         "w_CausesForYear",
-        "w_ChequeEdit",
-        "w_CollectionEdit",
         "w_Deposits",
-        "w_DonationsEdit",
         "w_Donators",
         "w_DonatorsForYear",
-        "w_DonatorEdit",
-        "w_DonatorForYearEdit",
-        "w_ElderEdit",
         "w_Elders",
         "w_SelectCause",
         "w_SelectDate",
@@ -40,11 +31,13 @@ includes = [
         "w_SelectDonator",
         "w_SelectUnremitted",
         "w_SelectYear",
-        "w_SplitDonationsEdit",
         "w_TaxReceipts",
         "w_TopLevelFrame",
-        "w_YearEdit",
         "w_Years"
+]
+
+packages = [
+        "EditDialogs"
 ]
 
 binIncludes = []
@@ -58,6 +51,7 @@ includeFiles = [("CauseLetter.txt", "CauseLetter.txt")]
 buildOptions = dict(
         compressed = True,
         includes = includes,
+        packages = packages,
         bin_includes = binIncludes,
         include_files = includeFiles)
 

@@ -12,6 +12,7 @@ import wx
 import Common
 
 class Dialog(Common.DonationsDialog):
+    defaultSize = (650, 700)
 
     def _RowIsEmpty(self, row):
         return row.donatorId is None and row.amount == 0
@@ -112,7 +113,7 @@ class Grid(ceGUI.Grid):
             self.table.dataSet.ClearChanges()
             row.splitDonation = splitDonation
         parent = self.GetParent()
-        dialog = parent.OpenWindow("w_SplitDonationsEdit.Dialog")
+        dialog = parent.OpenWindow("EditDialogs.SplitDonations.Dialog")
         dialog.Setup(self.collection, row.splitDonation,
                 self.table.dataSet.causes)
         dialog.ShowModal()

@@ -11,6 +11,7 @@ import Common
 
 class Dialog(Common.DonationsDialog):
     title = "Edit Split Donation"
+    defaultSize = (500, 400)
 
     def _RowIsEmpty(self, row):
         return row.causeId is None and row.amount == 0

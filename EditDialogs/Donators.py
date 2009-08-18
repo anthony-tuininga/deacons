@@ -8,6 +8,7 @@ import wx
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Donator"
+    defaultWidth = 280
 
     def OnNewRow(self, parent, row):
         row.isActive = True

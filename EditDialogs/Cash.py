@@ -50,6 +50,12 @@ class Dialog(ceGUI.StandardDialog):
             page.Update(self.collection, keyedDataSet)
         self.dataSet.Update()
 
+    def RestoreSettings(self):
+        pass
+
+    def SaveSettings(self):
+        pass
+
 
 class Panel(ceGUI.Panel):
 

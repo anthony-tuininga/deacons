@@ -8,6 +8,7 @@ import wx
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cause Deductiblity"
+    defaultWidth = 315
 
     def OnNewRow(self, parent, row):
         year, = parent.list.dataSet.retrievalArgs
