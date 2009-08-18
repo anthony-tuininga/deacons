@@ -8,7 +8,7 @@ import ceGUI
 from Cache import Cache
 
 class Panel(ceGUI.DataListPanel):
-    editDialogName = "w_CauseEdit.Dialog"
+    editDialogName = "EditDialogs.Causes.Dialog"
     updateSubCacheAttrName = "causes"
 
 

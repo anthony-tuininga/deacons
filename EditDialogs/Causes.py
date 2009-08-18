@@ -8,6 +8,7 @@ import wx
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cause"
+    defaultWidth = 280
 
     def OnNewRow(self, parent, row):
         row.isActive = row.isReported = True

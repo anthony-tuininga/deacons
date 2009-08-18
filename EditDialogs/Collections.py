@@ -8,7 +8,8 @@ import datetime
 import wx
 
 class Dialog(ceGUI.EditDialog):
-    title = "Edit Cause"
+    title = "Edit Collection"
+    defaultWidth = 360
 
     def OnNewRow(self, parent, row):
         depositsPanel = parent.GetParent().GetParent()
@@ -24,7 +25,7 @@ class Panel(ceGUI.DataEditPanel):
                 required = True)
         choices = [(c.causeId, c.description) \
                 for c in self.config.cache.Causes() if c.isActive]
-        self.causeField = self.AddChoiceField(*choices)
+        self.causeField = self.AddChoiceField(choices)
         self.AddColumn("causeId", "Cause:", self.causeField, required = True)
         self.AddColumn("description", "Description:",
                 self.AddTextField(maxLength = 60))

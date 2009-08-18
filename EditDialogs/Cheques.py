@@ -10,6 +10,7 @@ import Common
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cheque"
+    defaultWidth = 350
 
     def OnNewRow(self, parent, row):
         depositId = parent.GetParent().GetParent().depositId

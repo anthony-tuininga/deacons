@@ -9,7 +9,7 @@ import wx
 import Common
 
 class Panel(ceGUI.DataListPanel):
-    editDialogName = "w_CauseForYearEdit.Dialog"
+    editDialogName = "EditDialogs.CausesForYear.Dialog"
 
     def GetEditWindow(self, item = None):
         editWindow = super(Panel, self).GetEditWindow(item)

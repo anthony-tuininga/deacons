@@ -10,6 +10,7 @@ import Common
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Year"
+    defaultWidth = 280
 
 
 class Panel(ceGUI.DataEditPanel):

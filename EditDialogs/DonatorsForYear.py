@@ -8,6 +8,7 @@ import wx
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Donator Number"
+    defaultWidth = 300
 
     def OnNewRow(self, parent, row):
         cache, row.year = parent.list.dataSet.retrievalArgs
@@ -24,6 +25,7 @@ class Dialog(ceGUI.EditDialog):
 
 
 class Panel(ceGUI.DataEditPanel):
+    updateSubCacheAttrName = "donatorsForYear"
 
     def OnCreate(self):
         self.AddColumn("name", "Name:", self.AddTextField(wx.TE_READONLY))
@@ -38,9 +40,6 @@ class Panel(ceGUI.DataEditPanel):
             donator = self.config.cache.DonatorForId(row.donatorId)
             row.name = donator.name
         super(Panel, self).OnPostCreate()
-
-    def OnPostUpdate(self):
-        self.cache.donatorsForYear.Clear()
 
 
 class DataSet(ceDatabase.DataSet):

@@ -77,7 +77,7 @@ class SubPanel(ceGUI.DataListPanel):
 
 class CollectionsPanel(SubPanel):
     listClassName = "CollectionsList"
-    editDialogName = "w_CollectionEdit.Dialog"
+    editDialogName = "EditDialogs.Collections.Dialog"
     settingsName = "CollectionsColumnWidths"
     labelText = "Collections"
 
@@ -112,13 +112,13 @@ class CollectionsList(ceGUI.DataList):
 
     def OnEditCash(self):
         parent = self.GetParent()
-        dialog = parent.OpenWindow("w_CashEdit.Dialog")
+        dialog = parent.OpenWindow("EditDialogs.Cash.Dialog")
         dialog.ShowModal()
         dialog.Destroy()
 
     def OnEditDonations(self):
         parent = self.GetParent()
-        dialog = parent.OpenWindow("w_DonationsEdit.Dialog")
+        dialog = parent.OpenWindow("EditDialogs.Donations.Dialog")
         dialog.ShowModal()
         dialog.Destroy()
 
@@ -152,7 +152,7 @@ class CollectionsDataSet(ceDatabase.DataSet):
 
 class ChequesPanel(SubPanel):
     listClassName = "ChequesList"
-    editDialogName = "w_ChequeEdit.Dialog"
+    editDialogName = "EditDialogs.Cheques.Dialog"
     settingsName = "ChequesColumnWidths"
     labelText = "Cheques"
 

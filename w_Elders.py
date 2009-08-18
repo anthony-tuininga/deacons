@@ -1,8 +1,12 @@
+"""
+Edit dialog for elders.
+"""
+
 import ceDatabase
 import ceGUI
 
 class Panel(ceGUI.DataListPanel):
-    editDialogName = "w_ElderEdit.Dialog"
+    editDialogName = "EditDialogs.Elders.Dialog"
 
 
 class List(ceGUI.DataList):

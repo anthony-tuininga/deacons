@@ -7,6 +7,7 @@ import ceGUI
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Elder"
+    defaultWidth = 280
 
 
 class Panel(ceGUI.DataEditPanel):
