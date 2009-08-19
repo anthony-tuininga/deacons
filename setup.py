@@ -25,19 +25,14 @@ includes = [
         "w_Donators",
         "w_DonatorsForYear",
         "w_Elders",
-        "w_SelectCause",
-        "w_SelectDate",
-        "w_SelectDeposit",
-        "w_SelectDonator",
-        "w_SelectUnremitted",
-        "w_SelectYear",
         "w_TaxReceipts",
         "w_TopLevelFrame",
         "w_Years"
 ]
 
 packages = [
-        "EditDialogs"
+        "EditDialogs",
+        "SelectDialogs"
 ]
 
 binIncludes = []

@@ -249,7 +249,7 @@ class GridColumnCause(ceGUI.GridColumn):
             selectedCause, = causes
         elif causes:
             parent = grid.GetParent()
-            dialog = parent.OpenWindow("w_SelectCause.Dialog")
+            dialog = parent.OpenWindow("SelectDialogs.Cause.Dialog")
             dialog.Retrieve(causes)
             if dialog.ShowModal() == wx.ID_OK:
                 selectedCause = dialog.GetSelectedItem()

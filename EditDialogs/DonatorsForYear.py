@@ -12,7 +12,7 @@ class Dialog(ceGUI.EditDialog):
 
     def OnNewRow(self, parent, row):
         cache, row.year = parent.list.dataSet.retrievalArgs
-        dialog = parent.OpenWindow("w_SelectDonator.Dialog")
+        dialog = parent.OpenWindow("SelectDialogs.Donator.Dialog")
         existingValues = dict.fromkeys(d.donatorId \
                 for d in parent.list.dataSet.rows.itervalues())
         donators = [d for d in parent.config.cache.Donators() \

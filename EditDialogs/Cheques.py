@@ -14,7 +14,7 @@ class Dialog(ceGUI.EditDialog):
 
     def OnNewRow(self, parent, row):
         depositId = parent.GetParent().GetParent().depositId
-        dialog = parent.OpenWindow("w_SelectUnremitted.Dialog")
+        dialog = parent.OpenWindow("SelectDialogs.Unremitted.Dialog")
         dialog.Retrieve(depositId)
         if dialog.ShowModal() == wx.ID_OK:
             selectedItem = dialog.GetSelectedItem()

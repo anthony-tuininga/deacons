@@ -63,7 +63,7 @@ class Report(Reports.Report):
             print >> outFile, Common.FormattedAmount(yearAmount).rjust(13)
 
     def _GetPrintArgs(self):
-        dialog = self.parentWindow.OpenWindow("w_SelectDate.Dialog")
+        dialog = self.parentWindow.OpenWindow("SelectDialogs.Date.Dialog")
         proceed = (dialog.ShowModal() == wx.ID_OK)
         dialog.Destroy()
         if not proceed:

@@ -7,6 +7,7 @@ import ceGUI
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Cause"
+    defaultSize = (325, 320)
 
 
 class List(ceGUI.List):

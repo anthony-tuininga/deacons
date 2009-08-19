@@ -7,6 +7,7 @@ import ceGUI
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Year"
+    defaultSize = (235, 320)
 
     def OnCreate(self):
         super(Dialog, self).OnCreate()
