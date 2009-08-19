@@ -136,7 +136,7 @@ class Frame(ceGUI.TopLevelFrame):
         self.__PrintReport("r_MonthlyReport")
 
     def OnNew(self, event):
-        dialog = self.OpenWindow("w_SelectDate.Dialog")
+        dialog = self.OpenWindow("SelectDialogs.Date.Dialog")
         if dialog.ShowModal() == wx.ID_OK:
             dateDeposited = dialog.GetDate()
             cursor = self.config.connection.cursor()
@@ -151,7 +151,7 @@ class Frame(ceGUI.TopLevelFrame):
         dialog.Destroy()
 
     def OnOpen(self, event):
-        dialog = self.OpenWindow("w_SelectDeposit.Dialog")
+        dialog = self.OpenWindow("SelectDialogs.Deposit.Dialog")
         if dialog.ShowModal() == wx.ID_OK:
             depositInfo = dialog.GetSelectedItem()
             self.__AddDepositPage(depositInfo.depositId,

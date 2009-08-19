@@ -216,7 +216,7 @@ class GridColumnName(ceGUI.GridColumn):
             selectedDonator, = donators
         elif donators:
             parent = grid.GetParent()
-            dialog = parent.OpenWindow("w_SelectDonator.Dialog")
+            dialog = parent.OpenWindow("SelectDialogs.Donator.Dialog")
             dialog.Retrieve(donators)
             if dialog.ShowModal() == wx.ID_OK:
                 selectedDonator = dialog.GetSelectedItem()

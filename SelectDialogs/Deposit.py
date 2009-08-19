@@ -3,6 +3,7 @@ import ceGUI
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Deposit"
+    defaultSize = (350, 475)
 
     def OnCreate(self):
         super(Dialog, self).OnCreate()

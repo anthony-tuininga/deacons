@@ -7,6 +7,7 @@ import ceGUI
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Donator"
+    defaultSize = (425, 450)
 
 
 class List(ceGUI.List):

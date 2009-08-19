@@ -13,7 +13,7 @@ class Dialog(ceGUI.EditDialog):
     def OnNewRow(self, parent, row):
         year, = parent.list.dataSet.retrievalArgs
         row.year = year
-        dialog = parent.OpenWindow("w_SelectCause.Dialog")
+        dialog = parent.OpenWindow("SelectDialogs.Cause.Dialog")
         existingValues = dict.fromkeys(d.causeId \
                 for d in parent.list.dataSet.rows.itervalues())
         causes = [d for d in parent.config.cache.Causes() \

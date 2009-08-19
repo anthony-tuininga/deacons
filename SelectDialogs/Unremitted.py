@@ -10,6 +10,7 @@ import Common
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select unremitted amount"
+    defaultSize = (355, 310)
 
 
 class List(ceGUI.List):

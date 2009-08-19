@@ -84,7 +84,7 @@ class Report(Reports.Report):
         print >> outFile
 
     def _GetPrintArgs(self):
-        dialog = self.parentWindow.OpenWindow("w_SelectYear.Dialog")
+        dialog = self.parentWindow.OpenWindow("SelectDialogs.Year.Dialog")
         proceed = (dialog.ShowModal() == wx.ID_OK)
         dialog.Destroy()
         if not proceed:
