@@ -4,22 +4,17 @@ details of the which amounts were taken from each collection.
 """
 
 import ceGUI
+import Common
 import wx
 
-import Common
-import Reports
-
-class Report(Reports.ReportWithPreview):
-    pass
-
-
-class PreviewFrame(ceGUI.PreviewFrame):
+class Report(ceGUI.Report):
     title = "Cheques for Deposit"
 
 
-class ReportBody(Reports.ReportBody):
+class ReportBody(Common.ReportBody):
 
-    def _OnInitialize(self):
+    def __init__(self):
+        super(ReportBody, self).__init__()
         self.font = wx.Font(42, wx.SWISS, wx.NORMAL, wx.NORMAL)
         self.boldFont = wx.Font(42, wx.SWISS, wx.NORMAL, wx.BOLD)
 
@@ -29,7 +24,7 @@ class ReportBody(Reports.ReportBody):
         self.dateDeposited = dateDeposited
 
         # retrieve the cheques for the report
-        cursor = self.connection.cursor()
+        cursor = self.cache.connection.cursor()
         cursor.execute("""
                 select
                   cq.ChequeId,
@@ -90,15 +85,11 @@ class ReportBody(Reports.ReportBody):
                 amounts = self.amounts[chequeId] = []
             amounts.append((date, amount))
 
-        # assume one page (for now)
-        self.SetMaxPage(1)
-
-    def OnPrintPage(self, a_PageNum):
-        dc = self.GetDC()
+    def OnPrintPage(self, dc, pageNum):
         dc.SetFont(self.font)
         title = "Cheques Written on %s" % \
                 self.dateDeposited.strftime("%A, %B %d, %Y")
-        self.CenterOnPage(dc, 120, title)
+        self.DrawTextCenteredOnPage(dc, title, 120)
         y = 300
         pointsPerLine = 42
         grandTotal = 0.0
@@ -109,18 +100,18 @@ class ReportBody(Reports.ReportBody):
             y += pointsPerLine
             for date, amount in self.amounts[chequeId]:
                 dc.DrawText(date.strftime("%A, %B %d, %Y"), 400, y)
-                self.DrawTextRightJustified(dc, 1500, y,
-                        Common.FormattedAmount(amount))
+                self.DrawTextRightJustified(dc, Common.FormattedAmount(amount),
+                        1500, y)
                 y += pointsPerLine
             dc.SetFont(self.boldFont)
-            self.DrawTextRightJustified(dc, 1500, y,
-                    Common.FormattedAmount(totalAmount))
+            self.DrawTextRightJustified(dc,
+                    Common.FormattedAmount(totalAmount), 1500, y)
             grandTotal += totalAmount
             dc.SetFont(self.font)
             y += pointsPerLine
         y += pointsPerLine
         dc.SetFont(self.boldFont)
-        self.DrawTextRightJustified(dc, 1500, y,
-                Common.FormattedAmount(grandTotal))
+        self.DrawTextRightJustified(dc, Common.FormattedAmount(grandTotal),
+                1500, y)
         return True
 

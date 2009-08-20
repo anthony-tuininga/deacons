@@ -5,17 +5,12 @@ the cheque is attributed.
 
 import ceGUI
 import Common
-import Reports
 
-class Report(Reports.ReportWithPreview):
-    pass
-
-
-class PreviewFrame(ceGUI.PreviewFrame):
+class Report(ceGUI.Report):
     title = "Deposited Cheques"
 
 
-class ReportBody(Reports.ReportBody):
+class ReportBody(Common.ReportBody):
     nameColumnWidth = 675
     amountColumnWidth = 230
     columnWidth = nameColumnWidth + amountColumnWidth
@@ -23,21 +18,27 @@ class ReportBody(Reports.ReportBody):
     numChequesPerColumn = 55
     numChequesPerPage = numColumns * numChequesPerColumn
 
-    def OnPrintPage(self, pageNum):
+    def GetNumberOfPages(self, dc):
+        numPages, leftOver = divmod(len(self.cheques), self.numChequesPerPage)
+        if leftOver > 0:
+            numPages += 1
+        return numPages
+
+    def OnPrintPage(self, dc, pageNum):
 
         # initialize some constants
         topMargin = 120
         leftMargin = 170
 
         # print the header
-        dc = self.GetDC()
         dc.SetFont(self.font)
-        self.CenterOnPage(dc, topMargin,
-                "Orthodox Reformed Church of Edmonton")
-        self.CenterOnPage(dc, topMargin + self.pointsPerLine,
-                self.depositDate.strftime("%A, %B %d, %Y"))
-        self.CenterOnPage(dc, topMargin + self.pointsPerLine * 2,
-                "For Account 72926")
+        self.DrawTextCenteredOnPage(dc, "Orthodox Reformed Church of Edmonton",
+                topMargin)
+        self.DrawTextCenteredOnPage(dc,
+                self.depositDate.strftime("%A, %B %d, %Y"),
+                topMargin + self.pointsPerLine)
+        self.DrawTextCenteredOnPage(dc, "For Account 72926",
+                topMargin + self.pointsPerLine * 2)
 
         # print the rest of the report
         self.PrintChequesTable(dc, pageNum, leftMargin, topMargin + 200)
@@ -64,11 +65,11 @@ class ReportBody(Reports.ReportBody):
             dc.DrawLine(x, startY, x, startY + height)
             dc.DrawLine(x + self.nameColumnWidth, startY,
                     x + self.nameColumnWidth, startY + height)
-            self.DrawTextCentred(dc, x + self.nameColumnWidth / 2,
-                    startY + self.borderHeight, "Name")
+            self.DrawTextCentered(dc, "Name", x + self.nameColumnWidth / 2,
+                    startY + self.borderHeight)
             amountX = x + self.nameColumnWidth + self.amountColumnWidth / 2
-            self.DrawTextCentred(dc, amountX, startY + self.borderHeight,
-                    "Amount")
+            self.DrawTextCentered(dc, "Amount", amountX,
+                    startY + self.borderHeight)
         dc.DrawLine(startX + width, startY, startX + width, startY + height)
 
         # draw the cheque names and amounts
@@ -82,8 +83,8 @@ class ReportBody(Reports.ReportBody):
                 amountX += self.columnWidth
                 y = topY
             dc.DrawText(name, nameX, y)
-            self.DrawTextRightJustified(dc, amountX, y,
-                    Common.FormattedAmount(amount))
+            self.DrawTextRightJustified(dc, Common.FormattedAmount(amount),
+                    amountX, y)
             y += self.pointsPerLine
 
     def Retrieve(self, depositId, depositDate):
@@ -92,7 +93,7 @@ class ReportBody(Reports.ReportBody):
         self.depositDate = depositDate
 
         # retrieve the cheques for the deposit
-        cursor = self.connection.cursor()
+        cursor = self.config.connection.cursor()
         cursor.execute("""
                 select min(d.DonatorId), sum(d.Amount)
                 from
@@ -122,10 +123,4 @@ class ReportBody(Reports.ReportBody):
                 name = donator.reversedName
             self.cheques.append((name, amount))
         self.cheques.sort()
-
-        # calculate the number of pages
-        numPages, leftOver = divmod(len(self.cheques), self.numChequesPerPage)
-        if leftOver > 0:
-            numPages += 1
-        self.SetMaxPage(numPages)
 

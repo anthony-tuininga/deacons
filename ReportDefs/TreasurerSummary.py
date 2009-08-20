@@ -4,19 +4,13 @@ to the treasurer.
 """
 
 import ceGUI
-
 import Common
-import Reports
 
-class Report(Reports.ReportWithPreview):
-    pass
-
-
-class PreviewFrame(ceGUI.PreviewFrame):
+class Report(ceGUI.Report):
     title = "Treasurer Summary"
 
 
-class ReportBody(Reports.ReportBody):
+class ReportBody(Common.ReportBody):
     causeWidth = 530
     amountWidth = 230
     bottomMargin = 2670
@@ -29,8 +23,10 @@ class ReportBody(Reports.ReportBody):
         return self.BoxedHeight(2) + self.BoxedHeight(numCauses) + \
             self.BoxedHeight(1)
 
-    def OnPrintPage(self, pageNum):
-        dc = self.GetDC()
+    def GetNumberOfPages(self, dc):
+        return len(self.pageData)
+
+    def OnPrintPage(self, dc, pageNum):
         dc.SetFont(self.font)
         y = self.topMargin
         for dateCollected, causes in self.pageData[pageNum - 1]:
@@ -41,21 +37,23 @@ class ReportBody(Reports.ReportBody):
     def PrintAmounts(self, dc, y, cheques, envelopeCash, looseCash):
         x = self.leftMargin + self.causeWidth + self.amountWidth - \
                 self.interColumnWidth
-        self.DrawTextRightJustified(dc, x, y, Common.FormattedAmount(cheques))
+        self.DrawTextRightJustified(dc, Common.FormattedAmount(cheques), x, y)
         x += self.amountWidth
-        self.DrawTextRightJustified(dc, x, y,
-                Common.FormattedAmount(envelopeCash))
+        self.DrawTextRightJustified(dc, Common.FormattedAmount(envelopeCash),
+                x, y)
         x += self.amountWidth
-        self.DrawTextRightJustified(dc, x, y,
-                Common.FormattedAmount(looseCash))
+        self.DrawTextRightJustified(dc, Common.FormattedAmount(looseCash), x,
+                y)
         x += self.amountWidth
-        self.DrawTextRightJustified(dc, x, y,
-                Common.FormattedAmount(cheques + envelopeCash + looseCash))
+        self.DrawTextRightJustified(dc,
+                Common.FormattedAmount(cheques + envelopeCash + looseCash), x,
+                y)
 
     def PrintHeader(self, dc, dateCollected, y):
-        self.CenterOnPage(dc, y, "Treasurer Summary")
-        self.CenterOnPage(dc, y + self.pointsPerLine,
-                dateCollected.strftime("%A, %B %d, %Y"))
+        self.DrawTextCenteredOnPage(dc, "Treasurer Summary", y)
+        self.DrawTextCenteredOnPage(dc,
+                dateCollected.strftime("%A, %B %d, %Y"),
+                y + self.pointsPerLine)
         return y + self.headerHeight
 
     def PrintCauses(self, dc, amounts, y):
@@ -81,10 +79,10 @@ class ReportBody(Reports.ReportBody):
         for points, title_1, title_2 in columns:
             dc.DrawLine(x, y, x, y + height)
             if title_1:
-                self.DrawTextCentred(dc, x + points / 2, y + self.borderHeight,
-                        title_1)
-            self.DrawTextCentred(dc, x + points / 2,
-                    y + self.borderHeight + self.pointsPerLine, title_2)
+                self.DrawTextCentered(dc, title_1, x + points / 2,
+                        y + self.borderHeight)
+            self.DrawTextCentered(dc, title_2, x + points / 2,
+                    y + self.borderHeight + self.pointsPerLine)
             x += points
         dc.DrawLine(self.leftMargin + width, y,
             self.leftMargin + width, y + height)
@@ -111,7 +109,7 @@ class ReportBody(Reports.ReportBody):
     def Retrieve(self, depositId):
 
         # retrieve the set of dates collected for the deposit
-        cursor = self.connection.cursor()
+        cursor = self.cache.connection.cursor()
         cursor.execute("""
                 select distinct DateCollected
                 from Collections
@@ -163,5 +161,4 @@ class ReportBody(Reports.ReportBody):
             datesForPage.append((dateCollected, causes))
             y += size + self.separationPoints
         self.pageData.append(datesForPage)
-        self.SetMaxPage(len(self.pageData))
 
