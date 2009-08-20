@@ -4,22 +4,17 @@ Print a report of the cheques, coin and cash deposited.
 
 import ceGUI
 import Common
-import Reports
 
-class Report(Reports.ReportWithPreview):
-    pass
-
-
-class PreviewFrame(ceGUI.PreviewFrame):
+class Report(ceGUI.Report):
     title = "Deposit Summary"
 
 
-class ReportBody(Reports.ReportBody):
+class ReportBody(Common.ReportBody):
     chequeColumns = 8
     chequeColumnWidth = 230
     cashColumnWidth = 530
 
-    def OnPrintPage(self, pageNum):
+    def OnPrintPage(self, dc, pageNum):
 
         # initialize some constants
         topMargin = 120
@@ -27,14 +22,14 @@ class ReportBody(Reports.ReportBody):
         interBoxWidth = 100
 
         # print the header
-        dc = self.GetDC()
         dc.SetFont(self.font)
-        self.CenterOnPage(dc, topMargin,
-                "Orthodox Reformed Church of Edmonton")
-        self.CenterOnPage(dc, topMargin + self.pointsPerLine,
-                self.depositDate.strftime("%A, %B %d, %Y"))
-        self.CenterOnPage(dc, topMargin + self.pointsPerLine * 2,
-                "For Account 72926")
+        self.DrawTextCenteredOnPage(dc, "Orthodox Reformed Church of Edmonton",
+                topMargin)
+        self.DrawTextCenteredOnPage(dc,
+                self.depositDate.strftime("%A, %B %d, %Y"),
+                topMargin + self.pointsPerLine)
+        self.DrawTextCenteredOnPage(dc, "For Account 72926",
+                topMargin + self.pointsPerLine * 2)
 
         # print the rest of the report
         y, chequeTotal = self.PrintChequesTable(dc, leftMargin,
@@ -65,29 +60,29 @@ class ReportBody(Reports.ReportBody):
             dc.DrawLine(x, startY, x, startY + height)
 
         # draw the title
-        self.DrawTextCentred(dc, startX + width / 2,
-                startY + self.borderHeight, title)
+        self.DrawTextCentered(dc, title, startX + width / 2,
+                startY + self.borderHeight)
 
         # draw the cash amounts (and acquire grand total)
         grandTotal = 0.0
         y = startY + boxedHeight + self.borderHeight
         for isCoin, value, quantity in entries:
             grandTotal += value * quantity
-            self.DrawTextRightJustified(dc, startX + 90, y, str(int(quantity)))
+            self.DrawTextRightJustified(dc, str(int(quantity)), startX + 90, y)
             dc.DrawText("x", startX + 100, y)
-            self.DrawTextRightJustified(dc, startX + 290, y,
-                    Common.FormattedAmount(value))
+            self.DrawTextRightJustified(dc, Common.FormattedAmount(value),
+                    startX + 290, y)
             dc.DrawText("=", startX + 300, y)
             self.DrawTextRightJustified(dc,
-                    startX + width - self.interColumnWidth, y,
-                    Common.FormattedAmount(value * quantity))
+                    Common.FormattedAmount(value * quantity),
+                    startX + width - self.interColumnWidth, y)
             y += self.pointsPerLine
 
         # draw the grand total
         x = startX + width - self.interColumnWidth
         y = startY + height - boxedHeight + self.borderHeight
-        self.DrawTextRightJustified(dc, x, y,
-                "Total:  %s" % Common.FormattedAmount(grandTotal))
+        self.DrawTextRightJustified(dc,
+                "Total:  %s" % Common.FormattedAmount(grandTotal), x, y)
         return grandTotal
 
     def PrintChequesTable(self, dc, startX, startY):
@@ -113,8 +108,8 @@ class ReportBody(Reports.ReportBody):
             dc.DrawLine(x, topY, x, bottomY)
 
         # draw the title
-        self.DrawTextCentred(dc, startX + width / 2,
-                startY + self.borderHeight, "Cheques")
+        self.DrawTextCentered(dc, "Cheques", startX + width / 2,
+                startY + self.borderHeight)
 
         # draw the cheque amounts (and acquire grand total)
         grandTotal = 0.0
@@ -124,8 +119,8 @@ class ReportBody(Reports.ReportBody):
             if rowNum > 0 and rowNum % numRows == 0:
                 x += self.chequeColumnWidth
                 y = topY
-            self.DrawTextRightJustified(dc, x, y,
-                    Common.FormattedAmount(amount))
+            self.DrawTextRightJustified(dc, Common.FormattedAmount(amount), x,
+                    y)
             grandTotal += amount
             y += self.pointsPerLine
 
@@ -135,7 +130,7 @@ class ReportBody(Reports.ReportBody):
         dc.DrawText(text, startX + 50, y)
         x = startX + width - self.interColumnWidth
         text = "Total:  %s" % Common.FormattedAmount(grandTotal)
-        self.DrawTextRightJustified(dc, x, y, text)
+        self.DrawTextRightJustified(dc, text, x, y)
 
         # set up the top margin for the next section
         return startY + height, grandTotal
@@ -155,11 +150,10 @@ class ReportBody(Reports.ReportBody):
             dc.DrawLine(x, startY, x, startY + height)
 
         # draw the text
-        self.DrawTextCentred(dc, startX + width / 2, startY + self.borderHeight,
-                "TOTAL DEPOSIT")
-        self.DrawTextCentred(dc, startX + width / 2,
-                startY + boxedHeight + self.borderHeight,
-                Common.FormattedAmount(grandTotal))
+        self.DrawTextCentered(dc, "TOTAL DEPOSIT",
+                startX + width / 2, startY + self.borderHeight)
+        self.DrawTextCentered(dc, Common.FormattedAmount(grandTotal),
+                startX + width / 2, startY + boxedHeight + self.borderHeight)
 
     def Retrieve(self, depositId, depositDate):
 
@@ -167,7 +161,7 @@ class ReportBody(Reports.ReportBody):
         self.depositDate = depositDate
 
         # retrieve the cheques for the deposit
-        cursor = self.connection.cursor()
+        cursor = self.cache.connection.cursor()
         cursor.execute("""
                 select sum(d.Amount)
                 from
@@ -209,7 +203,4 @@ class ReportBody(Reports.ReportBody):
         cash = cursor.fetchall()
         self.coin = [r for r in cash if int(r[0])]
         self.cash = [r for r in cash if not int(r[0])]
-
-        # always one page
-        self.SetMaxPage(1)
 

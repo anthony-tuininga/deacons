@@ -13,7 +13,6 @@ includes = [
         "r_ChequeLetter",
         "r_DepositCheques",
         "r_DepositedCheques",
-        "r_DepositSummary",
         "r_MonthlyReport",
         "r_QuarterlyReport",
         "r_TaxReceipts",
@@ -32,6 +31,7 @@ includes = [
 
 packages = [
         "EditDialogs",
+        "ReportDefs",
         "SelectDialogs"
 ]
 
