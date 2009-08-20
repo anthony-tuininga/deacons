@@ -8,7 +8,7 @@ import Common
 class Panel(Common.Panel):
 
     def OnBankChequesReport(self, event):
-        self.PrintReport("r_DepositedCheques", self.depositId,
+        self.PrintReport("ReportDefs.DepositedCheques", self.depositId,
                 self.dateDeposited)
 
     def OnBankReport(self, event):
@@ -16,7 +16,7 @@ class Panel(Common.Panel):
                 self.dateDeposited)
 
     def OnChequesReport(self, event):
-        self.PrintReport("r_DepositCheques", self.depositId,
+        self.PrintReport("ReportDefs.DepositCheques", self.depositId,
                 self.dateDeposited)
 
     def OnCreate(self):
@@ -49,7 +49,7 @@ class Panel(Common.Panel):
         return sizer
 
     def OnTreasurerReport(self, event):
-        self.PrintReport("r_TreasurerSummary", self.depositId)
+        self.PrintReport("ReportDefs.TreasurerSummary", self.depositId)
 
     def Retrieve(self, depositId, dateDeposited):
         self.depositId = depositId
