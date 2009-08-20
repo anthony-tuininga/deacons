@@ -12,7 +12,7 @@ class Panel(Common.Panel):
                 self.dateDeposited)
 
     def OnBankReport(self, event):
-        self.PrintReport("r_DepositSummary", self.depositId,
+        self.PrintReport("ReportDefs.DepositSummary", self.depositId,
                 self.dateDeposited)
 
     def OnChequesReport(self, event):

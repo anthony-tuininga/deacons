@@ -120,8 +120,8 @@ class Panel(ceGUI.Panel):
 
     def PrintReport(self, name, *args):
         cls = ceGUI.GetModuleItem(name, "Report")
-        report = cls(self)
-        report.Print(*args)
+        report = cls()
+        report.Preview(args)
 
 
 class DonationsDialog(ceGUI.StandardDialog):
@@ -319,4 +319,17 @@ class DonationsDataSet(ceDatabase.DataSet):
         self.__EnsureCause(cursor, row)
         super(DonationsDataSet, self).UpdateRowInDatabase(cursor, row,
                 origRow)
+
+
+class ReportBody(ceGUI.ReportBody):
+    borderHeight = 14
+    interColumnWidth = 12
+    pointsPerLine = 42
+
+    def __init__(self):
+        super(ReportBody, self).__init__()
+        self.font = wx.Font(25, wx.ROMAN, wx.NORMAL, wx.NORMAL)
+
+    def BoxedHeight(self, numRows):
+        return self.borderHeight * 2 + self.pointsPerLine * numRows
 
