@@ -3,38 +3,25 @@ Print tax receipts.
 """
 
 import ceGUI
+import Common
 import wx
 
-import Cache
-import Common
-import Reports
 
-class Report(Reports.ReportWithPreview):
-    pass
-
-
-class PreviewFrame(ceGUI.PreviewFrame):
+class Report(ceGUI.Report):
     title = "Tax Receipts"
 
 
-class ReportBody(Reports.ReportBody):
+class ReportBody(Common.ReportBody):
+    receiptsPerPage = 3
+    leftMargin_1 = 150
+    leftMargin_2 = 1250
+    pointsPerLine = 51
 
-    def _OnInitialize(self):
+    def __init__(self):
+        super(ReportBody, self).__init__()
         self.normalFont = wx.Font(40, wx.SWISS, wx.NORMAL, wx.NORMAL)
         self.italicFont = wx.Font(40, wx.SWISS, wx.ITALIC, wx.NORMAL)
         self.boldFont = wx.Font(40, wx.SWISS, wx.NORMAL, wx.BOLD)
-        self.receiptsPerPage = 3
-        self.leftMargin_1 = 150
-        self.leftMargin_2 = 1250
-        self.pointsPerLine = 51
-
-    def Retrieve(self, year, receipts):
-        self.year = year
-        self.data = receipts
-        numPages = len(self.data) / self.receiptsPerPage
-        if len(self.data) % self.receiptsPerPage:
-            numPages += 1
-        self.SetMaxPage(numPages)
 
     def DrawField(self, dc, label, value, x, y):
         label += ": "
@@ -44,10 +31,15 @@ class ReportBody(Reports.ReportBody):
         dc.SetFont(self.normalFont)
         dc.DrawText(value, x + labelWidth, y)
 
-    def OnPrintPage(self, pageNum):
+    def GetNumberOfPages(self, dc):
+        numPages = len(self.data) / self.receiptsPerPage
+        if len(self.data) % self.receiptsPerPage:
+            numPages += 1
+        return numPages
+
+    def OnPrintPage(self, dc, pageNum):
 
         # initialize
-        dc = self.GetDC()
         startPos = (pageNum - 1) * self.receiptsPerPage
         data = self.data[startPos:startPos + self.receiptsPerPage]
 
@@ -120,4 +112,8 @@ class ReportBody(Reports.ReportBody):
             topMargin += 930
 
         return True
+
+    def Retrieve(self, year, receipts):
+        self.year = year
+        self.data = receipts
 
