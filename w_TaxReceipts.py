@@ -34,10 +34,11 @@ class List(ceGUI.DataList):
                 justification = wx.LIST_FORMAT_RIGHT)
 
     def OnPrintReceipts(self):
-        cls = ceGUI.GetModuleItem("r_TaxReceipts", "Report")
-        report = cls(self)
         year, = self.dataSet.retrievalArgs
-        report.Print(year, self.GetSelectedItems())
+        cls = ceGUI.GetModuleItem("ReportDefs.TaxReceipts", "Report")
+        args = (year, self.GetSelectedItems())
+        report = cls()
+        report.Preview(args)
 
 
 class DataSet(ceDatabase.DataSet):

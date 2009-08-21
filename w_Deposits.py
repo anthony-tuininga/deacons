@@ -185,9 +185,9 @@ class ChequesList(ceGUI.DataList):
 
     def OnPrintLetter(self):
         cheque = self.GetSelectedItem()
-        cls = ceGUI.GetModuleItem("r_ChequeLetter", "Report")
-        report = cls(self)
-        report.Print(cheque)
+        cls = ceGUI.GetModuleItem("ReportDefs.ChequeLetter", "Report")
+        report = cls()
+        report.Preview([cheque])
 
 
 class ChequesDataSet(ceDatabase.DataSet):

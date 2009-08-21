@@ -8,11 +8,8 @@ includes = [
         "Cache",
         "Common",
         "Config",
-        "encodings.utf_8",
-        "r_ChequeLetter",
         "r_MonthlyReport",
         "r_QuarterlyReport",
-        "r_TaxReceipts",
         "r_YearlyReport",
         "w_Causes",
         "w_CausesForYear",
@@ -48,7 +45,7 @@ buildOptions = dict(
 
 cx_Freeze.setup(
         name = "Deacons",
-        version = "3.0",
+        version = "3.1",
         description = "Application for managing deacon data.",
         author = "Anthony Tuininga",
         author_email = "anthony.tuininga@gmail.com",
