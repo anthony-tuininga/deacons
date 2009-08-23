@@ -1,16 +1,15 @@
 """
-Print a report that is placed in the bulletin each quarter.
+Print a report that is placed in the bulletin each month.
 """
 
 import datetime
 import wx
 
 import Common
-import Reports
 
-class Report(Reports.Report):
+class Report(Common.TextReport):
 
-    def __GetAmounts(self, yearStart, quarterStart, quarterEnd):
+    def __GetAmounts(self, yearStart, monthStart, monthEnd):
         cursor = self.connection.cursor()
         cursor.execute("""
                 select
@@ -33,68 +32,66 @@ class Report(Reports.Report):
                   )
                 from Causes c
                 where IsReported = 't'""",
-                quarterStart, quarterEnd, yearStart, quarterEnd)
+                monthStart, monthEnd, yearStart, monthEnd)
         return cursor.fetchall()
 
-    def __PrintBudget(self, outFile, quarterEnd, budgetAmount, description,
-            quarterAmount, yearAmount):
+    def __PrintBudget(self, outFile, monthEnd, budgetAmount, description,
+            monthAmount, yearAmount):
         print >> outFile, description.ljust(27),
-        print >> outFile, "Quarter".center(14),
+        print >> outFile, monthEnd.strftime("%B").center(14),
         print >> outFile, "Year to Date"
-        requiredYearToDate = budgetAmount * (quarterEnd.month / 12.0)
+        requiredYearToDate = budgetAmount * (monthEnd.month / 12.0)
         print >> outFile, "Required".ljust(27),
-        amount = budgetAmount / 4.0
-        print >> outFile, Common.FormattedAmount(amount).rjust(13),
+        formattedAmount = Common.FormattedAmount(budgetAmount / 12.0)
+        print >> outFile, formattedAmount.rjust(13),
         print >> outFile, Common.FormattedAmount(requiredYearToDate).rjust(13)
         print >> outFile, "Collected".ljust(27),
-        print >> outFile, Common.FormattedAmount(quarterAmount).rjust(13),
+        print >> outFile, Common.FormattedAmount(monthAmount).rjust(13),
         print >> outFile, Common.FormattedAmount(yearAmount).rjust(13)
         print >> outFile
 
-    def __PrintCauses(self, outFile, quarterEnd, amounts):
+    def __PrintCauses(self, outFile, monthEnd, amounts):
         print >> outFile, "Causes".ljust(27),
-        print >> outFile, "Quarter".center(14),
+        print >> outFile, monthEnd.strftime("%B").center(14),
         print >> outFile, "Year to Date"
-        for description, quarterAmount, yearAmount in sorted(amounts):
+        for description, monthAmount, yearAmount in sorted(amounts):
+            if monthAmount is None:
+                continue
             print >> outFile, description.ljust(27),
-            print >> outFile, Common.FormattedAmount(quarterAmount).rjust(13),
+            print >> outFile, Common.FormattedAmount(monthAmount).rjust(13),
             print >> outFile, Common.FormattedAmount(yearAmount).rjust(13)
 
-    def _GetPrintArgs(self):
-        dialog = self.parentWindow.OpenWindow("SelectDialogs.Date.Dialog")
+    def _GetPrintArgs(self, parent):
+        dialog = parent.OpenWindow("SelectDialogs.Date.Dialog")
         proceed = (dialog.ShowModal() == wx.ID_OK)
         dialog.Destroy()
         if not proceed:
             return
         date = dialog.GetDate()
-        quarterNum = (date.month - 1) / 3 + 1
-        defaultFileName = "report-%d-Q%d.txt" % (date.year, quarterNum)
-        dialog = wx.FileDialog(parent = self.parentWindow,
-                defaultFile = defaultFileName, style = wx.SAVE)
+        defaultFileName = "report-%.4d-%.2d.txt" % (date.year, date.month)
+        dialog = wx.FileDialog(parent = parent, defaultFile = defaultFileName,
+                style = wx.SAVE)
         proceed = (dialog.ShowModal() == wx.ID_OK)
         fileName = dialog.GetPath()
         dialog.Destroy()
         if not proceed:
             return
         yearStart = datetime.date(date.year, 1, 1)
-        quarterStartMonth = ((date.month - 1) / 3) * 3 + 1
-        quarterStart = datetime.date(date.year, quarterStartMonth, 1)
-        if quarterStartMonth == 10:
-            nextStart = datetime.date(date.year + 1, 1, 1)
+        monthStart = datetime.date(date.year, date.month, 1)
+        if date.month == 12:
+            nextMonthStart = datetime.date(date.year + 1, 1, 1)
         else:
-            nextStart = datetime.date(date.year, quarterStartMonth + 3, 1)
-        quarterEnd = nextStart - datetime.timedelta(1)
-        return yearStart, quarterStart, quarterEnd, fileName
+            nextMonthStart = datetime.date(date.year, date.month + 1, 1)
+        monthEnd = nextMonthStart - datetime.timedelta(1)
+        return yearStart, monthStart, monthEnd, fileName
 
-    def _Print(self, yearStart, quarterStart, quarterEnd, fileName):
+    def Print(self, parent):
+        yearStart, monthStart, monthEnd, fileName = self._GetPrintArgs(parent)
         outFile = file(fileName, "w")
-        print >> outFile, "Quarter Start:", quarterStart
-        print >> outFile, "Quarter End:", quarterEnd
-        print >> outFile
         budgetAmount = self.GetBudgetAmountForYear(yearStart.year)
-        amounts = self.__GetAmounts(yearStart, quarterStart, quarterEnd)
+        amounts = self.__GetAmounts(yearStart, monthStart, monthEnd)
         budgetAmounts, = [r for r in amounts if r[0] == "Budget"]
         causeAmounts = [r for r in amounts if r[0] != "Budget"]
-        self.__PrintBudget(outFile, quarterEnd, budgetAmount, *budgetAmounts)
-        self.__PrintCauses(outFile, quarterEnd, causeAmounts)
+        self.__PrintBudget(outFile, monthEnd, budgetAmount, *budgetAmounts)
+        self.__PrintCauses(outFile, monthEnd, causeAmounts)
 

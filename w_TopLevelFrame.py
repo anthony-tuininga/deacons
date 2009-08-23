@@ -1,4 +1,9 @@
+"""
+Top level frame for the application.
+"""
+
 import ceGUI
+import cx_Logging
 import wx
 
 from wx.lib.flatnotebook import FlatNotebook
@@ -64,8 +69,15 @@ class Frame(ceGUI.TopLevelFrame):
 
     def __PrintReport(self, name):
         cls = ceGUI.GetModuleItem(name, "Report")
-        report = cls(self)
-        report.Print()
+        self.SetStatusBarText("Printing report...")
+        busyCursor = wx.BusyCursor()
+        try:
+            report = cls(self.cache)
+            report.Print(self)
+            self.SetStatusBarText("Report printed successfully.")
+        except:
+            cx_Logging.LogException("report failed")
+            self.SetStatusBarText("Report failed.")
 
     def _AddCausesForYearPage(self, year):
         text = "%s - Causes" % year
@@ -133,7 +145,7 @@ class Frame(ceGUI.TopLevelFrame):
         super(Frame, self).OnExit(event)
 
     def OnMonthlyReport(self):
-        self.__PrintReport("r_MonthlyReport")
+        self.__PrintReport("ReportDefs.Monthly")
 
     def OnNew(self, event):
         dialog = self.OpenWindow("SelectDialogs.Date.Dialog")
@@ -167,10 +179,10 @@ class Frame(ceGUI.TopLevelFrame):
             event.Skip()
 
     def OnQuarterlyReport(self):
-        self.__PrintReport("r_QuarterlyReport")
+        self.__PrintReport("ReportDefs.Quarterly")
 
     def OnYearlyReport(self):
-        self.__PrintReport("r_YearlyReport")
+        self.__PrintReport("ReportDefs.Yearly")
 
     def SetStatusBarText(self, message):
         self.statusBar.SetStatusText(message)
