@@ -7,9 +7,8 @@ import datetime
 import wx
 
 import Common
-import Reports
 
-class Report(Reports.Report):
+class Report(Common.TextReport):
 
     def __GetAmounts(self, year):
         cursor = self.connection.cursor()
@@ -83,23 +82,24 @@ class Report(Reports.Report):
         print >> outFile, Common.FormattedAmount(total).rjust(14)
         print >> outFile
 
-    def _GetPrintArgs(self):
-        dialog = self.parentWindow.OpenWindow("SelectDialogs.Year.Dialog")
+    def _GetPrintArgs(self, parent):
+        dialog = parent.OpenWindow("SelectDialogs.Year.Dialog")
         proceed = (dialog.ShowModal() == wx.ID_OK)
         dialog.Destroy()
         if not proceed:
             return
         year = dialog.GetSelectedItem().year
         defaultFileName = "report-%.4d.txt" % year
-        dialog = wx.FileDialog(parent = self.parentWindow,
-                defaultFile = defaultFileName, style = wx.SAVE)
+        dialog = wx.FileDialog(parent = parent, defaultFile = defaultFileName,
+                style = wx.SAVE)
         proceed = (dialog.ShowModal() == wx.ID_OK)
         fileName = dialog.GetPath()
         if not proceed:
             return
         return year, fileName
 
-    def _Print(self, year, fileName):
+    def Print(self, parent):
+        year, fileName = self._GetPrintArgs(parent)
         outFile = file(fileName, "w")
         amounts = self.__GetAmounts(year)
         self.__PrintHeader(outFile, year)
