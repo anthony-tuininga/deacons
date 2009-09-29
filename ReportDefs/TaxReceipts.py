@@ -19,9 +19,9 @@ class ReportBody(Common.ReportBody):
 
     def __init__(self):
         super(ReportBody, self).__init__()
-        self.normalFont = wx.Font(40, wx.SWISS, wx.NORMAL, wx.NORMAL)
-        self.italicFont = wx.Font(40, wx.SWISS, wx.ITALIC, wx.NORMAL)
-        self.boldFont = wx.Font(40, wx.SWISS, wx.NORMAL, wx.BOLD)
+        self.normalFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.NORMAL)
+        self.italicFont = wx.Font(35, wx.SWISS, wx.ITALIC, wx.NORMAL)
+        self.boldFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.BOLD)
 
     def DrawField(self, dc, label, value, x, y):
         label += ": "
@@ -107,6 +107,8 @@ class ReportBody(Common.ReportBody):
                     topMargin + self.pointsPerLine * 8)
             dc.DrawText("PER: " + "_" * 25,
                     self.leftMargin_2, topMargin + self.pointsPerLine * 10)
+            dc.DrawText("Canada Revenue Agency - www.cra-arc.gc.ca/charities",
+                    self.leftMargin_1, topMargin + self.pointsPerLine * 12)
 
             # skip to the next location
             topMargin += 930
