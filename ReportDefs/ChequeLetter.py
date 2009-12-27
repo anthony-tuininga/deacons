@@ -15,10 +15,9 @@ class Report(ceGUI.Report):
 
 class ReportBody(Common.ReportBody):
 
-    def __init__(self):
-        super(ReportBody, self).__init__()
-        self.headerFont = wx.Font(56, wx.SWISS, wx.NORMAL, wx.BOLD)
-        self.bodyFont = wx.Font(42, wx.SWISS, wx.NORMAL, wx.NORMAL)
+    def OnCreate(self):
+        self.bodyFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.NORMAL)
+        self.headerFont = wx.Font(42, wx.SWISS, wx.NORMAL, wx.BOLD)
 
     def OnPrintPage(self, dc, pageNum):
         dc.SetFont(self.headerFont)

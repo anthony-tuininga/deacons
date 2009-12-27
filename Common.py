@@ -326,12 +326,11 @@ class ReportBody(ceGUI.ReportBody):
     interColumnWidth = 12
     pointsPerLine = 42
 
-    def __init__(self):
-        super(ReportBody, self).__init__()
-        self.font = wx.Font(25, wx.ROMAN, wx.NORMAL, wx.NORMAL)
-
     def BoxedHeight(self, numRows):
         return self.borderHeight * 2 + self.pointsPerLine * numRows
+
+    def OnCreate(self):
+        self.font = wx.Font(25, wx.ROMAN, wx.NORMAL, wx.NORMAL)
 
 
 class TextReport(object):

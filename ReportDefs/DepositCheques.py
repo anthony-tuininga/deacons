@@ -13,8 +13,7 @@ class Report(ceGUI.Report):
 
 class ReportBody(Common.ReportBody):
 
-    def __init__(self):
-        super(ReportBody, self).__init__()
+    def OnCreate(self):
         self.font = wx.Font(42, wx.SWISS, wx.NORMAL, wx.NORMAL)
         self.boldFont = wx.Font(42, wx.SWISS, wx.NORMAL, wx.BOLD)
 
