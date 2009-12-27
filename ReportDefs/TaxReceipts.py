@@ -17,12 +17,6 @@ class ReportBody(Common.ReportBody):
     leftMargin_2 = 1250
     pointsPerLine = 51
 
-    def __init__(self):
-        super(ReportBody, self).__init__()
-        self.normalFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.NORMAL)
-        self.italicFont = wx.Font(35, wx.SWISS, wx.ITALIC, wx.NORMAL)
-        self.boldFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.BOLD)
-
     def DrawField(self, dc, label, value, x, y):
         label += ": "
         dc.SetFont(self.italicFont)
@@ -36,6 +30,11 @@ class ReportBody(Common.ReportBody):
         if len(self.data) % self.receiptsPerPage:
             numPages += 1
         return numPages
+
+    def OnCreate(self):
+        self.normalFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.NORMAL)
+        self.italicFont = wx.Font(35, wx.SWISS, wx.ITALIC, wx.NORMAL)
+        self.boldFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.BOLD)
 
     def OnPrintPage(self, dc, pageNum):
 
