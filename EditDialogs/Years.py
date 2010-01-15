@@ -4,6 +4,7 @@ Dialog for editing years.
 
 import ceDatabase
 import ceGUI
+import cx_Logging
 import wx
 
 import Common
@@ -36,4 +37,46 @@ class DataSet(ceDatabase.DataSet):
     attrNames = "year budgetAmount promptForReceiptGeneration receiptsIssued"
     charBooleanAttrNames = "promptForReceiptGeneration receiptsIssued"
     retrievalAttrNames = pkAttrNames = "year"
+
+    def InsertRowInDatabase(self, cursor, row):
+        cx_Logging.Debug("inserting row in database.....")
+        cursor.execute("""
+                select max(Year)
+                from Years
+                where Year < ?""",
+                row.year)
+        fetchedRow = cursor.fetchone()
+        copyFromYear = fetchedRow and fetchedRow[0]
+        cx_Logging.Debug("fetched row is %s", fetchedRow)
+        cx_Logging.Debug("copy from year is %s", copyFromYear)
+        super(DataSet, self).InsertRowInDatabase(cursor, row)
+        if copyFromYear is not None:
+            cx_Logging.Info("Copying causes and donators from year %s",
+                    copyFromYear)
+            cursor.execute("""
+                    insert into CausesForYear (
+                        CauseId,
+                        Year,
+                        Deductible
+                    )
+                    select
+                        CauseId,
+                        ?,
+                        Deductible
+                    from CausesForYear
+                    where Year = ?""",
+                    row.year, copyFromYear)
+            cursor.execute("""
+                    insert into DonatorsForYear (
+                        DonatorId,
+                        Year,
+                        AssignedNumber
+                    )
+                    select
+                        DonatorId,
+                        ?,
+                        AssignedNumber
+                    from DonatorsForYear
+                    where Year = ?""",
+                    row.year, copyFromYear)
 
