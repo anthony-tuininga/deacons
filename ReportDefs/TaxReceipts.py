@@ -32,9 +32,9 @@ class ReportBody(Common.ReportBody):
         return numPages
 
     def OnCreate(self):
-        self.normalFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.NORMAL)
-        self.italicFont = wx.Font(35, wx.SWISS, wx.ITALIC, wx.NORMAL)
-        self.boldFont = wx.Font(35, wx.SWISS, wx.NORMAL, wx.BOLD)
+        self.normalFont = wx.Font(30, wx.SWISS, wx.NORMAL, wx.NORMAL)
+        self.italicFont = wx.Font(30, wx.SWISS, wx.ITALIC, wx.NORMAL)
+        self.boldFont = wx.Font(30, wx.SWISS, wx.NORMAL, wx.BOLD)
 
     def OnPrintPage(self, dc, pageNum):
 
