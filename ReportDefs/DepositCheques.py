@@ -14,8 +14,8 @@ class Report(ceGUI.Report):
 class ReportBody(Common.ReportBody):
 
     def OnCreate(self):
-        self.font = wx.Font(42, wx.SWISS, wx.NORMAL, wx.NORMAL)
-        self.boldFont = wx.Font(42, wx.SWISS, wx.NORMAL, wx.BOLD)
+        self.font = wx.Font(30, wx.SWISS, wx.NORMAL, wx.NORMAL)
+        self.boldFont = wx.Font(30, wx.SWISS, wx.NORMAL, wx.BOLD)
 
     def Retrieve(self, depositId, dateDeposited):
 
@@ -94,11 +94,11 @@ class ReportBody(Common.ReportBody):
         grandTotal = 0.0
         for chequeId, chequeNumber, causeDescription, totalAmount \
                 in self.cheques:
-            dc.DrawText(str(chequeNumber), 250, y)
-            dc.DrawText(causeDescription, 400, y)
+            dc.DrawText(str(chequeNumber), 350, y)
+            dc.DrawText(causeDescription, 500, y)
             y += pointsPerLine
             for date, amount in self.amounts[chequeId]:
-                dc.DrawText(date.strftime("%A, %B %d, %Y"), 400, y)
+                dc.DrawText(date.strftime("%A, %B %d, %Y"), 500, y)
                 self.DrawTextRightJustified(dc, Common.FormattedAmount(amount),
                         1500, y)
                 y += pointsPerLine
