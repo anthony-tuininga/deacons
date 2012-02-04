@@ -2,6 +2,8 @@
 Commonly defined items.
 """
 
+from __future__ import with_statement
+
 import ceDatabase
 import ceGUI
 import cx_Exceptions
