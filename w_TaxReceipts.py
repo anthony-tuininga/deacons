@@ -9,7 +9,7 @@ import wx
 import Common
 
 class Panel(ceGUI.DataListPanel):
-    pass
+    postRetrieve = False
 
 
 class List(ceGUI.DataList):
