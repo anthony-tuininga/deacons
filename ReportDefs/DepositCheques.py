@@ -94,7 +94,7 @@ class ReportBody(Common.ReportBody):
         grandTotal = 0.0
         for chequeId, chequeNumber, causeDescription, totalAmount \
                 in self.cheques:
-            dc.DrawText(str(chequeNumber), 300, y)
+            dc.DrawText(str(chequeNumber), 250, y)
             dc.DrawText(causeDescription, 400, y)
             y += pointsPerLine
             for date, amount in self.amounts[chequeId]:
