@@ -67,6 +67,7 @@ class Panel(Common.Panel):
 
 
 class SubPanel(ceGUI.DataListPanel):
+    postRetrieve = False
 
     def RestoreSettings(self):
         self.list.RestoreColumnWidths(self.settingsName)
