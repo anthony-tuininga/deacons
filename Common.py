@@ -119,9 +119,10 @@ class AmountField(ceGUI.TextField):
 class Panel(ceGUI.Panel):
 
     def PrintReport(self, name, *args):
-        cls = ceGUI.GetModuleItem(name, "Report")
-        report = cls()
-        report.Preview(args)
+        with ceGUI.BusyCursorContext(self):
+            cls = ceGUI.GetModuleItem(name, "Report")
+            report = cls()
+            report.Preview(args)
 
 
 class DonationsDialog(ceGUI.StandardDialog):
