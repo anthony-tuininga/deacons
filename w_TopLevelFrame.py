@@ -6,8 +6,6 @@ import ceGUI
 import cx_Logging
 import wx
 
-from wx.lib.flatnotebook import FlatNotebook
-
 class Frame(ceGUI.TopLevelFrame):
     title = "Deacons"
 
@@ -95,15 +93,9 @@ class Frame(ceGUI.TopLevelFrame):
         page.list.Retrieve(year)
 
     def OnCreate(self):
-        self.notebook = FlatNotebook(self,
-                style = wx.lib.flatnotebook.FNB_NO_NAV_BUTTONS | \
-                        wx.lib.flatnotebook.FNB_NO_X_BUTTON | \
-                        wx.lib.flatnotebook.FNB_X_ON_TAB)
-        self.BindEvent(self.notebook,
-                wx.lib.flatnotebook.EVT_FLATNOTEBOOK_PAGE_CLOSING,
-                self.OnPageClosing, skipEvent = False)
-        self.statusBar = wx.StatusBar(self)
-        self.SetStatusBar(self.statusBar)
+        self.notebook = ceGUI.Notebook(self)
+        self.notebook.AddPage("Panels.Causes.Panel", "Causes")
+        self.CreateSimpleStatusBar()
 
     def OnCreateMenus(self):
         self.__CreateFileMenu()

@@ -2,9 +2,9 @@
 Dialog for editing causes.
 """
 
-import ceDatabase
 import ceGUI
-import wx
+
+import Models
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Cause"
@@ -15,23 +15,19 @@ class Dialog(ceGUI.EditDialog):
 
 
 class Panel(ceGUI.DataEditPanel):
-    updateSubCacheAttrName = "causes"
 
     def OnCreate(self):
-        self.AddColumn("description", "Description:",
-                self.AddTextField(maxLength = 60), required = True)
-        field = self.AddTextField(maxLength = 250, style = wx.TE_MULTILINE,
-                size = (-1, 105))
-        self.AddColumn("address", "Address:", field)
-        self.AddColumn("isReported", "Reported?", self.AddCheckBox())
-        self.AddColumn("isActive", "Active?", self.AddCheckBox())
+        ceGUI.TextEditDialogColumn(self, "description", "Description:",
+                maxLength = 60, required = True)
+        ceGUI.TextEditDialogColumn(self, "address", "Address:",
+                multiLine= True, size = (-1, 105))
+        ceGUI.BooleanEditDialogColumn(self, "isReported", "Reported?")
+        ceGUI.BooleanEditDialogColumn(self, "isActive", "Active?")
 
 
-class DataSet(ceDatabase.DataSet):
-    tableName = "Causes"
-    attrNames = "causeId description address isReported isActive"
-    charBooleanAttrNames = "isReported isActive"
-    retrievalAttrNames = pkAttrNames = "causeId"
+class DataSet(ceGUI.DataSet):
+    rowClass = Models.Causes
+    retrievalAttrNames = "causeId"
     pkSequenceName = "CauseId_s"
     pkIsGenerated = True
 

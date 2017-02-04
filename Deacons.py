@@ -13,5 +13,5 @@ class Deacons(ceGUI.Application):
 
 
 app = Deacons()
-app.MainLoop()
+app.Run()
 
