@@ -8,7 +8,7 @@ particularly usable by others, but it may serve as a useful example to follow.
 
 ## License
 
-Copyright (c) 2007, 2017 Anthony Tuininga.  All rights reserved.
+Copyright (c) 1998, 2017 Anthony Tuininga.  All rights reserved.
 
 This program is free software: you can modify it and/or redistribute it under
 the terms of the Apache License v 2.0.
