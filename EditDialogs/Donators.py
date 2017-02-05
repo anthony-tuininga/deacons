@@ -2,9 +2,9 @@
 Dialog for editing donators.
 """
 
-import ceDatabase
 import ceGUI
-import wx
+
+import Models
 
 class Dialog(ceGUI.EditDialog):
     title = "Edit Donator"
@@ -15,24 +15,20 @@ class Dialog(ceGUI.EditDialog):
 
 
 class Panel(ceGUI.DataEditPanel):
-    updateSubCacheAttrName = "donators"
 
     def OnCreate(self):
-        self.AddColumn("lastName", "Last Name:",
-                self.AddTextField(maxLength = 30), required = True)
-        self.AddColumn("givenNames", "Given Names:",
-                self.AddTextField(maxLength = 50))
-        field = self.AddTextField(maxLength = 150, style = wx.TE_MULTILINE,
-                size = (-1, 105))
-        self.AddColumn("address", "Address:", field)
-        self.AddColumn("isActive", "Active?", self.AddCheckBox())
+        ceGUI.TextEditDialogColumn(self, "lastName", "Last Name:",
+                maxLength = 30, required = True)
+        ceGUI.TextEditDialogColumn(self, "givenNames", "Given Names:",
+                maxLength = 50)
+        ceGUI.TextEditDialogColumn(self, "address", "Address:",
+                multiLine= True, size = (-1, 105))
+        ceGUI.BooleanEditDialogColumn(self, "isActive", "Active?")
 
 
-class DataSet(ceDatabase.DataSet):
-    tableName = "Donators"
-    attrNames = "donatorId givenNames lastName address isActive"
-    charBooleanAttrNames = "isActive"
-    retrievalAttrNames = pkAttrNames = "donatorId"
+class DataSet(ceGUI.DataSet):
+    rowClass = Models.Donators
+    retrievalAttrNames = "donatorId"
     pkSequenceName = "DonatorId_s"
     pkIsGenerated = True
 

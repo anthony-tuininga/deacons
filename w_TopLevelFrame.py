@@ -41,12 +41,6 @@ class Frame(ceGUI.TopLevelFrame):
         self.AddMenuItem(menu, "&New", "New deposit", method = self.OnNew)
         self.AddMenuItem(menu, "&Open", "Open deposit", method = self.OnOpen)
         menu.AddSeparator()
-        self.AddMenuItem(menu, "&Elders", "Edit elders",
-                method = self.OnEditElders, passEvent = False)
-        self.AddMenuItem(menu, "&Causes", "Edit causes",
-                method = self.OnEditCauses, passEvent = False)
-        self.AddMenuItem(menu, "&Donators", "Edit donators",
-                method = self.OnEditDonators, passEvent = False)
         self.AddMenuItem(menu, "&Years", "Edit years",
                 method = self.OnEditYears, passEvent = False)
         menu.AddSeparator()
@@ -95,7 +89,11 @@ class Frame(ceGUI.TopLevelFrame):
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
         self.notebook.AddPage("Panels.Causes.Panel", "Causes")
+        self.notebook.AddPage("Panels.Donators.Panel", "Donators")
+        self.BindEvent(self.notebook, wx.EVT_NOTEBOOK_PAGE_CHANGED,
+                self.OnPageChanged)
         self.CreateSimpleStatusBar()
+        wx.CallAfter(self.OnPageChanged)
 
     def OnCreateMenus(self):
         self.__CreateFileMenu()
@@ -117,15 +115,6 @@ class Frame(ceGUI.TopLevelFrame):
                 shortHelp = "Exit the application",
                 longHelp = "Exit the application.",
                 method = self.OnExit)
-
-    def OnEditCauses(self):
-        self.__AddPage("w_Causes.Panel", "Causes")
-
-    def OnEditDonators(self):
-        self.__AddPage("w_Donators.Panel", "Donators")
-
-    def OnEditElders(self):
-        self.__AddPage("w_Elders.Panel", "Elders")
 
     def OnEditYears(self):
         self.__AddPage("w_Years.Panel", "Years")
@@ -161,6 +150,13 @@ class Frame(ceGUI.TopLevelFrame):
             self.__AddDepositPage(depositInfo.depositId,
                     depositInfo.dateDeposited)
         dialog.Destroy()
+
+    def OnPageChanged(self, event = None):
+        obj = event or self.notebook
+        selection = obj.GetSelection()
+        if selection >= 0:
+            page = self.notebook.GetPage(selection)
+            page.OnActivated()
 
     def OnPageClosing(self, event):
         page = self.notebook.GetCurrentPage()
