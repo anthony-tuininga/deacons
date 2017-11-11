@@ -2,13 +2,33 @@
 Commonly defined items.
 """
 
-from __future__ import with_statement
-
 import ceDatabase
 import ceGUI
 import cx_Exceptions
 import decimal
 import wx
+
+import Models
+
+class BasePanel(ceGUI.DataGridPanel):
+
+    def GetYear(self):
+        topWindow = ceGUI.AppTopWindow()
+        return topWindow.year
+
+
+class BaseGrid(ceGUI.DataGrid):
+    pass
+
+
+class ColumnName(ceGUI.Column):
+
+    def GetNativeValue(self, row):
+        if row.donatorId is not None:
+            donator = self.config.GetCachedRowByPK(Models.Donators,
+                    row.donatorId)
+            return donator.name
+
 
 def FormattedAmount(value):
     if value is None:

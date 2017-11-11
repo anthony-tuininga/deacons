@@ -120,7 +120,7 @@ class ReportBody(Common.ReportBody):
                 name = "Anonymous"
             else:
                 donator = self.cache.DonatorForId(donatorId)
-                name = donator.reversedName
+                name = donator.name
             self.cheques.append((name, amount))
         self.cheques.sort()
 

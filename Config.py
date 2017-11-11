@@ -5,6 +5,7 @@ Configuration for Deacons application.
 import ceDataSource
 import ceGUI
 import ceODBC
+import datetime
 import os
 
 class Config(ceGUI.Config):
@@ -16,4 +17,8 @@ class Config(ceGUI.Config):
         dsn = "%s;uid=%s" % (baseDsn, os.environ["LOGNAME"])
         connection = ceODBC.Connection(dsn)
         return ceDataSource.ODBCDataSource(connection)
+
+    def OnCreate(self):
+        today = datetime.datetime.today()
+        self.year = today.year
 

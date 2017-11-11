@@ -3,33 +3,10 @@ Top level frame for the application.
 """
 
 import ceGUI
-import cx_Logging
 import wx
 
 class Frame(ceGUI.TopLevelFrame):
     title = "Deacons"
-
-    def __AddDepositPage(self, depositId, dateDeposited):
-        text = dateDeposited.strftime("Deposit - %A, %B %d, %Y")
-        page = self.__AddPage("w_Deposits.Panel", text)
-        page.Retrieve(depositId, dateDeposited)
-        return page
-
-    def __AddPage(self, name, text):
-        currentPage = self.notebook.GetCurrentPage()
-        newPage = ceGUI.OpenWindow(name, self.notebook, instanceName = text)
-        if newPage is currentPage:
-            return newPage
-        if currentPage is not None:
-            currentPage.SaveSettings()
-        for pageIndex in range(self.notebook.GetPageCount()):
-            page = self.notebook.GetPage(pageIndex)
-            if newPage is page:
-                self.notebook.SetSelection(pageIndex)
-                return newPage
-        self.notebook.AddPage(newPage, text)
-        newPage.RestoreSettings()
-        return newPage
 
     def __CreateEditMenu(self):
         menu = self.AddMenu("&Edit")
@@ -38,140 +15,118 @@ class Frame(ceGUI.TopLevelFrame):
 
     def __CreateFileMenu(self):
         menu = self.AddMenu("&File")
-        self.AddMenuItem(menu, "&New", "New deposit", method = self.OnNew)
-        self.AddMenuItem(menu, "&Open", "Open deposit", method = self.OnOpen)
-        menu.AddSeparator()
-        self.AddMenuItem(menu, "&Years", "Edit years",
-                method = self.OnEditYears, passEvent = False)
-        menu.AddSeparator()
         self.AddStockMenuItem(menu, wx.ID_EXIT, self.OnExit)
 
     def __CreateHelpMenu(self):
         menu = self.AddMenu("&Help")
         self.AddStockMenuItem(menu, wx.ID_ABOUT, self.OnAbout)
 
-    def __CreateReportsMenu(self):
-        menu = self.AddMenu("&Reports")
-        self.AddMenuItem(menu, "Monthly Report", "Monthly Report",
-                method = self.OnMonthlyReport, passEvent = False)
-        self.AddMenuItem(menu, "Quarterly Report", "Quarterly Report",
-                method = self.OnQuarterlyReport, passEvent = False)
-        self.AddMenuItem(menu, "Yearly Report", "Yearly Report",
-                method = self.OnYearlyReport, passEvent = False)
-
-    def __PrintReport(self, name):
-        cls = ceGUI.GetModuleItem(name, "Report")
-        self.SetStatusBarText("Printing report...")
-        busyCursor = wx.BusyCursor()
-        try:
-            report = cls(self.cache)
-            report.Print(self)
-            self.SetStatusBarText("Report printed successfully.")
-        except:
-            cx_Logging.LogException("report failed")
-            self.SetStatusBarText("Report failed.")
-
-    def _AddCausesForYearPage(self, year):
-        text = "%s - Causes" % year
-        page = self.__AddPage("w_CausesForYear.Panel", text)
-        page.list.Retrieve(year)
-
-    def _AddDonatorsForYearPage(self, year):
-        text = "%s - Donators" % year
-        page = self.__AddPage("w_DonatorsForYear.Panel", text)
-        page.Setup(year)
-
-    def _AddTaxReceiptsPage(self, year):
-        text = "%s - Tax Receipts" % year
-        page = self.__AddPage("w_TaxReceipts.Panel", text)
-        page.list.Retrieve(year)
-
     def OnCreate(self):
-        self.notebook = ceGUI.Notebook(self)
-        self.notebook.AddPage("Panels.Causes.Panel", "Causes")
-        self.notebook.AddPage("Panels.Donators.Panel", "Donators")
-        self.BindEvent(self.notebook, wx.EVT_NOTEBOOK_PAGE_CHANGED,
-                self.OnPageChanged)
+        self.topPanel = TopPanel(self)
+        self.bottomPanel = BottomPanel(self)
         self.CreateSimpleStatusBar()
-        wx.CallAfter(self.OnPageChanged)
 
     def OnCreateMenus(self):
         self.__CreateFileMenu()
         self.__CreateEditMenu()
-        self.__CreateReportsMenu()
         self.__CreateHelpMenu()
 
     def OnCreateToolbar(self):
-        self.AddToolbarItem("New", wx.ART_NEW,
-                shortHelp = "New deposit",
-                longHelp = "Create new deposit.",
-                method = self.OnNew)
-        self.AddToolbarItem("Open", wx.ART_FILE_OPEN,
-                shortHelp = "Open deposit",
-                longHelp = "Open deposit created earlier.",
-                method = self.OnOpen)
+        self.insertToolbarItem = self.AddToolbarItem("Insert", wx.ART_NEW,
+                shortHelp = "Insert", longHelp = "Insert a new row",
+                method = self.OnInsertRow, passEvent = False)
+        self.deleteToolbarItem = self.AddToolbarItem("Delete", wx.ART_DELETE,
+                shortHelp = "Delete", longHelp = "Delete selected rows",
+                method = self.OnDeleteRows, passEvent = False)
+        self.toolbar.AddSeparator()
+        self.AddToolbarItem("Retrieve", wx.ART_FILE_OPEN,
+                shortHelp = "Retrieve",
+                longHelp = "Retrieve data from the database",
+                method = self.OnRetrieve, passEvent = False)
+        self.updateToolbarItem = self.AddToolbarItem("Update",
+                wx.ART_FILE_SAVE, shortHelp = "Save changes",
+                longHelp = "Save changes to the database",
+                method = self.OnUpdate, passEvent = False)
         self.toolbar.AddSeparator()
         self.AddToolbarItem("Exit", wx.ART_QUIT,
                 shortHelp = "Exit the application",
                 longHelp = "Exit the application.",
                 method = self.OnExit)
 
-    def OnEditYears(self):
-        self.__AddPage("w_Years.Panel", "Years")
+    def OnDeleteRows(self):
+        page = self.bottomPanel.notebook.GetCurrentPage()
+        page.DeleteSelectedItems()
 
     def OnExit(self, event):
-        for pageIndex in range(self.notebook.GetPageCount()):
-            page = self.notebook.GetPage(pageIndex)
-            page.SaveSettings()
+        self.topPanel.SaveSettings()
+        self.bottomPanel.SaveSettings()
         super(Frame, self).OnExit(event)
 
-    def OnMonthlyReport(self):
-        self.__PrintReport("ReportDefs.Monthly")
+    def OnInsertRow(self):
+        page = self.bottomPanel.notebook.GetCurrentPage()
+        page.InsertItems()
 
-    def OnNew(self, event):
-        dialog = self.OpenWindow("SelectDialogs.Date.Dialog")
-        if dialog.ShowModal() == wx.ID_OK:
-            dateDeposited = dialog.GetDate()
-            cursor = self.config.connection.cursor()
-            cursor.execute("select nextval('DepositId_s')::integer")
-            depositId, = cursor.fetchone()
-            cursor.execute("""
-                        insert into Deposits (DepositId, DateDeposited)
-                        values (?, ?)""",
-                        depositId, dateDeposited)
-            self.config.connection.commit()
-            self.__AddDepositPage(depositId, dateDeposited)
-        dialog.Destroy()
+    def OnLayout(self):
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.topPanel, flag = wx.EXPAND)
+        sizer.Add(self.bottomPanel, proportion = 1, flag = wx.EXPAND)
+        return sizer
 
-    def OnOpen(self, event):
-        dialog = self.OpenWindow("SelectDialogs.Deposit.Dialog")
-        if dialog.ShowModal() == wx.ID_OK:
-            depositInfo = dialog.GetSelectedItem()
-            self.__AddDepositPage(depositInfo.depositId,
-                    depositInfo.dateDeposited)
-        dialog.Destroy()
+    def OnRetrieve(self):
+        page = self.bottomPanel.notebook.GetCurrentPage()
+        page.Retrieve(refresh = True)
+
+    def OnUpdate(self):
+        page = self.bottomPanel.notebook.GetCurrentPage()
+        page.UpdateChanges()
+
+
+class TopPanel(ceGUI.Panel):
+
+    def OnChangeYear(self):
+        pass
+
+    def OnCreate(self):
+        self.yearLabel = self.AddLabel("Year: %d" % self.config.year)
+        self.changeButton = self.AddButton("Change...",
+                method = self.OnChangeYear, passEvent = False)
+
+    def OnLayout(self):
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        sizer.Add(self.yearLabel, border = 5,
+                flag = wx.ALL | wx.ALIGN_CENTER_VERTICAL)
+        sizer.Add(self.changeButton, border = 5,
+                flag = wx.LEFT | wx.ALIGN_CENTER_VERTICAL)
+        return sizer
+
+
+class BottomPanel(ceGUI.Panel):
+
+    def OnCreate(self):
+        self.notebook = ceGUI.Notebook(self)
+        self.notebook.AddPage("Panels.Causes.Panel", "Causes")
+        self.notebook.AddPage("Panels.Donators.Panel", "Donators")
+        self.notebook.AddPage("Panels.TaxReceipts.Panel", "Tax Receipts")
+        self.notebook.AddPage("Panels.Years.Panel", "Years")
+        self.BindEvent(self.notebook, wx.EVT_NOTEBOOK_PAGE_CHANGED,
+                self.OnPageChanged)
+        wx.CallAfter(self.OnPageChanged)
+
+    def OnLayout(self):
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(self.notebook, flag = wx.ALL | wx.EXPAND, border = 5,
+                proportion = 1)
+        return sizer
 
     def OnPageChanged(self, event = None):
+        if not self:
+            return
         obj = event or self.notebook
         selection = obj.GetSelection()
         if selection >= 0:
             page = self.notebook.GetPage(selection)
             page.OnActivated()
 
-    def OnPageClosing(self, event):
-        page = self.notebook.GetCurrentPage()
-        if not page.ContinueQuery():
-            event.Veto()
-        else:
-            page.SaveSettings()
-            event.Skip()
-
-    def OnQuarterlyReport(self):
-        self.__PrintReport("ReportDefs.Quarterly")
-
-    def OnYearlyReport(self):
-        self.__PrintReport("ReportDefs.Yearly")
-
-    def SetStatusBarText(self, message):
-        self.statusBar.SetStatusText(message)
+    def SaveSettings(self):
+        self.notebook.SaveSettings()
 

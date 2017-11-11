@@ -2,8 +2,6 @@
 Dialog for editing donations.
 """
 
-from __future__ import with_statement
-
 import ceDatabase
 import ceGUI
 import decimal
@@ -191,18 +189,18 @@ class GridColumnName(ceGUI.GridColumn):
     def GetSortValue(self, row):
         if row.donatorId is not None:
             donator = self.config.cache.DonatorForId(row.donatorId)
-            return donator.reversedName.upper()
+            return donator.name.upper()
 
     def GetValue(self, row):
         if row.donatorId is None:
             return ""
         donator = self.config.cache.DonatorForId(row.donatorId)
-        return donator.reversedName
+        return donator.name
 
     def SetValue(self, grid, dataSet, rowHandle, row, rawValue):
         if row.donatorId is not None:
             donator = grid.config.cache.DonatorForId(row.donatorId)
-            if rawValue == donator.reversedName:
+            if rawValue == donator.name:
                 return True
         if not rawValue:
             dataSet.SetValue(rowHandle, self.attrName, None)
@@ -210,7 +208,7 @@ class GridColumnName(ceGUI.GridColumn):
             return True
         searchValue = rawValue.upper()
         donators = [d for d in grid.config.cache.Donators() \
-                if d.isActive and d.searchReversedName.startswith(searchValue)]
+                if d.isActive and d.searchName.startswith(searchValue)]
         selectedDonator = None
         if len(donators) == 1:
             selectedDonator, = donators

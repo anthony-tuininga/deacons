@@ -2,13 +2,13 @@
 Panel displaying information about years.
 """
 
-import ceDatabase
 import ceGUI
 import cx_Logging
 import datetime
 import wx
 
 import Common
+import Models
 
 class Panel(ceGUI.DataListPanel):
     editDialogName = "EditDialogs.Years.Dialog"
@@ -155,9 +155,10 @@ class List(ceGUI.DataList):
 
     def OnCreate(self):
         self.AddColumn("year", "Year", 50)
-        self.AddColumn("budgetAmount", "Budget Amount",
-                justification = wx.LIST_FORMAT_RIGHT,
+        self.AddColumn("budgetAmount", "Budget Amount", rightJustified = True,
                 cls = Common.AmountColumn)
+        self.AddColumn("receiptsIssued", "Receipts Issued",
+                cls = ceGUI.ColumnBool)
 
     def OnCauses(self):
         app = wx.GetApp()
@@ -176,9 +177,6 @@ class List(ceGUI.DataList):
         app.topWindow._AddTaxReceiptsPage(item.year)
 
 
-class DataSet(ceDatabase.DataSet):
-    tableName = "Years"
-    attrNames = "year budgetAmount promptForReceiptGeneration receiptsIssued"
-    charBooleanAttrNames = "promptForReceiptGeneration receiptsIssued"
-    pkAttrNames = "year"
+class DataSet(ceGUI.DataSet):
+    rowClass = Models.Years
 

@@ -5,23 +5,37 @@ Define models used by application.
 import ceGUI
 
 class Causes(ceGUI.BaseModel):
-    attrNames = "causeId description isReported isActive address"
-    charBooleanAttrNames = "isReported isActive"
+    attrNames = "causeId year description deductible reported notes"
+    charBooleanAttrNames = "deductible reported"
     extraAttrNames = "searchDescription"
     pkAttrNames = "causeId"
     cached = True
 
 
 class Donators(ceGUI.BaseModel):
-    attrNames = "donatorId isActive lastName givenNames address"
-    charBooleanAttrNames = "isActive"
-    extraAttrNames = "name reversedName searchName searchReversedName"
+    attrNames = "donatorId year surname givenNames assignedNumber address"
+    extraAttrNames = "name searchName"
     pkAttrNames = "donatorId"
     cached = True
 
+    @classmethod
+    def SetExtraAttributes(cls, dataSource, rows):
+        for row in rows:
+            row.name = row.surname if row.givenNames is None \
+                    else "%s, %s" % (row.surname, row.givenNames)
+            row.searchName = row.name.upper()
 
-class DonatorsForYear(ceGUI.BaseModel):
-    attrNames = "donatorId year assignedNumber"
-    pkAttrNames = "year donatorId"
+
+class TaxReceipts(ceGUI.BaseModel):
+    attrNames = """receiptNumber year donatorId amount dateIssued isDuplicate
+            canceled"""
+    charBooleanAttrNames = "isDuplicate canceled"
+    pkAttrNames = "receiptNumber"
+
+
+class Years(ceGUI.BaseModel):
+    attrNames = "year budgetAmount promptForReceiptGeneration receiptsIssued"
+    charBooleanAttrNames = "promptForReceiptGeneration receiptsIssued"
+    pkAttrNames = "year"
     cached = True
 

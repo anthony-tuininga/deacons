@@ -3,18 +3,34 @@ Panel which displays causes and enables editing of them.
 """
 
 import ceGUI
+
+import Common
 import Models
 
-class Panel(ceGUI.DataListPanel):
-    editDialogName = "EditDialogs.Causes.Dialog"
+class Panel(Common.BasePanel):
+    pass
 
 
-class List(ceGUI.DataList):
+class Grid(Common.BaseGrid):
 
     def OnCreate(self):
-        self.AddColumn("description", "Description")
+        self.AddColumn("description", "Description", defaultWidth = 200)
+        self.AddColumn("deductible", "Deductible", cls = ceGUI.ColumnBool)
+        self.AddColumn("reported", "Reported", cls = ceGUI.ColumnBool)
+        self.AddColumn("notes", "Notes", defaultWidth = 200)
+
+    def OnInsertRow(self, row, choice):
+        row.year = self.config.year
+        row.deductible = True
+        row.reported = True
 
 
 class DataSet(ceGUI.DataSet):
     rowClass = Models.Causes
+    pkSequenceName = "CauseId_s"
+    pkIsGenerated = True
+
+    def _GetRows(self):
+        return [r for r in self.config.GetCachedRows(self.rowClass) \
+                if r.year == self.config.year]
 
