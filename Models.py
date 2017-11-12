@@ -5,7 +5,8 @@ Define models used by application.
 import ceGUI
 
 class Causes(ceGUI.BaseModel):
-    attrNames = "causeId year description deductible reported notes"
+    attrNames = """causeId year description deductible reported
+            donationAccountCode looseCashAccountCode notes"""
     charBooleanAttrNames = "deductible reported"
     extraAttrNames = "searchDescription"
     pkAttrNames = "causeId"

@@ -17,6 +17,10 @@ class Grid(Common.BaseGrid):
         self.AddColumn("description", "Description", defaultWidth = 200)
         self.AddColumn("deductible", "Deductible", cls = ceGUI.ColumnBool)
         self.AddColumn("reported", "Reported", cls = ceGUI.ColumnBool)
+        self.AddColumn("donationAccountCode", "Donation Account",
+                defaultWidth = 150)
+        self.AddColumn("looseCashAccountCode", "Loose Cash Account",
+                defaultWidth = 150)
         self.AddColumn("notes", "Notes", defaultWidth = 200)
 
     def OnInsertRow(self, row, choice):

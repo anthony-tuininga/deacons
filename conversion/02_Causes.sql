@@ -78,6 +78,8 @@ create table Causes (
     Description                 character varying(60) not null,
     Deductible                  boolean not null,
     Reported                    boolean not null,
+    DonationAccountCode         character varying(10),
+    LooseCashAccountCode        character varying(10),
     Notes                       character varying(250),
     constraint Causes_pk primary key (CauseId),
     constraint Causes_fk_1 foreign key (Year) references Years
