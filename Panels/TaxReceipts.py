@@ -31,6 +31,9 @@ class Grid(Common.BaseGrid):
                 cls = Common.ColumnName)
         self.AddColumn("amount", "Amount", cls = ceGUI.ColumnMoney)
 
+    def OnInsertRow(self, row, choice):
+        row.year = self.config.year
+
     def OnPrintReceipts(self):
         year, = self.dataSet.retrievalArgs
         cls = ceGUI.GetModuleItem("ReportDefs.TaxReceipts", "Report")
@@ -41,4 +44,8 @@ class Grid(Common.BaseGrid):
 
 class DataSet(ceGUI.DataSet):
     rowClass = Models.TaxReceipts
+
+    def _GetRows(self):
+        return [r for r in self.config.GetCachedRows(self.rowClass) \
+                if r.year == self.config.year]
 
