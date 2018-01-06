@@ -38,5 +38,7 @@ class Years(ceGUI.BaseModel):
     attrNames = "year budgetAmount promptForReceiptGeneration receiptsIssued"
     charBooleanAttrNames = "promptForReceiptGeneration receiptsIssued"
     pkAttrNames = "year"
+    sortByAttrNames = "year"
+    sortReversed = True
     cached = True
 

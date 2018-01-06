@@ -2,8 +2,9 @@
 Dialog for selecting a year.
 """
 
-import ceDatabase
 import ceGUI
+
+import Models
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Year"
@@ -22,9 +23,6 @@ class List(ceGUI.List):
         self.AddColumn("year", "Year")
 
 
-class DataSet(ceDatabase.DataSet):
-    tableName = "Years"
-    attrNames = "year"
-    sortByAttrNames = "year"
-    sortReversed = True
+class DataSet(ceGUI.DataSet):
+    rowClass = Models.Years
 

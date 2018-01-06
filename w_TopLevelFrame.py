@@ -80,16 +80,21 @@ class Frame(ceGUI.TopLevelFrame):
         page = self.bottomPanel.notebook.GetCurrentPage()
         page.UpdateChanges()
 
+    def OnYearChanged(self):
+        self.topPanel.OnYearChanged()
+        self.bottomPanel.OnYearChanged()
+
 
 class TopPanel(ceGUI.Panel):
 
     def OnChangeYear(self):
-        pass
+        self.config.SelectYear()
 
     def OnCreate(self):
-        self.yearLabel = self.AddLabel("Year: %d" % self.config.year)
+        self.yearLabel = self.AddLabel()
         self.changeButton = self.AddButton("Change...",
                 method = self.OnChangeYear, passEvent = False)
+        self.OnYearChanged();
 
     def OnLayout(self):
         sizer = wx.BoxSizer(wx.HORIZONTAL)
@@ -98,6 +103,9 @@ class TopPanel(ceGUI.Panel):
         sizer.Add(self.changeButton, border = 5,
                 flag = wx.LEFT | wx.ALIGN_CENTER_VERTICAL)
         return sizer
+
+    def OnYearChanged(self):
+        self.yearLabel.SetLabel("Year: %d" % self.config.year)
 
 
 class BottomPanel(ceGUI.Panel):
@@ -126,6 +134,10 @@ class BottomPanel(ceGUI.Panel):
         if selection >= 0:
             page = self.notebook.GetPage(selection)
             page.OnActivated()
+
+    def OnYearChanged(self):
+        for page in self.notebook.IterPages():
+            page.Retrieve()
 
     def SaveSettings(self):
         self.notebook.SaveSettings()

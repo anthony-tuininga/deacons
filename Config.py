@@ -22,3 +22,11 @@ class Config(ceGUI.Config):
         today = datetime.datetime.today()
         self.year = today.year
 
+    def SelectYear(self):
+        topWindow = ceGUI.AppTopWindow()
+        with topWindow.OpenWindow("SelectDialogs.Year.Dialog") as dialog:
+            if dialog.ShowModalOk():
+                row = dialog.GetSelectedItem()
+                self.year = row.year
+                topWindow.OnYearChanged()
+
