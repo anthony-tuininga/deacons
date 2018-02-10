@@ -81,7 +81,9 @@ create table Donators (
     Surname         character varying(30) not null,
     GivenNames      character varying(50),
     AssignedNumber  integer,
-    Address         character varying(150),
+    AddressLine1    character varying(60),
+    AddressLine2    character varying(60),
+    AddressLine3    character varying(60),
     constraint Donators_pk primary key (DonatorId),
     constraint Donators_uk_1 unique (Year, Surname, GivenNames),
     constraint Donators_uk_2 unique (Year, AssignedNumber),
@@ -100,7 +102,11 @@ select
       where DonatorId = x.OldDonatorId
         and Year = x.Year
     ),
-    d.Address
+    split_part(d.Address, E'\n', 1),
+    split_part(d.Address, E'\n', 2),
+    concat_ws(' ', split_part(d.Address, E'\n', 3),
+            split_part(d.Address, E'\n', 4),
+            split_part(d.Address, E'\n', 5))
 from
     DonatorXref x
     join Donators_backup d

@@ -21,7 +21,9 @@ class Grid(Common.BaseGrid):
         self.AddColumn("surname", "Surname", defaultWidth = 200)
         self.AddColumn("givenNames", "Given Names", defaultWidth = 200)
         self.AddColumn("assignedNumber", "Number", cls = ceGUI.ColumnInt)
-        self.AddColumn("address", "Address", defaultWidth = 200)
+        self.AddColumn("addressLine1", "Address Line 1", defaultWidth = 200)
+        self.AddColumn("addressLine2", "Address Line 2", defaultWidth = 200)
+        self.AddColumn("addressLine3", "Address Line 3", defaultWidth = 200)
 
     def OnInsertRow(self, row, choice):
         row.year = self.config.year

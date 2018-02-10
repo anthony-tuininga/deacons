@@ -14,7 +14,8 @@ class Causes(ceGUI.BaseModel):
 
 
 class Donators(ceGUI.BaseModel):
-    attrNames = "donatorId year surname givenNames assignedNumber address"
+    attrNames = """donatorId year surname givenNames assignedNumber
+            addressLine1 addressLine2 addressLine3"""
     extraAttrNames = "name searchName"
     pkAttrNames = "donatorId"
     cached = True
@@ -31,6 +32,7 @@ class TaxReceipts(ceGUI.BaseModel):
     attrNames = """receiptNumber year donatorId amount dateIssued isDuplicate
             canceled"""
     charBooleanAttrNames = "isDuplicate canceled"
+    extraAttrNames = "donator"
     pkAttrNames = "receiptNumber"
 
 

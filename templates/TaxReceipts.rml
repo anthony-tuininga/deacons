@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<document>
+
+<template pageSize="(612,792)">
+
+    <pageTemplate id="main">
+        <frame id="receipt1" x1="17mm" y1="198mm" width="185mm" height="65mm"/>
+        <frame id="receipt2" x1="17mm" y1="103mm" width="185mm" height="65mm"/>
+        <frame id="receipt3" x1="17mm" y1="18mm" width="185mm" height="65mm"/>
+    </pageTemplate>
+
+</template>
+
+<stylesheet>
+
+    <paraStyle name="btext" fontName="Helvetica-Bold" fontSize="12"
+            alignment="left"/>
+    <paraStyle name="text" fontName="Helvetica" fontSize="12"
+            alignment="left"/>
+    <paraStyle name="itext" fontName="Helvetica-Oblique" fontSize="12"
+            alignment="left"/>
+
+    <blockTableStyle>
+        <blockValign value="middle"/>
+        <blockLeftPadding length="0"/>
+        <blockRightPadding length="0"/>
+        <blockTopPadding length="1"/>
+        <blockBottomPadding length="1"/>
+    </blockTableStyle>
+
+</stylesheet>
+
+<story>
+
+    {% for receipt in receipts %}
+    <blockTable colWidths="105mm,80mm">
+
+        <tr>
+            <td><para style="btext">Orthodox Reformed Church of Edmonton</para></td>
+            <td><para style="btext">OFFICIAL RECEIPT for</para></td>
+        </tr>
+
+        <tr>
+            <td><para style="text">11610 - 95A Street NW</para></td>
+            <td><para style="btext">INCOME TAX PURPOSES</para></td>
+        </tr>
+
+        <tr>
+            <td><para style="text">Edmonton, AB</para></td>
+            <td/>
+        </tr>
+
+        <tr>
+            <td/>
+            <td><para style="text"><i>Year:</i> {{ receipt.year }}</para></td>
+        </tr>
+
+        <tr>
+            <td><para style="itext">Received From:</para></td>
+            <td><para style="text"><i>Envelope Number:</i> {{ receipt.donator.assignedNumber }}</para></td>
+        </tr>
+
+        <tr>
+            <td/>
+            <td><para style="text"><i>Receipt Number:</i> {{ receipt.receiptNumber }}</para></td>
+        </tr>
+
+        <tr>
+            <td><para style="text">{{ receipt.donator.name }}</para></td>
+            <td><para style="text"><i>Date Issued:</i> {{ receipt.dateIssued.strftime("%B %d, %Y") }}</para></td>
+        </tr>
+
+        <tr>
+            <td><para style="text">{{ receipt.donator.addressLine1 }}</para></td>
+            <td><para style="text"><i>Amount:</i> {{ "${:,.2f}".format(receipt.amount) }}</para></td>
+        </tr>
+
+        <tr>
+            <td><para style="text">{{ receipt.donator.addressLine2 }}</para></td>
+            <td/>
+        </tr>
+
+        <tr>
+            <td><para style="text">{{ receipt.donator.addressLine3 }}</para></td>
+            <td><para style="text">PER: _____________________</para></td>
+        </tr>
+
+        <tr/>
+
+        <tr>
+            <td colspan="2"><para style="text">Canada Revenue Agency - www.cra-arc.gc.ca/charities</para></td>
+        </tr>
+
+    </blockTable>
+    <nextFrame/>
+    {% endfor %}
+
+</story>
+
+</document>
+

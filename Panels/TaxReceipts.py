@@ -57,7 +57,7 @@ class Grid(Common.BaseGrid):
     def _CreateContextMenu(self):
         super(Grid, self)._CreateContextMenu()
         self.menu.AddSeparator()
-        self.printReceiptsMenuItem = self.menu.AddEntry(self,
+        self.generateReceiptsMenuItem = self.menu.AddEntry(self,
                 "Generate Receipts", method = self.OnGenerateReceipts,
                 passEvent = False)
         self.printReceiptsMenuItem = self.menu.AddEntry(self,
@@ -136,11 +136,11 @@ class Grid(Common.BaseGrid):
         row.year = self.config.year
 
     def OnPrintReceipts(self):
-        year, = self.dataSet.retrievalArgs
-        cls = ceGUI.GetModuleItem("ReportDefs.TaxReceipts", "Report")
-        args = (year, self.GetSelectedItems())
-        report = cls()
-        report.Preview(args)
+        receipts = self.GetSelectedItems()
+        for receipt in receipts:
+            receipt.donator = self.config.GetCachedRowByPK(Models.Donators,
+                    receipt.donatorId)
+        self.config.GeneratePDF("TaxReceipts.rml", receipts = receipts)
 
 
 class DataSet(ceGUI.DataSet):
