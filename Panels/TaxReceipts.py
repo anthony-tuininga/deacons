@@ -72,7 +72,7 @@ class Grid(Common.BaseGrid):
     def OnCreate(self):
         self.AddColumn("receiptNumber", "Num", defaultWidth = 75)
         self.AddColumn("name", "Name", defaultWidth = 250,
-                cls = Common.ColumnName)
+                cls = Common.ColumnDonatorName)
         self.AddColumn("amount", "Amount", cls = ceGUI.ColumnMoney)
         self.AddColumn("dateIssued", "Date Issued", cls = ceGUI.ColumnDate,
                 defaultWidth = 250)

@@ -16,12 +16,24 @@ class BasePanel(ceGUI.DataGridPanel):
         topWindow = ceGUI.AppTopWindow()
         return topWindow.year
 
+    def OnYearChanged(self):
+        self.Retrieve(refresh = True)
+
 
 class BaseGrid(ceGUI.DataGrid):
     pass
 
 
-class ColumnName(ceGUI.Column):
+class ColumnCauseDescription(ceGUI.Column):
+
+    def GetNativeValue(self, row):
+        if row.causeId is not None:
+            cause = self.config.GetCachedRowByPK(Models.Causes,
+                    row.causeId)
+            return cause.description
+
+
+class ColumnDonatorName(ceGUI.Column):
 
     def GetNativeValue(self, row):
         if row.donatorId is not None:

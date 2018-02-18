@@ -112,6 +112,7 @@ class BottomPanel(ceGUI.Panel):
 
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
+        self.notebook.AddPage("Panels.Donations.Panel", "Donations")
         self.notebook.AddPage("Panels.Causes.Panel", "Causes")
         self.notebook.AddPage("Panels.Donators.Panel", "Donators")
         self.notebook.AddPage("Panels.TaxReceipts.Panel", "Tax Receipts")
@@ -137,7 +138,7 @@ class BottomPanel(ceGUI.Panel):
 
     def OnYearChanged(self):
         for page in self.notebook.IterPages():
-            page.Retrieve()
+            page.OnYearChanged()
 
     def SaveSettings(self):
         self.notebook.SaveSettings()

@@ -13,6 +13,14 @@ class Causes(ceGUI.BaseModel):
     cached = True
 
 
+class Donations(ceGUI.BaseModel):
+    tableName = "Donations_v"
+    attrNames = """donationId dateDeposited dateCollected cash causeId
+            donatorId amount"""
+    charBooleanAttrNames = "cash"
+    pkAttrNames = "donationId"
+
+
 class Donators(ceGUI.BaseModel):
     attrNames = """donatorId year surname givenNames assignedNumber
             addressLine1 addressLine2 addressLine3"""
