@@ -1,11 +1,3 @@
-/* clean up case of duplicated cause in split */
-update Donations set
-    Amount = 1000
-where DonationId = 42132;
-
-delete from Donations
-where DonationId = 42135;
-
 /* remove any split donations that aren't actually used */
 delete from SplitDonations sd
 where not exists
@@ -55,34 +47,34 @@ from SplitDonations;
 create table Donations (
     DonationId          integer not null,
     CollectionId        integer not null,
+    DonatorId           integer not null,
     Cash                boolean not null,
     constraint Donations_pk primary key (DonationId),
     constraint Donations_fk_1 foreign key (CollectionId)
-            references Collections
+            references Collections,
+    constraint Donations_fk_2 foreign key (DonatorId)
+            references Donators
 );
 
 create index Donations_ix_1 on Donations (CollectionId);
+
+create index Donations_ix_2 on Donations (DonatorId);
 
 grant select on Donations to public;
 
 create table DonationComponents (
     DonationId          integer not null,
-    DonatorId           integer not null,
     CauseId             integer not null,
     Amount              money not null,
     constraint DonationComponents_pk primary key
-            (DonationId, CauseId, DonatorId),
+            (DonationId, CauseId),
     constraint DonationComponents_fk_1 foreign key (DonationId)
             references Donations on delete cascade,
     constraint DonationComponents_fk_2 foreign key (CauseId)
-            references Causes,
-    constraint DonationComponents_fk_3 foreign key (DonatorId)
-            references Donators
+            references Causes
 );
 
-create index DonationComponents_ix_1 on DonationComponents (DonatorId);
-
-create index DonationComponents_ix_2 on DonationComponents (CauseId);
+create index DonationComponents_ix_1 on DonationComponents (CauseId);
 
 grant select on DonationComponents to public;
 
@@ -90,6 +82,7 @@ insert into Donations
 select
     x.NewDonationId,
     d.CollectionId,
+    d.DonatorId,
     d.Cash
 from
     DonationXref x
@@ -100,6 +93,7 @@ insert into Donations
 select distinct
     x.NewDonationId,
     d.CollectionId,
+    d.DonatorId,
     d.Cash
 from
     DonationXref x
@@ -109,14 +103,14 @@ from
 insert into DonationComponents
 select
     x.NewDonationId,
-    d.DonatorId,
     d.CauseId,
-    d.Amount
+    sum(d.Amount)
 from
     DonationXref x
     join Donations_backup d
         on d.DonationId = x.OldDonationId
-        or d.SplitDonationId = x.OldSplitDonationId;
+        or d.SplitDonationId = x.OldSplitDonationId
+group by x.NewDonationId, d.CauseId;
 
 create or replace view CollectionAmounts as
 select
