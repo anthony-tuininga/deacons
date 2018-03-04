@@ -150,3 +150,5 @@ drop table DonationXref;
 
 drop table Donations_backup;
 
+drop sequence SplitDonationId_s;
+
