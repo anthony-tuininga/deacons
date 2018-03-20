@@ -1,8 +1,8 @@
 create view Donations_v as
 select
     dr.Year,
-    dp.DateDeposited,
-    ct.DateCollected,
+    d.DateDeposited,
+    d.DateCollected,
     d.DonationId,
     d.Cash,
     dc.CauseId,
@@ -13,9 +13,5 @@ from
     join DonationComponents dc
         on dc.DonationId = d.DonationId
     join Donators dr
-        on dr.DonatorId = d.DonatorId
-    join Collections ct
-        on ct.CollectionId = d.CollectionId
-    join Deposits dp
-        on dp.DepositId = ct.DepositId;
+        on dr.DonatorId = d.DonatorId;
 

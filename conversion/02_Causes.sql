@@ -1,21 +1,3 @@
-alter table Cheques
-add Year integer;
-
-update Cheques cq set
-    Year =
-        ( select max(date_part('year', d.DateDeposited))
-          from
-              ChequeAmounts cqa
-              join Collections c
-                  on c.CollectionId = cqa.CollectionId
-              join Deposits d
-                  on d.DepositId = c.DepositId
-          where cqa.ChequeId = cq.ChequeId
-        );
-
-alter table Cheques
-alter column Year set not null;
-
 alter table CollectionCauses
 add Year integer;
 
@@ -34,19 +16,6 @@ select distinct
     CauseId,
     Year,
     false
-from Cheques cq
-where not exists
-    ( select 1
-      from CausesForYear
-      where CauseId = cq.CauseId
-        and Year = cq.Year
-    );
-
-insert into CausesForYear
-select distinct
-    CauseId,
-    Year,
-    false
 from CollectionCauses cc
 where not exists
     ( select 1
@@ -56,8 +25,6 @@ where not exists
     );
 
 alter table CausesForYear drop constraint CausesForYear_fk_1;
-
-alter table Cheques drop constraint Cheques_fk_1;
 
 alter table CollectionCauses drop constraint CollectionCauses_fk_2;
 
@@ -101,29 +68,9 @@ from
         on x.OldCauseId = cy.CauseId
         and x.Year = cy.Year;
 
-update Cheques cq set
-    CauseId =
-        ( select NewCauseId
-          from CauseXref
-          where OldCauseId = cq.CauseId
-             and Year = cq.Year
-        );
-
-alter table Cheques
-add constraint Cheques_fk_1
-foreign key (CauseId)
-references Causes;
-
-alter table Cheques
-drop column Year;
-
-alter table ChequeAmounts drop constraint ChequeAmounts_fk_2;
-
 alter table CollectionCash drop constraint CollectionCash_fk_1;
 
 alter table Donations drop constraint Donations_fk_1;
-
-alter table UnremittedAmounts drop constraint UnremittedAmounts_fk_1;
 
 update CollectionCauses cc set
     CauseId =
@@ -140,23 +87,6 @@ references Causes;
 
 alter table CollectionCauses
 drop column Year;
-
-update ChequeAmounts ca set
-    CauseId =
-        ( select NewCauseId
-          from CauseXref
-          where OldCauseId = ca.CauseId
-            and Year =
-                ( select date_part('year', DateCollected)
-                  from Collections
-                  where CollectionId = ca.CollectionId
-                )
-        );
-
-alter table ChequeAmounts
-add constraint ChequeAmounts_fk_2
-foreign key (CollectionId, CauseId)
-references CollectionCauses;
 
 update CollectionCash cc set
     CauseId =
@@ -189,23 +119,6 @@ update Donations d set
 
 alter table Donations
 add constraint Donations_fk_1
-foreign key (CollectionId, CauseId)
-references CollectionCauses;
-
-update UnremittedAmounts ua set
-    CauseId =
-        ( select NewCauseId
-          from CauseXref
-          where OldCauseId = ua.CauseId
-            and Year =
-                ( select date_part('year', DateCollected)
-                  from Collections
-                  where CollectionId = ua.CollectionId
-                )
-        );
-
-alter table UnremittedAmounts
-add constraint UnremittedAmounts_fk_1
 foreign key (CollectionId, CauseId)
 references CollectionCauses;
 

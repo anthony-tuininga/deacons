@@ -46,19 +46,20 @@ from SplitDonations;
 
 create table Donations (
     DonationId          integer not null,
-    CollectionId        integer not null,
+    DateCollected       date not null,
+    DateDeposited       date not null,
     DonatorId           integer not null,
     Cash                boolean not null,
     constraint Donations_pk primary key (DonationId),
-    constraint Donations_fk_1 foreign key (CollectionId)
-            references Collections,
-    constraint Donations_fk_2 foreign key (DonatorId)
+    constraint Donations_fk_1 foreign key (DonatorId)
             references Donators
 );
 
-create index Donations_ix_1 on Donations (CollectionId);
+create index Donations_ix_1 on Donations (DateCollected);
 
-create index Donations_ix_2 on Donations (DonatorId);
+create index Donations_ix_2 on Donations (DateDeposited);
+
+create index Donations_ix_3 on Donations (DonatorId);
 
 grant select on Donations to public;
 
@@ -81,24 +82,34 @@ grant select on DonationComponents to public;
 insert into Donations
 select
     x.NewDonationId,
-    d.CollectionId,
+    ct.DateCollected,
+    dp.DateDeposited,
     d.DonatorId,
     d.Cash
 from
     DonationXref x
     join Donations_backup d
-        on d.DonationId = x.OldDonationId;
+        on d.DonationId = x.OldDonationId
+    join Collections ct
+        on ct.CollectionId = d.CollectionId
+    join Deposits dp
+        on dp.DepositId = ct.DepositId;
 
 insert into Donations
 select distinct
     x.NewDonationId,
-    d.CollectionId,
+    ct.DateCollected,
+    dp.DateDeposited,
     d.DonatorId,
     d.Cash
 from
     DonationXref x
     join Donations_backup d
-        on d.SplitDonationId = x.OldSplitDonationId;
+        on d.SplitDonationId = x.OldSplitDonationId
+    join Collections ct
+        on ct.CollectionId = d.CollectionId
+    join Deposits dp
+        on dp.DepositId = ct.DepositId;
 
 insert into DonationComponents
 select
@@ -112,37 +123,7 @@ from
         or d.SplitDonationId = x.OldSplitDonationId
 group by x.NewDonationId, d.CauseId;
 
-create or replace view CollectionAmounts as
-select
-    cc.CollectionId,
-    cc.CauseId,
-    ( select coalesce(sum(dc.Amount), 0::money)
-      from
-          Donations d
-          join DonationComponents dc
-              on dc.DonationId = d.DonationId
-              and dc.CauseId = cc.CauseId
-      where d.CollectionId = cc.CollectionId
-        and d.Cash = false
-    ) as ChequeAmount,
-    ( select coalesce(sum(dc.Amount), 0::money)
-      from
-          Donations d
-          join DonationComponents dc
-              on dc.DonationId = d.DonationId
-              and dc.CauseId = cc.CauseId
-      where d.CollectionId = cc.CollectionId
-        and d.Cash = true
-    ) as EnvelopeCash,
-    ( select coalesce(sum(cd.Value * ccs.Quantity), 0::money)
-      from
-          CollectionCash ccs
-          join CashDenominations cd
-              on cd.CashDenominationId = ccs.CashDenominationId
-      where ccs.CollectionId = cc.CollectionId
-        and ccs.CauseId = cc.CauseId
-    ) as CashAmount
-from CollectionCauses cc;
+drop view CollectionAmounts;
 
 drop table SplitDonations;
 
