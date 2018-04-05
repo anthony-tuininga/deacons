@@ -11,6 +11,7 @@ import os
 import srml2pdf
 import subprocess
 import tempfile
+import xlml2xlsx
 
 class Config(ceGUI.Config):
     baseDsn = 'Driver=PostgreSQL;Servername=%s;Database=deacons;readonly=0'
@@ -21,6 +22,15 @@ class Config(ceGUI.Config):
         dsn = "%s;uid=%s" % (baseDsn, os.environ["LOGNAME"])
         connection = ceODBC.Connection(dsn)
         return ceDataSource.ODBCDataSource(connection)
+
+    def GenerateXL(self, templateName, **args):
+        template = self.templateEnv.get_template(templateName)
+        renderedTemplate = template.render(**args)
+        output = xlml2xlsx.GenerateXL(renderedTemplate)
+        fileNo, outputFileName = tempfile.mkstemp(suffix = ".xlsx")
+        os.write(fileNo, output.getvalue())
+        os.close(fileNo)
+        subprocess.Popen(["oocalc", outputFileName])
 
     def GeneratePDF(self, templateName, **args):
         template = self.templateEnv.get_template(templateName)
@@ -36,6 +46,11 @@ class Config(ceGUI.Config):
         self.year = today.year
         self.templateEnv = jinja2.Environment(autoescape = True,
                 loader = jinja2.FileSystemLoader(os.path.abspath("templates")))
+
+    def RunReport(self, clsName):
+        cls = ceGUI.GetModuleItem("ReportDefs.%s.Report" % clsName)
+        report = cls(self)
+        report.Run()
 
     def SelectYear(self):
         topWindow = ceGUI.AppTopWindow()

@@ -4,6 +4,10 @@ Define models used by application.
 
 import ceGUI
 
+class CashSummary(ceGUI.BaseModel):
+    attrNames = "year dateCollected causeId amount"
+
+
 class Causes(ceGUI.BaseModel):
     attrNames = """causeId year description deductible reported
             donationAccountCode looseCashAccountCode notes"""
@@ -19,6 +23,10 @@ class Donations(ceGUI.BaseModel):
             donatorId amount"""
     charBooleanAttrNames = "cash"
     pkAttrNames = "donationId"
+
+
+class DonationSummary(ceGUI.BaseModel):
+    attrNames = "year dateCollected causeId chequeAmount cashAmount"
 
 
 class Donators(ceGUI.BaseModel):

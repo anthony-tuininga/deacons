@@ -21,6 +21,12 @@ class Frame(ceGUI.TopLevelFrame):
         menu = self.AddMenu("&Help")
         self.AddStockMenuItem(menu, wx.ID_ABOUT, self.OnAbout)
 
+    def __CreateReportsMenu(self):
+        menu = self.AddMenu("&Reports")
+        self.AddMenuItem(menu, "&Treasurer Summary",
+                "Run Treasurer Summary Report", self.OnRunTreasurerSummary,
+                createBusyCursor = True, passEvent = False)
+
     def OnCreate(self):
         self.topPanel = TopPanel(self)
         self.bottomPanel = BottomPanel(self)
@@ -29,6 +35,7 @@ class Frame(ceGUI.TopLevelFrame):
     def OnCreateMenus(self):
         self.__CreateFileMenu()
         self.__CreateEditMenu()
+        self.__CreateReportsMenu()
         self.__CreateHelpMenu()
 
     def OnCreateToolbar(self):
@@ -75,6 +82,9 @@ class Frame(ceGUI.TopLevelFrame):
     def OnRetrieve(self):
         page = self.bottomPanel.notebook.GetCurrentPage()
         page.Retrieve(refresh = True)
+
+    def OnRunTreasurerSummary(self):
+        self.config.RunReport("TreasurerSummary")
 
     def OnUpdate(self):
         page = self.bottomPanel.notebook.GetCurrentPage()

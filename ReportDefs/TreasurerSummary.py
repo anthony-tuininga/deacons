@@ -1,164 +1,76 @@
 """
-Print a report of the collections and cheques for the deposit which is given
-to the treasurer.
+Calculate the donations and loose cash for each cause for each month and
+generate an Excel document for distribution to the treasurer.
 """
 
-import ceGUI
-import Common
+import datetime
 
-class Report(ceGUI.Report):
-    title = "Treasurer Summary"
+from . import BaseReport
+
+import Models
+
+class Report(BaseReport):
+
+    def Run(self):
+        rawCash = Models.CashSummary.GetRows(self.config.dataSource,
+                year = self.config.year)
+        maxCashMonth = max(r.dateCollected.month for r in rawCash)
+        rawDonations = Models.DonationSummary.GetRows(self.config.dataSource,
+                year = self.config.year)
+        maxDonationMonth = max(r.dateCollected.month for r in rawDonations)
+        numMonths = max(maxCashMonth, maxDonationMonth)
+        months = [datetime.date(self.config.year, m + 1, 1) \
+                for m in range(numMonths)]
+        rawCauses = Models.Causes.GetRows(self.config.dataSource,
+                year = self.config.year)
+        rawCauses.sort(key = lambda x: x.description.upper())
+        causeGroups = [CauseGroupData(months, True),
+                CauseGroupData(months, False)]
+        causeDict = {}
+        for rawCause in rawCauses:
+            cause = CauseData(rawCause, months)
+            ix = int(not rawCause.deductible)
+            causeGroups[ix].causes.append(cause)
+            causeDict[rawCause.causeId] = cause
+        causeGroups[1].prevRowIndex = 0 - len(causeGroups[1].causes) - 6
+        for row in rawCash:
+            cause = causeDict[row.causeId]
+            month = cause.months[row.dateCollected.month - 1]
+            month.looseCash += row.amount
+        for row in rawDonations:
+            cause = causeDict[row.causeId]
+            month = cause.months[row.dateCollected.month - 1]
+            month.looseCash -= row.cashAmount
+            month.donations += row.chequeAmount + row.cashAmount
+        formulaParts = ["RC[%d]" % ((i + 1) * -3) for i in range(numMonths)]
+        grandTotalFormula = "+".join(formulaParts)
+        self.config.GenerateXL("TreasurerSummary.xlml",
+                overallTitleMergeAcross = 3 * (numMonths + 1), months = months,
+                causeGroups = causeGroups,
+                grandTotalFormula = grandTotalFormula)
 
 
-class ReportBody(Common.ReportBody):
-    causeWidth = 530
-    amountWidth = 230
-    bottomMargin = 2670
-    topMargin = 125
-    leftMargin = 355
-    separationPoints = 50
-    headerHeight = 125
+class CauseGroupData(object):
 
-    def _GetBoxHeight(self, numCauses):
-        return self.BoxedHeight(2) + self.BoxedHeight(numCauses) + \
-            self.BoxedHeight(1)
+    def __init__(self, months, deductible):
+        self.months = months
+        self.causes = []
+        self.description = "Deductible Causes"
+        if not deductible:
+            self.description = "Not " + self.description
 
-    def GetNumberOfPages(self, dc):
-        return len(self.pageData)
 
-    def OnPrintPage(self, dc, pageNum):
-        dc.SetFont(self.font)
-        y = self.topMargin
-        for dateCollected, causes in self.pageData[pageNum - 1]:
-            y = self.PrintHeader(dc, dateCollected, y)
-            y = self.PrintCauses(dc, causes, y)
-        return True
+class CauseData(object):
 
-    def PrintAmounts(self, dc, y, cheques, envelopeCash, looseCash):
-        x = self.leftMargin + self.causeWidth + self.amountWidth - \
-                self.interColumnWidth
-        self.DrawTextRightJustified(dc, Common.FormattedAmount(cheques), x, y)
-        x += self.amountWidth
-        self.DrawTextRightJustified(dc, Common.FormattedAmount(envelopeCash),
-                x, y)
-        x += self.amountWidth
-        self.DrawTextRightJustified(dc, Common.FormattedAmount(looseCash), x,
-                y)
-        x += self.amountWidth
-        self.DrawTextRightJustified(dc,
-                Common.FormattedAmount(cheques + envelopeCash + looseCash), x,
-                y)
+    def __init__(self, cause, months):
+        self.description = cause.description
+        self.months = [MonthData(m) for m in months]
 
-    def PrintHeader(self, dc, dateCollected, y):
-        self.DrawTextCenteredOnPage(dc, "Treasurer Summary", y)
-        self.DrawTextCenteredOnPage(dc,
-                dateCollected.strftime("%A, %B %d, %Y"),
-                y + self.pointsPerLine)
-        return y + self.headerHeight
 
-    def PrintCauses(self, dc, amounts, y):
+class MonthData(object):
 
-        # determine the width and height of the box
-        height = self._GetBoxHeight(len(amounts))
-        width = self.causeWidth + 4 * self.amountWidth
-
-        # set up an array for the widths and titles
-        columns = [
-                ( self.causeWidth, "", "Cause" ),
-                ( self.amountWidth, "", "Cheques" ),
-                ( self.amountWidth, "Envelope", "Cash" ),
-                ( self.amountWidth, "Loose", "Cash" ),
-                ( self.amountWidth, "", "Total" )
-        ]
-
-        # draw the lines and titles for the columns
-        for tempY in (y, y + self.BoxedHeight(2),
-                y + height - self.BoxedHeight(1), y + height):
-            dc.DrawLine(self.leftMargin, tempY, self.leftMargin + width, tempY)
-        x = self.leftMargin
-        for points, title_1, title_2 in columns:
-            dc.DrawLine(x, y, x, y + height)
-            if title_1:
-                self.DrawTextCentered(dc, title_1, x + points / 2,
-                        y + self.borderHeight)
-            self.DrawTextCentered(dc, title_2, x + points / 2,
-                    y + self.borderHeight + self.pointsPerLine)
-            x += points
-        dc.DrawLine(self.leftMargin + width, y,
-            self.leftMargin + width, y + height)
-
-        # draw the cause lines
-        chequeTotal = envelopeCashTotal = looseCashTotal = 0.0
-        tempY = y + self.BoxedHeight(2) + self.borderHeight
-        for cause, cheques, envelopeCash, looseCash in amounts:
-            chequeTotal += cheques
-            envelopeCashTotal += envelopeCash
-            looseCashTotal += looseCash
-            x = self.leftMargin + self.interColumnWidth
-            dc.DrawText(cause, x, tempY)
-            self.PrintAmounts(dc, tempY, cheques, envelopeCash, looseCash)
-            tempY += self.pointsPerLine
-
-        # draw the totals for the collection
-        self.PrintAmounts(dc, tempY + self.borderHeight + self.borderHeight,
-                chequeTotal, envelopeCashTotal, looseCashTotal)
-
-        # return the bottom y coordinate
-        return y + height + self.separationPoints
-
-    def Retrieve(self, depositId):
-
-        # retrieve the set of dates collected for the deposit
-        cursor = self.cache.connection.cursor()
-        cursor.execute("""
-                select distinct DateCollected
-                from Collections
-                where DepositId = ?
-                order by DateCollected""",
-                depositId)
-        datesCollected = [d for d, in cursor]
-        causesForDate = dict((d, []) for d in datesCollected)
-
-        # retrieve the cause rows for the deposit
-        cursor.execute("""
-                select
-                    ct.DateCollected,
-                    c.Description,
-                    sum(ca.ChequeAmount),
-                    sum(ca.EnvelopeCash),
-                    sum(ca.CashAmount - ca.EnvelopeCash)
-                from
-                    Collections ct
-                    join CollectionAmounts ca
-                        on ca.CollectionId = ct.CollectionId
-                    join Causes c
-                        on c.CauseId = ca.CauseId
-                where ct.DepositId = ?
-                group by
-                    ct.DateCollected,
-                    c.CauseId,
-                    c.Description
-                order by
-                    ct.DateCollected,
-                    case when c.CauseId = 1 then 0 else 1 end,
-                    c.Description""",
-                depositId)
-        for dateCollected, cause, cheques, envelopeCash, looseCash in cursor:
-            info = (cause, cheques, envelopeCash, looseCash)
-            causesForDate[dateCollected].append(info)
-
-        # calculate the number of pages to use
-        y = self.topMargin
-        self.pageData = []
-        datesForPage = []
-        for dateCollected in datesCollected:
-            causes = causesForDate[dateCollected]
-            size = self.headerHeight + self._GetBoxHeight(len(causes))
-            if y + size > self.bottomMargin:
-                self.pageData.append(datesForPage)
-                datesForPage = []
-                y = self.topMargin
-            datesForPage.append((dateCollected, causes))
-            y += size + self.separationPoints
-        self.pageData.append(datesForPage)
+    def __init__(self, sampleDate):
+        self.sampleDate = sampleDate
+        self.donations = 0
+        self.looseCash = 0
 

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<document>
+
+<styles>
+    <style name="sMoney" font_name = "Arial" font_size="10"
+            num_format="$#,##0.00"/>
+    <style name="sOverallTitle" font_name = "Arial" font_size="14" bold="1"
+            align="Center" valign="Top" num_format="@"/>
+    <style name="sText" font_name = "Arial" font_size="10" num_format="@"/>
+    <style name="sTitle" font_name = "Arial" font_size="10" bold="1"
+            align="Center" valign="Middle" num_format="@"/>
+    <style name="sTotalMoney" font_name = "Arial" font_size="10" bold="1"
+            num_format="$#,##0.00"/>
+    <style name="sTotalTitle" font_name = "Arial" font_size="10" bold="1"
+            align="Right" num_format="@"/>
+</styles>
+
+<worksheet name="Treasurer Summary">
+    <column width="35" style="sText"/>
+    {% for month in months %}
+        <column width="12" style="sMoney"/>
+        <column width="12" style="sMoney"/>
+        <column width="12" style="sMoney"/>
+    {% endfor %}
+    <column width="12" style="sMoney"/>
+    <column width="12" style="sMoney"/>
+    <column width="12" style="sMoney"/>
+
+    <row height="30">
+        <cell merge_across="{{ overallTitleMergeAcross }}" style="sOverallTitle">Treasurer's Summary Report</cell>
+    </row>
+
+    {% for causeGroup in causeGroups %}
+
+        <row>
+            <cell style="sTitle" merge_down="1">{{ causeGroup.description }}</cell>
+            {% for month in months %}
+                <cell style="sTitle" merge_across="2">{{ month.strftime("%B %Y") }}</cell>
+            {% endfor %}
+            <cell style="sTitle" merge_across="2">GRAND TOTAL</cell>
+        </row>
+        <row>
+            <cell/>
+            {% for month in months %}
+                <cell style="sTitle">Donations</cell>
+                <cell style="sTitle">Loose Cash</cell>
+                <cell style="sTitle">Total</cell>
+            {% endfor %}
+            <cell style="sTitle">Donations</cell>
+            <cell style="sTitle">Loose Cash</cell>
+            <cell style="sTitle">Total</cell>
+        </row>
+
+        {% for cause in causeGroup.causes %}
+            <row>
+                <cell>{{ cause.description }}</cell>
+                {% for month in cause.months %}
+                    <cell type="number">{{ month.donations }}</cell>
+                    <cell type="number">{{ month.looseCash }}</cell>
+                    <cell type="number" formula="=RC[-2]+RC[-1]"/>
+                {% endfor %}
+                <cell type="number" formula="={{ grandTotalFormula }}"/>
+                <cell type="number" formula="={{ grandTotalFormula }}"/>
+                <cell type="number" formula="={{ grandTotalFormula }}"/>
+            </row>
+        {% endfor %}
+
+        <row>
+            <cell style="sTotalTitle">Total {{ causeGroup.description }}</cell>
+            {% for month in months %}
+                <cell type="number"
+                        formula="=SUM(R[-{{ causeGroup.causes|length }}]C:R[-1]C)"/>
+                <cell type="number"
+                        formula="=SUM(R[-{{ causeGroup.causes|length }}]C:R[-1]C)"/>
+                <cell type="number"
+                        formula="=SUM(R[-{{ causeGroup.causes|length }}]C:R[-1]C)"/>
+            {% endfor %}
+            <cell type="number"
+                    formula="=SUM(R[-{{ causeGroup.causes|length }}]C:R[-1]C)"/>
+            <cell type="number"
+                    formula="=SUM(R[-{{ causeGroup.causes|length }}]C:R[-1]C)"/>
+            <cell type="number"
+                    formula="=SUM(R[-{{ causeGroup.causes|length }}]C:R[-1]C)"/>
+        </row>
+        <row/>
+
+    {% endfor %}
+
+    <row>
+        <cell style="sTotalTitle">GRAND TOTAL</cell>
+        {% for month in months %}
+            <cell type="number" formula="=R[{{ causeGroups[1].prevRowIndex }}]C+R[-2]C"/>
+            <cell type="number" formula="=R[{{ causeGroups[1].prevRowIndex }}]C+R[-2]C"/>
+            <cell type="number" formula="=R[{{ causeGroups[1].prevRowIndex }}]C+R[-2]C"/>
+        {% endfor %}
+        <cell type="number" formula="=R[{{ causeGroups[1].prevRowIndex }}]C+R[-2]C"/>
+        <cell type="number" formula="=R[{{ causeGroups[1].prevRowIndex }}]C+R[-2]C"/>
+        <cell type="number" formula="=R[{{ causeGroups[1].prevRowIndex }}]C+R[-2]C"/>
+    </row>
+
+</worksheet>
+
+</document>
+
