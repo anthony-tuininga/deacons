@@ -40,8 +40,6 @@ drop table CollectionCash;
 
 alter sequence CollectionCashId_s rename to CashId_s;
 
-drop sequence CollectionCashId_s;
-
 drop table CollectionCauses;
 
 drop table Collections;
