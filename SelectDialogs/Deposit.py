@@ -1,13 +1,10 @@
-import ceDatabase
 import ceGUI
+
+import Models
 
 class Dialog(ceGUI.SelectionListDialog):
     title = "Select Deposit"
     defaultSize = (350, 475)
-
-    def OnCreate(self):
-        super(Dialog, self).OnCreate()
-        self.Retrieve()
 
 
 class List(ceGUI.List):
@@ -18,12 +15,9 @@ class List(ceGUI.List):
         self.AddColumn("dateDeposited", "Date", cls = DateColumn)
 
 
-class DataSet(ceDatabase.DataSet):
-    tableName = "Deposits"
-    attrNames = "depositId dateDeposited"
-    sortByAttrNames = "dateDeposited"
-    sortReversed = True
-    pkAttrNames = "depositId"
+class DataSet(ceGUI.DataSet):
+    rowClass = Models.Deposits
+    retrievalAttrNames = "year"
 
 
 class DateColumn(ceGUI.ListDateColumn):

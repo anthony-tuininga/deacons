@@ -23,6 +23,9 @@ class Frame(ceGUI.TopLevelFrame):
 
     def __CreateReportsMenu(self):
         menu = self.AddMenu("&Reports")
+        self.AddMenuItem(menu, "&Deposit Summary",
+                "Run Deposit Summary Report", self.OnRunDepositSummary,
+                createBusyCursor = True, passEvent = False)
         self.AddMenuItem(menu, "&Treasurer Summary",
                 "Run Treasurer Summary Report", self.OnRunTreasurerSummary,
                 createBusyCursor = True, passEvent = False)
@@ -82,6 +85,9 @@ class Frame(ceGUI.TopLevelFrame):
     def OnRetrieve(self):
         page = self.bottomPanel.notebook.GetCurrentPage()
         page.Retrieve(refresh = True)
+
+    def OnRunDepositSummary(self):
+        self.config.RunReport("DepositSummary")
 
     def OnRunTreasurerSummary(self):
         self.config.RunReport("TreasurerSummary")

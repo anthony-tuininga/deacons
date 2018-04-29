@@ -50,3 +50,38 @@ group by
     cs.DateCollected,
     cs.CauseId;
 
+create view Deposits as
+select
+    DateDeposited,
+    extract(year from DateCollected) as Year
+from Donations
+union
+select
+    DateDeposited,
+    extract(year from DateCollected)
+from Cash;
+
+create view DepositCash as
+select
+    DateDeposited,
+    CashDenominationId,
+    sum(Quantity) as Quantity
+from Cash
+group by
+    DateDeposited,
+    CashDenominationId;
+
+create view DepositCheques as
+select
+    d.DateDeposited,
+    d.DonationId,
+    sum(dc.Amount) as Amount
+from
+    Donations d
+    join DonationComponents dc
+        on dc.DonationId = d.DonationId
+where d.Cash = 'f'
+group by
+    d.DateDeposited,
+    d.DonationId;
+

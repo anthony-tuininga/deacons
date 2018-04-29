@@ -50,7 +50,9 @@ class Config(ceGUI.Config):
     def RunReport(self, clsName):
         cls = ceGUI.GetModuleItem("ReportDefs.%s.Report" % clsName)
         report = cls(self)
-        report.Run()
+        criteria = report.GetCriteria(ceGUI.AppTopWindow())
+        if criteria is not None:
+            report.Run(*criteria)
 
     def SelectYear(self):
         topWindow = ceGUI.AppTopWindow()

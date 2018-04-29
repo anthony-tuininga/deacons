@@ -4,6 +4,13 @@ Define models used by application.
 
 import ceGUI
 
+class CashDenominations(ceGUI.BaseModel):
+    attrNames = "cashDenominationId value coin quantityMultiple"
+    charBooleanAttrNames = "coin"
+    sortByAttrNames = "coin value"
+    cached = True
+
+
 class CashSummary(ceGUI.BaseModel):
     attrNames = "year dateCollected causeId amount"
 
@@ -15,6 +22,21 @@ class Causes(ceGUI.BaseModel):
     extraAttrNames = "searchDescription"
     pkAttrNames = "causeId"
     cached = True
+
+
+class Deposits(ceGUI.BaseModel):
+    attrNames = "year dateDeposited"
+    sortByAttrNames = "dateDeposited"
+    sortReversed = True
+
+
+class DepositCash(ceGUI.BaseModel):
+    attrNames = "cashDenominationId quantity"
+
+
+class DepositCheques(ceGUI.BaseModel):
+    attrNames = "donationId amount"
+    sortByAttrNames = "donationId"
 
 
 class Donations(ceGUI.BaseModel):

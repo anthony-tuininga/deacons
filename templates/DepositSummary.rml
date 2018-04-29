@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<document>
+
+<template pageSize="(612,792)">
+
+    <pageTemplate id="main">
+        <pageGraphics>
+            <setFont name="Helvetica" size="12"/>
+            <drawCentredString x="108mm" y="265mm">Cornerstone United Reformed Church of Edmonton</drawCentredString>
+            <drawCentredString x="108mm" y="261mm">{{ dateDeposited.strftime("%A, %B %d, %Y") }}</drawCentredString>
+            <drawCentredString x="108mm" y="257mm">For Account 72926</drawCentredString>
+        </pageGraphics>
+        <frame id="cheques" x1="16mm" y1="65mm" width="184mm" height="185mm"/>
+        <frame id="coin" x1="16mm" y1="15mm" width="53mm" height="45mm"/>
+        <frame id="cash" x1="80mm" y1="15mm" width="53mm" height="45mm"/>
+        <frame id="totals" x1="142mm" y1="15mm" width="53mm" height="45mm"/>
+    </pageTemplate>
+
+</template>
+
+<stylesheet>
+
+    <paraStyle name="text" fontName="Helvetica" fontSize="12"
+            alignment="left"/>
+
+    <blockTableStyle id="btsCheques">
+        <blockFont name="Helvetica" size="9"/>
+        <blockAlignment value="center" start="0,0" stop="-1,0"/>
+        <blockAlignment value="right" start="0,1"/>
+        <blockTopPadding length="3" start="0,0" stop="-1,0"/>
+        <blockTopPadding length="0" start="0,1" stop="-1,-2"/>
+        <blockTopPadding length="3" start="0,-1"/>
+        <blockBottomPadding length="3" start="0,0" stop="-1,0"/>
+        <blockBottomPadding length="0" start="0,1" stop="-1,-2"/>
+        <blockBottomPadding length="3" start="0,-2"/>
+        <blockLeftPadding length="3"/>
+        <blockRightPadding length="3"/>
+        <blockValign value="middle"/>
+        <lineStyle kind="OUTLINE"/>
+        <lineStyle kind="LINEBELOW" start="0,0" stop="-1,0"/>
+        <lineStyle kind="LINEAFTER" start="0,1"/>
+        <lineStyle kind="LINEABOVE" start="0,-1"/>
+    </blockTableStyle>
+
+    <blockTableStyle id="btsCash">
+        <blockFont name="Helvetica" size="9"/>
+        <blockAlignment value="center" start="0,0" stop="-1,0"/>
+        <blockAlignment value="right" start="0,1"/>
+        <blockValign value="middle"/>
+        <blockTopPadding length="3" start="0,0" stop="-1,0"/>
+        <blockTopPadding length="0" start="0,1" stop="-1,-2"/>
+        <blockTopPadding length="3" start="0,-1"/>
+        <blockBottomPadding length="3" start="0,0" stop="-1,0"/>
+        <blockBottomPadding length="0" start="0,1" stop="-1,-2"/>
+        <blockBottomPadding length="3" start="0,-2"/>
+        <blockLeftPadding length="3"/>
+        <blockRightPadding length="3"/>
+        <lineStyle kind="OUTLINE"/>
+        <lineStyle kind="LINEBELOW" start="0,0" stop="-1,0"/>
+        <lineStyle kind="LINEABOVE" start="0,-1"/>
+    </blockTableStyle>
+
+</stylesheet>
+
+<story>
+
+    <blockTable style="btsCheques"
+            colWidths="23mm,23mm,23mm,23mm,23mm,23mm,23mm,23mm">
+
+        <tr>
+            <td colspan="8">Cheques</td>
+        </tr>
+
+        {% for row in chequeRows %}
+        <tr>
+            {% for amount in row.amounts %}
+            <td>{{ "${:,.2f}".format(amount) }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+    </blockTable>
+    <nextFrame/>
+
+    {% for cashGroup in cashGroups %}
+    <blockTable style="btsCash" colWidths="13mm,20mm,20mm">
+        <tr><td colspan="3">{{ cashGroup.title }}</td></tr>
+        {% for cashDenomination in cashGroup.cashDenominations %}
+        <tr>
+            <td>{{ cashDenomination.quantity }} x</td>
+            <td>{{ "${:,.2f}".format(cashDenomination.value) }} =</td>
+            <td>{{ "${:,.2f}".format(cashDenomination.quantity * cashDenomination.value) }}</td>
+        </tr>
+        {% endfor %}
+        <tr>
+            <td colspan="3">Total: {{ "${:,.2f}".format(cashGroup.totalAmount) }}</td>
+        </tr>
+    </blockTable>
+    <nextFrame/>
+    {% endfor %}
+
+</story>
+
+</document>
+
