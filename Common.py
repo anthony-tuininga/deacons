@@ -32,6 +32,25 @@ class ColumnCauseDescription(ceGUI.Column):
                     row.causeId)
             return cause.description
 
+    def VerifyValueOnChange(self, row, rawValue):
+        if rawValue:
+            searchValue = rawValue.upper()
+            causes = [r for r in self.config.GetCachedRows(Models.Causes) \
+                    if r.year == self.config.year \
+                    and r.searchDescription.startswith(searchValue)]
+            if len(causes) == 0:
+                message = "'%s' is not a valid cause." % rawValue
+                raise ceGUI.InvalidValueEntered(message)
+            elif len(causes) == 1:
+                return causes[0].causeId
+            parent = ceGUI.AppTopWindow()
+            with parent.OpenWindow("SelectDialogs.Cause.Dialog") as dialog:
+                dialog.Retrieve(causes)
+                if dialog.ShowModalOk():
+                    cause = dialog.GetSelectedItem()
+                    return cause.causeId
+                return getattr(row, self.attrName)
+
 
 class ColumnDonatorName(ceGUI.Column):
 
@@ -40,6 +59,31 @@ class ColumnDonatorName(ceGUI.Column):
             donator = self.config.GetCachedRowByPK(Models.Donators,
                     row.donatorId)
             return donator.name
+
+    def VerifyValueOnChange(self, row, rawValue):
+        if rawValue:
+            rows = [r for r in self.config.GetCachedRows(Models.Donators) \
+                    if r.year == self.config.year]
+            if rawValue.isdigit():
+                searchValue = int(rawValue)
+                donators = [r for r in rows if r.assignedNumber == searchValue]
+                if len(donators) == 1:
+                    return donators[0].donatorId
+            searchValue = rawValue.upper()
+            donators = [r for r in rows if searchValue in r.searchName]
+            if len(donators) == 0:
+                message = "'%s' is not a valid donator name or number." % \
+                        rawValue
+                raise ceGUI.InvalidValueEntered(message)
+            elif len(donators) == 1:
+                return donators[0].donatorId
+            parent = ceGUI.AppTopWindow()
+            with parent.OpenWindow("SelectDialogs.Donator.Dialog") as dialog:
+                dialog.Retrieve(donators)
+                if dialog.ShowModalOk():
+                    donator = dialog.GetSelectedItem()
+                    return donator.donatorId
+                return getattr(row, self.attrName)
 
 
 def FormattedAmount(value):

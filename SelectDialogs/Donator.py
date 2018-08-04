@@ -14,8 +14,8 @@ class List(ceGUI.List):
     singleSelection = True
 
     def OnCreate(self):
-        self.AddColumn("lastName", "Last Name", 200)
-        self.AddColumn("givenNames", "Given Names")
+        self.AddColumn("assignedNumber", "Number", 100)
+        self.AddColumn("name", "Name", 250)
 
 
 class DataSet(ceDatabase.DataSet):

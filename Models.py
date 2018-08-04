@@ -23,6 +23,11 @@ class Causes(ceGUI.BaseModel):
     pkAttrNames = "causeId"
     cached = True
 
+    @classmethod
+    def SetExtraAttributes(cls, dataSource, rows):
+        for row in rows:
+            row.searchDescription = row.description.upper()
+
 
 class Deposits(ceGUI.BaseModel):
     attrNames = "year dateDeposited"
