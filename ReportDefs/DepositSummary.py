@@ -7,6 +7,47 @@ from . import BaseReport
 import Models
 
 class Report(BaseReport):
+    minChequesPerColumn = 10
+    maxChequesPerColumn = 45
+    numChequeColumns = 8
+
+    def __GetChequeColumns(self, dateDeposited):
+        chequeColumns = []
+        cheques = Models.DepositCheques.GetRows(self.config.dataSource,
+                dateDeposited = dateDeposited)
+        while cheques:
+            column = ChequeColumn(cheques[0].dateCollected)
+            for cheque in cheques:
+                if cheque.dateCollected != column.dateCollected:
+                    break
+                column.amounts.append(cheque.amount)
+                if len(column.amounts) == self.maxChequesPerColumn:
+                    break
+            cheques = cheques[column.numAmounts:]
+            if len(column.amounts) < self.minChequesPerColumn \
+                    and len(chequeColumns) > 0 \
+                    and chequeColumns[-1].dateCollected == column.dateCollected:
+                prevColumn = chequeColumns[-1]
+                totalCheques = prevColumn.numAmounts + column.numAmounts
+                numCheques = totalCheques // 2 + totalCheques % 2
+                column.amounts = \
+                        prevColumn.amounts[numCheques:] + column.amounts
+                prevColumn.amounts = prevColumn.amounts[:numCheques]
+            chequeColumns.append(column)
+        while len(chequeColumns) < self.numChequeColumns:
+            chequeColumns.append(ChequeColumn())
+        return chequeColumns
+
+    def __GetChequeRows(self, chequeColumns):
+        maxNumAmounts = max(c.numAmounts for c in chequeColumns)
+        chequeRows = []
+        for ix in range(maxNumAmounts):
+            row = ChequeRow()
+            for column in chequeColumns:
+                value = column.amounts[ix] if ix < column.numAmounts else None
+                row.amounts.append(value)
+            chequeRows.append(row)
+        return chequeRows
 
     def GetCriteria(self, topWindow):
         with topWindow.OpenWindow("SelectDialogs.Deposit.Dialog") as dialog:
@@ -28,30 +69,14 @@ class Report(BaseReport):
                 dateDeposited = dateDeposited):
             cashDenomination = cashDenominationDict[row.cashDenominationId]
             cashDenomination.quantity += row.quantity
-        chequeColumns = [ChequeColumn() for i in range(8)]
-        cheques = Models.DepositCheques.GetRows(self.config.dataSource,
-                dateDeposited = dateDeposited)
-        rawChequesPerColumn = len(cheques) / len(chequeColumns)
-        chequesPerColumn = int(rawChequesPerColumn)
-        if chequesPerColumn < rawChequesPerColumn:
-            chequesPerColumn += 1
-        for column in chequeColumns:
-            column.amounts.extend(c.amount for c in cheques[:chequesPerColumn])
-            cheques = cheques[chequesPerColumn:]
-        chequeRows = []
-        for ix in range(chequesPerColumn):
-            row = ChequeRow()
-            chequeRows.append(row)
-            for column in chequeColumns:
-                if ix < len(column.amounts):
-                    row.amounts.append(column.amounts[ix])
-        totalRow = ChequeRow()
-        for column in chequeColumns:
-            totalRow.amounts.append(sum(column.amounts))
-        chequeRows.append(totalRow)
+        chequeColumns = self.__GetChequeColumns(dateDeposited)
+        chequeRows = self.__GetChequeRows(chequeColumns)
+        allCashGroups = [coinGroup, cashGroup]
+        totals = Totals(allCashGroups, chequeColumns)
         self.config.GeneratePDF("DepositSummary.rml",
-                cashGroups = [coinGroup, cashGroup], chequeRows = chequeRows,
-                dateDeposited = dateDeposited)
+                cashGroups = allCashGroups, chequeRows = chequeRows,
+                chequeColumns = chequeColumns, dateDeposited = dateDeposited,
+                totals = totals)
 
 
 class CashGroup(object):
@@ -76,12 +101,30 @@ class CashData(object):
 
 class ChequeColumn(object):
 
-    def __init__(self):
+    def __init__(self, dateCollected = None):
+        self.dateCollected = dateCollected
         self.amounts = []
+
+    @property
+    def numAmounts(self):
+        return len(self.amounts)
+
+    @property
+    def totalAmount(self):
+        return sum(self.amounts)
 
 
 class ChequeRow(object):
 
     def __init__(self):
         self.amounts = []
+
+
+class Totals(object):
+
+    def __init__(self, cashGroups, chequeColumns):
+        self.numCheques = sum(c.numAmounts for c in chequeColumns)
+        self.totalCheques = sum(c.totalAmount for c in chequeColumns)
+        self.totalDeposit = sum(g.totalAmount for g in cashGroups) + \
+                self.totalCheques
 

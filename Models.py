@@ -40,8 +40,8 @@ class DepositCash(ceGUI.BaseModel):
 
 
 class DepositCheques(ceGUI.BaseModel):
-    attrNames = "donationId amount"
-    sortByAttrNames = "donationId"
+    attrNames = "dateCollected donationId amount"
+    sortByAttrNames = "dateCollected donationId"
 
 
 class Donations(ceGUI.BaseModel):

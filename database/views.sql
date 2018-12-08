@@ -74,6 +74,7 @@ group by
 create view DepositCheques as
 select
     d.DateDeposited,
+    d.DateCollected,
     d.DonationId,
     sum(dc.Amount) as Amount
 from
@@ -83,5 +84,6 @@ from
 where d.Cash = 'f'
 group by
     d.DateDeposited,
+    d.DateCollected,
     d.DonationId;
 

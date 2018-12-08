@@ -10,10 +10,10 @@
             <drawCentredString x="108mm" y="261mm">{{ dateDeposited.strftime("%A, %B %d, %Y") }}</drawCentredString>
             <drawCentredString x="108mm" y="257mm">For Account 72926</drawCentredString>
         </pageGraphics>
-        <frame id="cheques" x1="16mm" y1="65mm" width="184mm" height="185mm"/>
-        <frame id="coin" x1="16mm" y1="15mm" width="53mm" height="45mm"/>
-        <frame id="cash" x1="80mm" y1="15mm" width="53mm" height="45mm"/>
-        <frame id="totals" x1="142mm" y1="15mm" width="53mm" height="45mm"/>
+        <frame id="coin" x1="16mm" y1="212mm" width="53mm" height="40mm"/>
+        <frame id="cash" x1="82mm" y1="212mm" width="53mm" height="40mm"/>
+        <frame id="totals" x1="147mm" y1="212mm" width="53mm" height="40mm"/>
+        <frame id="cheques" x1="16mm" y1="10mm" width="184mm" height="200mm"/>
     </pageTemplate>
 
 </template>
@@ -25,21 +25,34 @@
 
     <blockTableStyle id="btsCheques">
         <blockFont name="Helvetica" size="9"/>
-        <blockAlignment value="center" start="0,0" stop="-1,0"/>
-        <blockAlignment value="right" start="0,1"/>
-        <blockTopPadding length="3" start="0,0" stop="-1,0"/>
-        <blockTopPadding length="0" start="0,1" stop="-1,-2"/>
-        <blockTopPadding length="3" start="0,-1"/>
-        <blockBottomPadding length="3" start="0,0" stop="-1,0"/>
-        <blockBottomPadding length="0" start="0,1" stop="-1,-2"/>
-        <blockBottomPadding length="3" start="0,-2"/>
+        <blockAlignment value="center" start="0,0" stop="-1,1"/>
+        <blockAlignment value="right" start="0,2"/>
+
+        <!-- title line and heading line have extra padding, as does
+             the first line of the cheque amounts -->
+        <blockTopPadding length="3" start="0,0" stop="-1,2"/>
+        <blockBottomPadding length="3" start="0,0" stop="-1,1"/>
+
+        <!-- all lines except last two have no padding -->
+        <blockTopPadding length="0" start="0,3" stop="-1,-3"/>
+        <blockBottomPadding length="0" start="0,2" stop="-1,-4"/>
+
+        <!-- third last line has padding on bottom, second last line on top -->
+        <blockBottomPadding length="3" start="0,-3" stop="-1,-3"/>
+        <blockTopPadding length="3" start="0,-2" stop="-1,-2"/>
+
+        <!-- last two lines have no padding except on top/bottom -->
+        <blockTopPadding length="0" start="0,-1"/>
+        <blockBottomPadding length="0" start="0,-2" stop="-1,-2"/>
+        <blockBottomPadding length="3" start="0,-1"/>
+
         <blockLeftPadding length="3"/>
         <blockRightPadding length="3"/>
         <blockValign value="middle"/>
         <lineStyle kind="OUTLINE"/>
-        <lineStyle kind="LINEBELOW" start="0,0" stop="-1,0"/>
+        <lineStyle kind="LINEBELOW" start="0,0" stop="-1,1"/>
         <lineStyle kind="LINEAFTER" start="0,1"/>
-        <lineStyle kind="LINEABOVE" start="0,-1"/>
+        <lineStyle kind="LINEABOVE" start="0,-2" stop="-1,-2"/>
     </blockTableStyle>
 
     <blockTableStyle id="btsCash">
@@ -47,8 +60,8 @@
         <blockAlignment value="center" start="0,0" stop="-1,0"/>
         <blockAlignment value="right" start="0,1"/>
         <blockValign value="middle"/>
-        <blockTopPadding length="3" start="0,0" stop="-1,0"/>
-        <blockTopPadding length="0" start="0,1" stop="-1,-2"/>
+        <blockTopPadding length="3" start="0,0" stop="-1,1"/>
+        <blockTopPadding length="0" start="0,2" stop="-1,-2"/>
         <blockTopPadding length="3" start="0,-1"/>
         <blockBottomPadding length="3" start="0,0" stop="-1,0"/>
         <blockBottomPadding length="0" start="0,1" stop="-1,-2"/>
@@ -60,27 +73,34 @@
         <lineStyle kind="LINEABOVE" start="0,-1"/>
     </blockTableStyle>
 
+    <blockTableStyle id="btsChequeTotal">
+        <blockFont name="Helvetica" size="9"/>
+        <blockAlignment value="center" start="0,0" stop="-1,0"/>
+        <blockAlignment value="right" start="1,1" stop="1,-1"/>
+        <blockValign value="middle"/>
+        <lineStyle kind="OUTLINE"/>
+        <lineStyle kind="LINEBELOW" start="0,0" stop="-1,0"/>
+        <lineStyle kind="LINEAFTER" start="0,1"/>
+        <blockTopPadding length="0"/>
+        <blockBottomPadding length="0"/>
+        <blockTopPadding length="3" start="0,0" stop="-1,1"/>
+        <blockBottomPadding length="3" start="0,0" stop="-1,0"/>
+        <blockBottomPadding length="3" start="0,-1"/>
+    </blockTableStyle>
+
+    <blockTableStyle id="btsDepositTotal">
+        <blockFont name="Helvetica" size="9"/>
+        <blockAlignment value="center"/>
+        <blockValign value="middle"/>
+        <lineStyle kind="OUTLINE"/>
+        <lineStyle kind="LINEBELOW" start="0,0" stop="-1,0"/>
+        <blockTopPadding length="3"/>
+        <blockBottomPadding length="3"/>
+    </blockTableStyle>
+
 </stylesheet>
 
 <story>
-
-    <blockTable style="btsCheques"
-            colWidths="23mm,23mm,23mm,23mm,23mm,23mm,23mm,23mm">
-
-        <tr>
-            <td colspan="8">Cheques</td>
-        </tr>
-
-        {% for row in chequeRows %}
-        <tr>
-            {% for amount in row.amounts %}
-            <td>{{ "${:,.2f}".format(amount) }}</td>
-            {% endfor %}
-        </tr>
-        {% endfor %}
-
-    </blockTable>
-    <nextFrame/>
 
     {% for cashGroup in cashGroups %}
     <blockTable style="btsCash" colWidths="13mm,20mm,20mm">
@@ -98,6 +118,67 @@
     </blockTable>
     <nextFrame/>
     {% endfor %}
+
+    <blockTable style="btsChequeTotal" colWidths="27mm,26mm">
+        <tr>
+            <td colspan="2">Cheques</td>
+        </tr>
+        <tr>
+            <td>Num Cheques</td>
+            <td>{{ totals.numCheques }}</td>
+        </tr>
+        <tr>
+            <td>Total Amount</td>
+            <td>{{ "${:,.2f}".format(totals.totalCheques) }}</td>
+        </tr>
+    </blockTable>
+    <spacer length="9mm"/>
+
+    <blockTable style="btsDepositTotal" colWidths="53mm">
+        <tr>
+            <td>TOTAL DEPOSIT</td>
+        </tr>
+        <tr>
+            <td>{{ "${:,.2f}".format(totals.totalDeposit) }}</td>
+        </tr>
+    </blockTable>
+    <nextFrame/>
+
+    <blockTable style="btsCheques"
+            colWidths="23mm,23mm,23mm,23mm,23mm,23mm,23mm,23mm">
+
+        <tr>
+            <td colspan="8">Cheques</td>
+        </tr>
+
+        <tr>
+        {% for column in chequeColumns %}
+            <td>{% if column.dateCollected %}{{ column.dateCollected.strftime("%b/%d/%Y") }}{% endif %}</td>
+        {% endfor %}
+        </tr>
+
+        {% for row in chequeRows %}
+        <tr>
+            {% for amount in row.amounts %}
+            <td>{% if amount %}{{ "${:,.2f}".format(amount) }}{%endif %}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+
+        <tr>
+        {% for column in chequeColumns %}
+            <td>{% if column.numAmounts %}{{ column.numAmounts }}{% endif %}</td>
+        {% endfor %}
+        </tr>
+
+        <tr>
+        {% for column in chequeColumns %}
+            <td>{% if column.numAmounts %}{{ "${:,.2f}".format(column.totalAmount) }}{% endif %}</td>
+        {% endfor %}
+        </tr>
+
+    </blockTable>
+    <nextFrame/>
 
 </story>
 
