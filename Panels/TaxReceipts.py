@@ -70,6 +70,7 @@ class Grid(Common.BaseGrid):
         super(Grid, self).OnContextMenu()
 
     def OnCreate(self):
+        super(Grid, self).OnCreate()
         self.AddColumn("receiptNumber", "Num", defaultWidth = 75)
         self.AddColumn("name", "Name", defaultWidth = 250,
                 cls = Common.ColumnDonatorName)

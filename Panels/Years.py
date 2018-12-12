@@ -16,6 +16,7 @@ class Panel(Common.BasePanel):
 class Grid(Common.BaseGrid):
 
     def OnCreate(self):
+        super(Grid, self).OnCreate()
         self.AddColumn("year", "Year", defaultWith = 50)
         self.AddColumn("budgetAmount", "Budget Amount",
                 cls = ceGUI.ColumnMoney, defaultWidth = 175)

@@ -53,6 +53,7 @@ class Panel(Common.BasePanel):
 class Grid(Common.BaseGrid):
 
     def OnCreate(self):
+        super(Grid, self).OnCreate()
         self.dateDepositedColumn = self.AddColumn("dateDeposited", "Deposited",
                 defaultWidth = 100, cls = ColumnDateAutoFill, required = True)
         self.dateCollectedColumn = self.AddColumn("dateCollected",

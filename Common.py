@@ -21,7 +21,13 @@ class BasePanel(ceGUI.DataGridPanel):
 
 
 class BaseGrid(ceGUI.DataGrid):
-    pass
+
+    def OnCreate(self):
+        self.GetParent().BindEvent(self, wx.grid.EVT_GRID_SELECT_CELL,
+                self.OnCellSelected)
+
+    def OnCellSelected(self, event):
+        self.ForceRefresh()
 
 
 class ColumnCauseDescription(ceGUI.Column):
