@@ -64,6 +64,12 @@ class Grid(Common.BaseGrid):
                 "Print Receipts", method = self.OnPrintReceipts,
                 passEvent = False)
 
+    def CanDeleteItems(self, items):
+        return False
+
+    def CanInsertItems(self):
+        return False
+
     def OnContextMenu(self):
         selectedItems = self.GetSelectedItems()
         self.printReceiptsMenuItem.Enable(len(selectedItems) > 0)
@@ -71,16 +77,18 @@ class Grid(Common.BaseGrid):
 
     def OnCreate(self):
         super(Grid, self).OnCreate()
-        self.AddColumn("receiptNumber", "Num", defaultWidth = 75)
+        self.AddColumn("receiptNumber", "Num", defaultWidth = 75,
+                readOnly = True)
         self.AddColumn("name", "Name", defaultWidth = 250,
-                cls = Common.ColumnDonatorName)
-        self.AddColumn("amount", "Amount", cls = ceGUI.ColumnMoney)
+                cls = Common.ColumnDonatorName, readOnly = True)
+        self.AddColumn("amount", "Amount", cls = ceGUI.ColumnMoney,
+                readOnly = True)
         self.AddColumn("dateIssued", "Date Issued", cls = ceGUI.ColumnDate,
-                defaultWidth = 250)
+                defaultWidth = 250, readOnly = True)
         self.AddColumn("isDuplicate", "Duplicate?", cls = ceGUI.ColumnBool,
-                defaultWidth = 100)
+                defaultWidth = 100, readOnly = True)
         self.AddColumn("canceled", "Canceled?", cls = ceGUI.ColumnBool,
-                defaultWidth = 100)
+                defaultWidth = 100, readOnly = True)
 
     def OnGenerateReceipts(self):
         with ceGUI.BusyCursorContext(self):
