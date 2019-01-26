@@ -128,6 +128,7 @@ class BottomPanel(ceGUI.Panel):
 
     def OnCreate(self):
         self.notebook = ceGUI.Notebook(self)
+        self.notebook.AddPage("Panels.Trays.Panel", "Trays")
         self.notebook.AddPage("Panels.Donations.Panel", "Donations")
         self.notebook.AddPage("Panels.Causes.Panel", "Causes")
         self.notebook.AddPage("Panels.Donators.Panel", "Donators")

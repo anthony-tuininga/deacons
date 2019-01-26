@@ -79,6 +79,13 @@ class TaxReceipts(ceGUI.BaseModel):
     pkAttrNames = "receiptNumber"
 
 
+class Trays(ceGUI.BaseModel):
+    tableName = "Trays_v"
+    attrNames = """trayId dateDeposited dateCollected causeId chequeAmount
+            cashAmount"""
+    pkAttrNames = "trayId"
+
+
 class Years(ceGUI.BaseModel):
     attrNames = "year budgetAmount receiptsIssued notes"
     charBooleanAttrNames = "receiptsIssued"

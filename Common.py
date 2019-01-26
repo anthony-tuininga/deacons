@@ -12,12 +12,47 @@ import Models
 
 class BasePanel(ceGUI.DataGridPanel):
 
+    def CreateCauseFilterArg(self):
+        self.causeFilterArg = ceGUI.FilterArgChoiceMultiple(self, "causeId",
+                "Cause:", size = (300, -1))
+
+    def CreateDateCollectedFilterArg(self):
+        self.dateCollectedFilterArg = ceGUI.FilterArgChoiceMultiple(self,
+                "dateCollected", "Date Collected:", size = (125, -1))
+
+    def CreateDateDepositedFilterArg(self):
+        self.dateDepositedFilterArg = ceGUI.FilterArgChoiceMultiple(self,
+                "dateDeposited", "Date Deposited:", size = (125, -1))
+
     def GetYear(self):
         topWindow = ceGUI.AppTopWindow()
         return topWindow.year
 
     def OnYearChanged(self):
         self.Retrieve(refresh = True)
+
+    def SetCauseChoices(self, rows):
+        causeIdDict = dict.fromkeys(r.causeId for r in rows)
+        causes = [c for c in self.config.GetCachedRows(Models.Causes) \
+                if c.causeId in causeIdDict]
+        causes.sort(key = lambda x: x.description.upper())
+        choices = [(c.causeId, c.description) for c in causes]
+        choices.insert(0, (None, "(Any)"))
+        self.causeFilterArg.SetChoices(choices)
+
+    def SetDateCollectedChoices(self, rows):
+        datesCollected = list(dict.fromkeys(r.dateCollected for r in rows))
+        datesCollected.sort()
+        choices = [(d, d.strftime("%Y/%m/%d")) for d in datesCollected]
+        choices.insert(0, (None, "(Any)"))
+        self.dateCollectedFilterArg.SetChoices(choices)
+
+    def SetDateDepositedChoices(self, rows):
+        datesDeposited = list(dict.fromkeys(r.dateDeposited for r in rows))
+        datesDeposited.sort()
+        choices = [(d, d.strftime("%Y/%m/%d")) for d in datesDeposited]
+        choices.insert(0, (None, "(Any)"))
+        self.dateDepositedFilterArg.SetChoices(choices)
 
 
 class BaseGrid(ceGUI.DataGrid):

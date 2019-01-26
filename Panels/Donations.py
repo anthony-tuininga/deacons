@@ -9,45 +9,19 @@ import Models
 
 class Panel(Common.BasePanel):
 
-    def __SetCauseChoices(self, rows):
-        causeIdDict = dict.fromkeys(r.causeId for r in rows)
-        causes = [c for c in self.config.GetCachedRows(Models.Causes) \
-                if c.causeId in causeIdDict]
-        causes.sort(key = lambda x: x.description.upper())
-        choices = [(c.causeId, c.description) for c in causes]
-        choices.insert(0, (None, "(Any)"))
-        self.causeFilterArg.SetChoices(choices)
-
-    def __SetDateCollectedChoices(self, rows):
-        datesCollected = list(dict.fromkeys(r.dateCollected for r in rows))
-        datesCollected.sort()
-        choices = [(d, d.strftime("%Y/%m/%d")) for d in datesCollected]
-        choices.insert(0, (None, "(Any)"))
-        self.dateCollectedFilterArg.SetChoices(choices)
-
-    def __SetDateDepositedChoices(self, rows):
-        datesDeposited = list(dict.fromkeys(r.dateDeposited for r in rows))
-        datesDeposited.sort()
-        choices = [(d, d.strftime("%Y/%m/%d")) for d in datesDeposited]
-        choices.insert(0, (None, "(Any)"))
-        self.dateDepositedFilterArg.SetChoices(choices)
-
     def GetBaseRows(self):
         return self.grid.dataSet.rowClass.GetRows(self.config.dataSource,
                 year = self.config.year)
 
     def OnCreateFilterArgs(self):
-        self.dateDepositedFilterArg = ceGUI.FilterArgChoiceMultiple(self,
-                "dateDeposited", "Date Deposited:", size = (125, -1))
-        self.dateCollectedFilterArg = ceGUI.FilterArgChoiceMultiple(self,
-                "dateCollected", "Date Collected:", size = (125, -1))
-        self.causeFilterArg = ceGUI.FilterArgChoiceMultiple(self, "causeId",
-                "Cause:", size = (300, -1))
+        self.CreateDateDepositedFilterArg()
+        self.CreateDateCollectedFilterArg()
+        self.CreateCauseFilterArg()
 
     def OnPopulateBaseRows(self, rows):
-        self.__SetDateDepositedChoices(rows)
-        self.__SetDateCollectedChoices(rows)
-        self.__SetCauseChoices(rows)
+        self.SetDateDepositedChoices(rows)
+        self.SetDateCollectedChoices(rows)
+        self.SetCauseChoices(rows)
 
 
 class Grid(Common.BaseGrid):

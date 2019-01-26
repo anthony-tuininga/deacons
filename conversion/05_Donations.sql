@@ -46,20 +46,19 @@ from SplitDonations;
 
 create table Donations (
     DonationId          integer not null,
-    DateCollected       date not null,
-    DateDeposited       date not null,
+    TrayId              integer not null,
     DonatorId           integer not null,
     Cash                boolean not null,
     constraint Donations_pk primary key (DonationId),
-    constraint Donations_fk_1 foreign key (DonatorId)
+    constraint Donations_fk_1 foreign key (TrayId)
+            references Trays,
+    constraint Donations_fk_2 foreign key (DonatorId)
             references Donators
 );
 
-create index Donations_ix_1 on Donations (DateCollected);
+create index Donations_ix_1 on Donations (TrayId);
 
-create index Donations_ix_2 on Donations (DateDeposited);
-
-create index Donations_ix_3 on Donations (DonatorId);
+create index Donations_ix_2 on Donations (DonatorId);
 
 grant select on Donations to public;
 
@@ -82,8 +81,12 @@ grant select on DonationComponents to public;
 insert into Donations
 select
     x.NewDonationId,
-    ct.DateCollected,
-    dp.DateDeposited,
+    ( select TrayId
+      from Trays
+      where DateDeposited = dp.DateDeposited
+        and DateCollected = ct.DateCollected
+        and CauseId = d.CauseId
+    ),
     d.DonatorId,
     d.Cash
 from
@@ -96,10 +99,19 @@ from
         on dp.DepositId = ct.DepositId;
 
 insert into Donations
-select distinct
+select
     x.NewDonationId,
-    ct.DateCollected,
-    dp.DateDeposited,
+    ( select TrayId
+      from Trays
+      where DateDeposited = dp.DateDeposited
+        and DateCollected = ct.DateCollected
+        and CauseId in
+            ( select CauseId
+              from Donations_backup
+              where SplitDonationId = x.OldSplitDonationId
+            )
+      limit 1
+    ),
     d.DonatorId,
     d.Cash
 from
@@ -109,7 +121,13 @@ from
     join Collections ct
         on ct.CollectionId = d.CollectionId
     join Deposits dp
-        on dp.DepositId = ct.DepositId;
+        on dp.DepositId = ct.DepositId
+where not exists
+    ( select 1
+      from Donations_backup
+      where SplitDonationId = x.OldSplitDonationId
+        and DonationId < d.DonationId
+    );
 
 insert into DonationComponents
 select
