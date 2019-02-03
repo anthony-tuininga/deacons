@@ -4,10 +4,13 @@ Define models used by application.
 
 import ceGUI
 
+class Cash(ceGUI.BaseModel):
+    attrNames = "cashId trayId cashDenominationId quantity"
+
+
 class CashDenominations(ceGUI.BaseModel):
-    attrNames = "cashDenominationId value coin quantityMultiple"
-    charBooleanAttrNames = "coin"
-    sortByAttrNames = "coin value"
+    attrNames = "cashDenominationId value description quantityMultiple"
+    sortByAttrNames = "value"
     cached = True
 
 

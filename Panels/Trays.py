@@ -27,6 +27,17 @@ class Panel(Common.BasePanel):
 
 class Grid(Common.BaseGrid):
 
+    def _CreateContextMenu(self):
+        super(Grid, self)._CreateContextMenu()
+        self.menu.AddSeparator()
+        self.editCashMenuItem = self.menu.AddEntry(self, "Edit Cash...",
+                method = self.OnEditCash, passEvent = False)
+
+    def OnContextMenu(self):
+        selectedItems = self.GetSelectedItems()
+        self.editCashMenuItem.Enable(len(selectedItems) == 1)
+        super(Grid, self).OnContextMenu()
+
     def OnCreate(self):
         super(Grid, self).OnCreate()
         self.AddColumn("dateDeposited", "Deposited", defaultWidth = 100,
@@ -39,6 +50,13 @@ class Grid(Common.BaseGrid):
                 cls = ceGUI.ColumnMoney, readOnly = True)
         self.AddColumn("cashAmount", "Cash Amount", defaultWidth = 200,
                 cls = ceGUI.ColumnMoney, readOnly = True)
+
+    def OnEditCash(self):
+        selectedRow, = self.GetSelectedItems()
+        with self.GetParent().OpenWindow("EditDialogs.Cash.Dialog",
+                parentItem = selectedRow) as dialog:
+            if dialog.ShowModalOk():
+                print("Updated!")
 
     def OnInsertRow(self, row, choice):
         row.dateDeposited = datetime.datetime.today()

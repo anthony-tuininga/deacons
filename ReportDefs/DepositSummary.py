@@ -61,7 +61,7 @@ class Report(BaseReport):
         cashGroup = CashGroup(False)
         cashDenominationDict = {}
         for row in Models.CashDenominations.GetRows(self.config.dataSource):
-            group = coinGroup if row.coin else cashGroup
+            group = coinGroup if row.quantityMultiple > 1 else cashGroup
             cashDenomination = CashData(row)
             cashDenominationDict[row.cashDenominationId] = cashDenomination
             group.cashDenominations.append(cashDenomination)
@@ -95,7 +95,7 @@ class CashData(object):
     def __init__(self, cashDenomination):
         self.cashDenominationId = cashDenomination.cashDenominationId
         self.value = cashDenomination.value
-        self.coin = cashDenomination.coin
+        self.coin = cashDenomination.quantityMultiple > 1
         self.quantity = 0
 
 
