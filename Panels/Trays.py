@@ -60,7 +60,8 @@ class Grid(Common.BaseGrid):
 
     def OnInsertRow(self, row, choice):
         row.dateDeposited = datetime.datetime.today()
-        row.year = self.config.year
+        row.chequeAmount = 0
+        row.cashAmount = 0
 
 
 class DataSet(ceGUI.DataSet):
