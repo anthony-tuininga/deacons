@@ -11,7 +11,7 @@ create table CashDenominations (
 );
 
 insert into CashDenominations values (1, '$0.01', 'roll(s) of pennies', 50);
-insert into CashDenominations values (2, '$0.05', 'roll(s) of nickles', 40);
+insert into CashDenominations values (2, '$0.05', 'roll(s) of nickels', 40);
 insert into CashDenominations values (3, '$0.10', 'roll(s) of dimes', 50);
 insert into CashDenominations values (4, '$0.25', 'roll(s) of quarters', 40);
 insert into CashDenominations values (5, '$1.00', 'roll(s) of $1 coins', 25);
