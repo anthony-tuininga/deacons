@@ -1,6 +1,7 @@
 create view Donations_v as
 select
     c.Year,
+    t.TrayId,
     t.DateDeposited,
     t.DateCollected,
     d.DonationId,

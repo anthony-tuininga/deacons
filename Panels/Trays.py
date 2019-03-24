@@ -32,10 +32,16 @@ class Grid(Common.BaseGrid):
         self.menu.AddSeparator()
         self.editCashMenuItem = self.menu.AddEntry(self, "Edit Cash...",
                 method = self.OnEditCash, passEvent = False)
+        self.editCashDonationsMenuItem = self.menu.AddEntry(self,
+                "Edit Cash Donations...", method = self.OnEditCashDonations,
+                passEvent = False)
 
     def OnContextMenu(self):
         selectedItems = self.GetSelectedItems()
-        self.editCashMenuItem.Enable(len(selectedItems) == 1)
+        canEditSubItem = len(selectedItems) == 1 \
+                and selectedItems[0].trayId is not None
+        self.editCashMenuItem.Enable(canEditSubItem)
+        self.editCashDonationsMenuItem.Enable(canEditSubItem)
         super(Grid, self).OnContextMenu()
 
     def OnCreate(self):
@@ -55,8 +61,12 @@ class Grid(Common.BaseGrid):
         selectedRow, = self.GetSelectedItems()
         with self.GetParent().OpenWindow("EditDialogs.Cash.Dialog",
                 parentItem = selectedRow) as dialog:
-            if dialog.ShowModalOk():
-                print("Updated!")
+            dialog.ShowModalOk()
+
+    def OnEditCashDonations(self):
+        dialogName = "EditDialogs.CashDonations.Frame"
+        frame = self.GetParent().OpenWindow(dialogName)
+        frame.Show()
 
     def OnInsertRow(self, row, choice):
         row.dateDeposited = datetime.datetime.today()

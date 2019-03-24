@@ -60,9 +60,11 @@ class BaseGrid(ceGUI.DataGrid):
     def OnCreate(self):
         self.GetParent().BindEvent(self, wx.grid.EVT_GRID_SELECT_CELL,
                 self.OnCellSelected)
+        self.SetTabBehaviour(wx.grid.Grid.Tab_Wrap)
 
     def OnCellSelected(self, event):
         self.ForceRefresh()
+        event.Skip()
 
 
 class ColumnCauseDescription(ceGUI.Column):
