@@ -14,44 +14,21 @@ class Frame(BaseDonations.Frame):
     defaultSize = (650, 700)
     title = "Edit Cash Donations"
 
-    def OnCreate(self):
-        parent = self.GetParent()
-        self.tray, = parent.grid.GetSelectedItems()
-        self.panel = Panel(self)
-        super(Frame, self).OnCreate()
-        self.panel.grid.SetFocus()
+
+class TopPanel(BaseDonations.TopPanel):
+    pass
 
 
-class Panel(BaseDonations.Panel):
-
-    def OnCreate(self):
-        parent = self.GetParent()
-        self.tray = parent.tray
-        super(Panel, self).OnCreate()
+class BottomPanel(BaseDonations.BottomPanel):
 
     def GetRetrievalArgs(self):
         return [self.tray.trayId, True]
 
-    def Retrieve(self, refresh):
-        super(Panel, self).Retrieve(refresh)
-        if self.grid.GetNumberRows() == 0:
-            self.grid.InsertRows(0)
-
 
 class Grid(BaseDonations.Grid):
-    sortOnRetrieve = False
 
     def _RowIsEmpty(self, row):
         return row.donatorId is None and row.amount == 0
-
-    def OnInsertRow(self, row, choice):
-        row.causeId = self.tray.causeId
-        row.cash = True
-        row.amount = 0
-
-    def DeleteRows(self, row, numRows = 1):
-        super(Grid, self).DeleteRows(row, numRows)
-        self.Update()
 
     def OnCreate(self):
         parent = self.GetParent()
