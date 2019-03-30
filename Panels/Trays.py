@@ -35,6 +35,9 @@ class Grid(Common.BaseGrid):
         self.editCashDonationsMenuItem = self.menu.AddEntry(self,
                 "Edit Cash Donations...", method = self.OnEditCashDonations,
                 passEvent = False)
+        self.editChequeDonationsMenuItem = self.menu.AddEntry(self,
+                "Edit Cheque Donations...",
+                method = self.OnEditChequeDonations, passEvent = False)
 
     def OnContextMenu(self):
         selectedItems = self.GetSelectedItems()
@@ -65,6 +68,11 @@ class Grid(Common.BaseGrid):
 
     def OnEditCashDonations(self):
         dialogName = "EditDialogs.CashDonations.Frame"
+        frame = self.GetParent().OpenWindow(dialogName)
+        frame.Show()
+
+    def OnEditChequeDonations(self):
+        dialogName = "EditDialogs.ChequeDonations.Frame"
         frame = self.GetParent().OpenWindow(dialogName)
         frame.Show()
 
