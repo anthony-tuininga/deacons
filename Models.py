@@ -51,8 +51,14 @@ class Donations(ceGUI.BaseModel):
     tableName = "Donations_v"
     attrNames = """donationId dateDeposited dateCollected cash causeId
             donatorId amount"""
+    extraAttrNames = "splitComponents"
     charBooleanAttrNames = "cash"
     pkAttrNames = "donationId"
+
+
+class DonationComponents(ceGUI.BaseModel):
+    attrNames = "donationId causeId amount"
+    pkAttrNames = "donationId causeId"
 
 
 class DonationSummary(ceGUI.BaseModel):

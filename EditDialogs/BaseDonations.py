@@ -11,9 +11,13 @@ import Models
 
 class Frame(ceGUI.Frame):
 
-    def OnCreate(self):
+    def GetTray(self):
         parent = self.GetParent()
-        self.tray, = parent.grid.GetSelectedItems()
+        tray, = parent.grid.GetSelectedItems()
+        return tray
+
+    def OnCreate(self):
+        self.tray = self.GetTray()
         cls = self._GetClass("TopPanel")
         self.topPanel = cls(self)
         cls = self._GetClass("BottomPanel")

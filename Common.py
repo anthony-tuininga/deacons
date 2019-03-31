@@ -75,12 +75,14 @@ class ColumnCauseDescription(ceGUI.Column):
                     row.causeId)
             return cause.description
 
+    def GetPossibleCauses(self, text):
+        return [r for r in self.config.GetCachedRows(Models.Causes) \
+                if r.year == self.config.year \
+                and r.searchDescription.startswith(text)]
+
     def VerifyValueOnChange(self, row, rawValue):
         if rawValue:
-            searchValue = rawValue.upper()
-            causes = [r for r in self.config.GetCachedRows(Models.Causes) \
-                    if r.year == self.config.year \
-                    and r.searchDescription.startswith(searchValue)]
+            causes = self.GetPossibleCauses(rawValue.upper())
             if len(causes) == 0:
                 message = "'%s' is not a valid cause." % rawValue
                 raise ceGUI.InvalidValueEntered(message)
