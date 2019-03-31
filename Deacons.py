@@ -8,7 +8,7 @@ class Deacons(ceGUI.Application):
     description = "Deacons"
     copyrightOwner = "Anthony Tuininga"
     copyrightStartYear = 1998
-    copyrightEndYear = 2018
+    copyrightEndYear = 2019
     configClassName = "Config.Config"
 
 
