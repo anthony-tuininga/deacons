@@ -39,7 +39,15 @@ select
           join CashDenominations cd
               on cd.CashDenominationId = cs.CashDenominationId
       where cs.TrayId = t.TrayId
-    ) as CashAmount
+    ) as CashAmount,
+    ( select coalesce(sum(dc.Amount), '$0')
+      from
+          Donations d
+          join DonationComponents dc
+              on dc.DonationId = d.DonationId
+      where d.TrayId = t.TrayId
+        and d.Cash = 't'
+    ) as CashDonationAmount
 from
     Trays t
     join Causes c

@@ -59,6 +59,10 @@ class Grid(Common.BaseGrid):
                 cls = ceGUI.ColumnMoney, readOnly = True)
         self.AddColumn("cashAmount", "Cash Amount", defaultWidth = 200,
                 cls = ceGUI.ColumnMoney, readOnly = True)
+        self.AddColumn("cashDonationAmount", "Cash Donations",
+                defaultWidth = 200, cls = ceGUI.ColumnMoney, readOnly = True)
+        self.AddColumn("looseCashAmount", "Loose Cash",
+                defaultWidth = 200, cls = LooseCashColumn, readOnly = True)
 
     def OnEditCash(self):
         selectedRow, = self.GetSelectedItems()
@@ -80,6 +84,12 @@ class Grid(Common.BaseGrid):
         row.dateDeposited = datetime.datetime.today()
         row.chequeAmount = 0
         row.cashAmount = 0
+
+
+class LooseCashColumn(ceGUI.ColumnMoney):
+
+    def GetNativeValue(self, row):
+        return row.cashAmount - row.cashDonationAmount
 
 
 class DataSet(ceGUI.DataSet):

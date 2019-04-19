@@ -91,7 +91,7 @@ class TaxReceipts(ceGUI.BaseModel):
 class Trays(ceGUI.BaseModel):
     tableName = "Trays_v"
     attrNames = """trayId dateDeposited dateCollected causeId chequeAmount
-            cashAmount"""
+            cashAmount cashDonationAmount"""
     pkAttrNames = "trayId"
 
 
