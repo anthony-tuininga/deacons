@@ -30,6 +30,11 @@ class Grid(BaseDonations.Grid):
     def _RowIsEmpty(self, row):
         return row.donatorId is None and row.amount == 0
 
+    def OnInsertRow(self, row, choice):
+        row.causeId = self.tray.causeId
+        row.cash = True
+        row.amount = 0
+
     def OnCreate(self):
         parent = self.GetParent()
         self.tray = parent.tray
