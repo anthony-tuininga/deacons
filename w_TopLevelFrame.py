@@ -26,8 +26,9 @@ class Frame(ceGUI.TopLevelFrame):
         self.AddMenuItem(menu, "&Deposit Summary",
                 "Run Deposit Summary Report", self.OnRunDepositSummary,
                 createBusyCursor = True, passEvent = False)
-        self.AddMenuItem(menu, "&Treasurer Summary",
-                "Run Treasurer Summary Report", self.OnRunTreasurerSummary,
+        self.AddMenuItem(menu, "&Treasurer Summary By Month",
+                "Run Treasurer Summary Report (By Month)",
+                self.OnRunTreasurerSummaryByMonth,
                 createBusyCursor = True, passEvent = False)
 
     def OnCreate(self):
@@ -89,8 +90,8 @@ class Frame(ceGUI.TopLevelFrame):
     def OnRunDepositSummary(self):
         self.config.RunReport("DepositSummary")
 
-    def OnRunTreasurerSummary(self):
-        self.config.RunReport("TreasurerSummary")
+    def OnRunTreasurerSummaryByMonth(self):
+        self.config.RunReport("TreasurerSummaryByMonth")
 
     def OnUpdate(self):
         page = self.bottomPanel.notebook.GetCurrentPage()

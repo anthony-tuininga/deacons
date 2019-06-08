@@ -44,7 +44,7 @@ class Report(BaseReport):
             month.donations += row.chequeAmount + row.cashAmount
         formulaParts = ["RC[%d]" % ((i + 1) * -3) for i in range(numMonths)]
         grandTotalFormula = "+".join(formulaParts)
-        self.config.GenerateXL("TreasurerSummary.xlml",
+        self.config.GenerateXL("TreasurerSummaryByMonth.xlml",
                 overallTitleMergeAcross = 3 * (numMonths + 1), months = months,
                 causeGroups = causeGroups,
                 grandTotalFormula = grandTotalFormula)
