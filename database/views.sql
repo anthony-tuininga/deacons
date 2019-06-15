@@ -57,6 +57,7 @@ create view DonationSummary as
 select
     dr.Year,
     t.DateCollected,
+    t.DateDeposited,
     dc.CauseId,
     sum(case when cash = 'f' then dc.Amount else '$0' end) as ChequeAmount,
     sum(case when cash = 't' then dc.Amount else '$0' end) as CashAmount
@@ -71,12 +72,14 @@ from
 group by
     dr.Year,
     t.DateCollected,
+    t.DateDeposited,
     dc.CauseId;
 
 create view CashSummary as
 select
     c.Year,
     t.DateCollected,
+    t.DateDeposited,
     t.CauseId,
     sum(cs.Quantity * cd.Value) as Amount
 from
@@ -90,6 +93,7 @@ from
 group by
     c.Year,
     t.DateCollected,
+    t.DateDeposited,
     t.CauseId;
 
 create view Deposits as
