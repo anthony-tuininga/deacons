@@ -32,6 +32,8 @@ class Grid(Common.BaseGrid):
 
 class DataSet(ceGUI.DataSet):
     rowClass = Models.Donators
+    pkSequenceName = "DonatorId_s"
+    pkIsGenerated = True
 
     def _GetRows(self, surname, givenNames):
         rows = [r for r in self.config.GetCachedRows(self.rowClass) \
