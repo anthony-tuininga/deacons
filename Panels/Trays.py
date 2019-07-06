@@ -45,6 +45,7 @@ class Grid(Common.BaseGrid):
                 and selectedItems[0].trayId is not None
         self.editCashMenuItem.Enable(canEditSubItem)
         self.editCashDonationsMenuItem.Enable(canEditSubItem)
+        self.editChequeDonationsMenuItem.Enable(canEditSubItem)
         super(Grid, self).OnContextMenu()
 
     def OnCreate(self):
@@ -84,6 +85,7 @@ class Grid(Common.BaseGrid):
         row.dateDeposited = datetime.datetime.today()
         row.chequeAmount = 0
         row.cashAmount = 0
+        row.cashDonationAmount = 0
 
 
 class LooseCashColumn(ceGUI.ColumnMoney):
