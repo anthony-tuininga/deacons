@@ -17,7 +17,7 @@ class Grid(Common.BaseGrid):
 
     def OnCreate(self):
         super(Grid, self).OnCreate()
-        self.AddColumn("year", "Year", defaultWith = 50)
+        self.AddColumn("year", "Year", defaultWith = 50, cls=ceGUI.ColumnInt)
         self.AddColumn("budgetAmount", "Budget Amount",
                 cls = ceGUI.ColumnMoney, defaultWidth = 175)
         self.AddColumn("receiptsIssued", "Receipts Issued",
@@ -63,7 +63,9 @@ class DataSet(ceGUI.DataSet):
                         surname = donator.surname,
                         givenNames = donator.givenNames,
                         assignedNumber = donator.assignedNumber,
-                        address = donator.address)
+                        addressLine1 = donator.addressLine1,
+                        addressLine2 = donator.addressLine2,
+                        addressLine3 = donator.addressLine3)
                 transaction.AddItem(tableName = Models.Donators.tableName,
                         pkAttrName = Models.Donators.pkAttrNames[0],
                         pkSequenceName = "DonatorId_s", setValues = setValues)
