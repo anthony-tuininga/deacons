@@ -22,17 +22,19 @@ class Grid(Common.BaseGrid):
         donatorDict = dict((d.donatorId, d) for d in donators)
         rows = self.config.dataSource.GetRowsDirect("""
                 select
-                    dc.DonatorId,
+                    d.DonatorId,
                     sum(dc.Amount)
                 from
                     Donators d
+                    join Donations dn
+                        on dn.DonatorId = d.DonatorId
                     join DonationComponents dc
-                        on dc.DonatorId = d.DonatorId
+                        on dc.DonationId = dn.DonationId
                     join Causes c
                         on c.CauseId = dc.CauseId
                         and c.Deductible = 't'
                 where d.Year = ?
-                group by dc.DonatorId
+                group by d.DonatorId
                 having sum(dc.Amount) > '$0'""", (self.config.year,))
         tempAmounts = []
         for donatorId, amount in rows:
