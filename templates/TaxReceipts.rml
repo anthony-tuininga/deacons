@@ -71,17 +71,17 @@
         </tr>
 
         <tr>
-            <td><para style="text">{{ receipt.donator.addressLine1 }}</para></td>
+            <td><para style="text">{% if receipt.donator.addressLine1 %}{{ receipt.donator.addressLine1 }}{% endif %}</para></td>
             <td><para style="text"><i>Amount:</i> {{ "${:,.2f}".format(receipt.amount) }}</para></td>
         </tr>
 
         <tr>
-            <td><para style="text">{{ receipt.donator.addressLine2 }}</para></td>
+            <td><para style="text">{% if receipt.donator.addressLine2 %}{{ receipt.donator.addressLine2 }}{% endif %}</para></td>
             <td/>
         </tr>
 
         <tr>
-            <td><para style="text">{{ receipt.donator.addressLine3 }}</para></td>
+            <td><para style="text">{% if receipt.donator.addressLine3 %}{{ receipt.donator.addressLine3 }}{% endif %}</para></td>
             <td><para style="text">PER: _____________________</para></td>
         </tr>
 
