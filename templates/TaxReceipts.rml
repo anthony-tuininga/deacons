@@ -6,7 +6,7 @@
     <pageTemplate id="main">
         <frame id="receipt1" x1="17mm" y1="198mm" width="185mm" height="65mm"/>
         <frame id="receipt2" x1="17mm" y1="103mm" width="185mm" height="65mm"/>
-        <frame id="receipt3" x1="17mm" y1="18mm" width="185mm" height="65mm"/>
+        <frame id="receipt3" x1="17mm" y1="5mm" width="185mm" height="65mm"/>
     </pageTemplate>
 
 </template>
@@ -36,7 +36,7 @@
     <blockTable colWidths="105mm,80mm">
 
         <tr>
-            <td><para style="btext">Cornerstone United Reformed Church</para></td>
+            <td><para style="btext">Cornerstone United Reformed Church of Edmonton</para></td>
             <td><para style="btext">OFFICIAL RECEIPT for</para></td>
         </tr>
 
@@ -46,18 +46,18 @@
         </tr>
 
         <tr>
-            <td><para style="text">Edmonton, AB</para></td>
-            <td/>
+            <td><para style="text">Edmonton, AB  T5G 1P8</para></td>
+            <td><para style="text">Charitable Reg. #89329-2060-RR001</para></td>
         </tr>
 
         <tr>
             <td/>
-            <td><para style="text"><i>Year:</i> {{ receipt.year }}</para></td>
+            <td/>
         </tr>
 
         <tr>
             <td><para style="itext">Received From:</para></td>
-            <td><para style="text"><i>Envelope Number:</i> {{ receipt.donator.assignedNumber }}</para></td>
+            <td><para style="text"><i>Year Received:</i> {{ receipt.year }}</para></td>
         </tr>
 
         <tr>
@@ -72,23 +72,21 @@
 
         <tr>
             <td><para style="text">{% if receipt.donator.addressLine1 %}{{ receipt.donator.addressLine1 }}{% endif %}</para></td>
-            <td><para style="text"><i>Amount:</i> {{ "${:,.2f}".format(receipt.amount) }}</para></td>
+            <td><para style="text"><i>Location Issued:</i> Edmonton, AB</para></td>
         </tr>
 
         <tr>
             <td><para style="text">{% if receipt.donator.addressLine2 %}{{ receipt.donator.addressLine2 }}{% endif %}</para></td>
-            <td/>
+            <td><para style="text"><i>Amount:</i> {{ "${:,.2f}".format(receipt.amount) }}</para></td>
         </tr>
 
         <tr>
             <td><para style="text">{% if receipt.donator.addressLine3 %}{{ receipt.donator.addressLine3 }}{% endif %}</para></td>
-            <td><para style="text">PER: _____________________</para></td>
         </tr>
 
-        <tr/>
-
         <tr>
-            <td colspan="2"><para style="text">Canada Revenue Agency - www.cra-arc.gc.ca/charities</para></td>
+            <td><para style="text">Canada Revenue Agency - canada.ca/charities-giving</para></td>
+            <td><para style="text">PER: _____________________</para></td>
         </tr>
 
     </blockTable>
