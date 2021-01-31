@@ -1,0 +1,8 @@
+wheel
+cx_Logging
+cx_PyGenLib
+ceODBC
+jinja2
+reportlab
+xlsxwriter
+wxPython
