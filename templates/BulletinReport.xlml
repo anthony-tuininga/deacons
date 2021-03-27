@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<document>
+
+<styles>
+    <style name="sMoney" font_name = "Arial" font_size="10"
+            num_format="$#,##0.00"/>
+    <style name="sText" font_name = "Arial" font_size="10" num_format="@"/>
+    <style name="sTitle" font_name = "Arial" font_size="10" bold="1"
+            align="Center" valign="Middle" num_format="@"/>
+    <style name="sTotalMoney" font_name = "Arial" font_size="10" bold="1"
+            num_format="$#,##0.00"/>
+    <style name="sTotalTitle" font_name = "Arial" font_size="10" bold="1"
+            align="Right" num_format="@"/>
+</styles>
+
+<worksheet name="Bulletin Report">
+    <column width="35" style="sText"/>
+    <column width="12" style="sMoney"/>
+
+    <row>
+        <cell merge_across="1" style="sTitle">{{ title }}</cell>
+    </row>
+
+    <row>
+        <cell>{{ required_budget.description }}</cell>
+        <cell type="number">{{ required_budget.amount }}</cell>
+    </row>
+
+    <row>
+        <cell>{{ collected_budget.description }}</cell>
+        <cell type="number">{{ collected_budget.amount }}</cell>
+    </row>
+
+    <row/>
+
+    {% for data in cause_data %}
+        <row>
+            <cell>{{ data.description }}</cell>
+            <cell type="number">{{ data.amount }}</cell>
+        </row>
+    {% endfor %}
+
+    <row>
+        <cell style="sTotalTitle">Total Causes</cell>
+        <cell style="sTotalMoney" type="number"
+              formula="=SUM(R[-{{ cause_data|length }}]C:R[-1]C)"/>
+    </row>
+</worksheet>
+
+</document>

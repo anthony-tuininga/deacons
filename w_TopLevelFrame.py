@@ -34,6 +34,9 @@ class Frame(ceGUI.TopLevelFrame):
                 "Run Treasurer Summary Report (By Collection)",
                 self.OnRunTreasurerSummaryByCollection,
                 createBusyCursor = True, passEvent = False)
+        self.AddMenuItem(menu, "&Bulletin Report", "Run Bulletin Report",
+                self.OnRunBulletinReport, createBusyCursor = True,
+                passEvent = False)
 
     def OnCreate(self):
         self.topPanel = TopPanel(self)
@@ -90,6 +93,9 @@ class Frame(ceGUI.TopLevelFrame):
     def OnRetrieve(self):
         page = self.bottomPanel.notebook.GetCurrentPage()
         page.Retrieve(refresh = True)
+
+    def OnRunBulletinReport(self):
+        self.config.RunReport("BulletinReport")
 
     def OnRunDepositSummary(self):
         self.config.RunReport("DepositSummary")
