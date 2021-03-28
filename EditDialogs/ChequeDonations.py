@@ -3,6 +3,7 @@ Frame for editing cheque donations.
 """
 
 import ceGUI
+import wx
 
 from . import BaseDonations
 
@@ -31,8 +32,14 @@ class Grid(BaseDonations.Grid):
         super(Grid, self)._CreateContextMenu()
         self.menu.AddSeparator()
         self.editSplitChequeMenuItem = self.menu.AddEntry(self,
-                "Edit Split Cheque...", method = self.OnEditSplitCheque,
-                passEvent = False)
+                "Edit Split Cheque...\tCtrl-T", method=self.OnEditSplitCheque,
+                passEvent=False)
+
+    def _GetAccelerators(self):
+        accelerators = super(Grid, self)._GetAccelerators()
+        accelerators.append((wx.ACCEL_CTRL, ord('T'),
+                self.editSplitChequeMenuItem.GetId()))
+        return accelerators
 
     def _RowIsEmpty(self, row):
         return row.donatorId is None and row.causeId is None and \
