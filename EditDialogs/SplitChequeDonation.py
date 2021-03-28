@@ -3,6 +3,7 @@ Frame for editing split cheque donations.
 """
 
 import ceGUI
+import decimal
 
 from . import BaseDonations
 
@@ -22,6 +23,14 @@ class Frame(BaseDonations.Frame):
         parent = self.GetParent()
         self.donation, = parent.grid.GetSelectedItems()
         super(Frame, self).OnCreate()
+
+    def OnSplitAmountsChanged(self):
+        grid = self.bottomPanel.grid
+        total_amount = decimal.Decimal(0)
+        for row in grid.table.GetRows(0, grid.table.GetNumberRows()):
+            total_amount += decimal.Decimal(row.amount)
+        formatted_amount = "${0:,.2f}".format(total_amount)
+        self.topPanel.totalAmountColumn.field.SetValue(formatted_amount)
 
 
 class TopPanel(BaseDonations.TopPanel):
@@ -52,17 +61,31 @@ class Grid(BaseDonations.Grid):
     def _RowIsEmpty(self, row):
         return row.causeId is None and row.amount == 0
 
+    def DeleteRows(self, pos=None, numRows=1):
+        super(Grid, self).DeleteRows(pos, numRows)
+        parent = self.GetParent().GetParent()
+        parent.OnSplitAmountsChanged()
+
     def OnCreate(self):
         super(Grid, self).OnCreate()
         self.AddColumn("causeId", "Cause", defaultWidth = 200,
                 cls = Common.ColumnCauseDescription, required = True)
         self.AddColumn("amount", "Amount", defaultWidth = 200,
-                cls = ceGUI.ColumnMoney, required = True)
+                cls = SplitAmountColumn, required = True)
 
     def OnInsertRow(self, row, choice):
         parent = self.GetParent().GetParent()
         row.donationId = parent.donation.donationId
         row.amount = 0
+
+
+class SplitAmountColumn(ceGUI.ColumnMoney):
+
+    def SetValue(self, grid, dataSet, rowHandle, row, value):
+        super(SplitAmountColumn, self).SetValue(grid, dataSet, rowHandle, row,
+                                                value)
+        parent = grid.GetParent().GetParent()
+        parent.OnSplitAmountsChanged()
 
 
 class DataSet(ceGUI.DataSet):
