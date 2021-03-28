@@ -53,7 +53,7 @@ class Donations(ceGUI.BaseModel):
             donatorId amount"""
     extraAttrNames = "splitComponents"
     charBooleanAttrNames = "cash"
-    pkAttrNames = "donationId"
+    pkAttrNames = sortByAttrNames = "donationId"
 
 
 class DonationComponents(ceGUI.BaseModel):
