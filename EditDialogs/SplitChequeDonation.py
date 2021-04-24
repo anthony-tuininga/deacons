@@ -22,7 +22,7 @@ class Frame(BaseDonations.Frame):
     def OnCreate(self):
         parent = self.GetParent()
         self.donation, = parent.grid.GetSelectedItems()
-        super(Frame, self).OnCreate()
+        super().OnCreate()
 
     def OnSplitAmountsChanged(self):
         grid = self.bottomPanel.grid
@@ -57,32 +57,38 @@ class BottomPanel(BaseDonations.BottomPanel):
 
 
 class Grid(BaseDonations.Grid):
+    customCellAttributes = True
 
     def _RowIsEmpty(self, row):
         return row.causeId is None and row.amount == 0
 
     def DeleteRows(self, pos=None, numRows=1):
-        super(Grid, self).DeleteRows(pos, numRows)
+        super().DeleteRows(pos, numRows)
         parent = self.GetParent().GetParent()
         parent.OnSplitAmountsChanged()
 
     def OnCreate(self):
-        super(Grid, self).OnCreate()
+        super().OnCreate()
         self.AddColumn("causeId", "Cause", defaultWidth = 200,
                 cls = Common.ColumnCauseDescription, required = True)
         self.AddColumn("amount", "Amount", defaultWidth = 200,
                 cls = SplitAmountColumn, required = True)
 
+    def OnGetCustomCellAttributes(self, row, column, attr):
+        if not row.isNew and column.attrName == "causeId":
+            attr.SetReadOnly()
+
     def OnInsertRow(self, row, choice):
         parent = self.GetParent().GetParent()
         row.donationId = parent.donation.donationId
         row.amount = 0
+        row.isNew = True
 
 
 class SplitAmountColumn(ceGUI.ColumnMoney):
 
     def SetValue(self, grid, dataSet, rowHandle, row, value):
-        super(SplitAmountColumn, self).SetValue(grid, dataSet, rowHandle, row,
+        super().SetValue(grid, dataSet, rowHandle, row,
                                                 value)
         parent = grid.GetParent().GetParent()
         parent.OnSplitAmountsChanged()
@@ -91,3 +97,7 @@ class SplitAmountColumn(ceGUI.ColumnMoney):
 class DataSet(ceGUI.DataSet):
     rowClass = Models.DonationComponents
     retrievalAttrNames = "donationId"
+
+    def InsertRowInDatabase(self, transaction, row):
+        super().InsertRowInDatabase(transaction, row)
+        row.isNew = False

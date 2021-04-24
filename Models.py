@@ -59,6 +59,7 @@ class Donations(ceGUI.BaseModel):
 class DonationComponents(ceGUI.BaseModel):
     attrNames = "donationId causeId amount"
     pkAttrNames = "donationId causeId"
+    extraAttrNames = "isNew"
 
 
 class DonationSummary(ceGUI.BaseModel):
