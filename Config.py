@@ -30,7 +30,7 @@ class Config(ceGUI.Config):
         fileNo, outputFileName = tempfile.mkstemp(suffix = ".xlsx")
         os.write(fileNo, output.getvalue())
         os.close(fileNo)
-        subprocess.Popen(["oocalc", outputFileName])
+        subprocess.Popen(["xdg-open", outputFileName])
 
     def GeneratePDF(self, templateName, **args):
         template = self.templateEnv.get_template(templateName)
@@ -39,7 +39,7 @@ class Config(ceGUI.Config):
         fileNo, outputFileName = tempfile.mkstemp(suffix = ".pdf")
         os.write(fileNo, output.getvalue())
         os.close(fileNo)
-        subprocess.Popen(["evince", outputFileName])
+        subprocess.Popen(["xdg-open", outputFileName])
 
     def OnCreate(self):
         today = datetime.datetime.today()
