@@ -121,7 +121,7 @@ class Field(object):
         self.SetTotalValue(self.quantityField.GetValue())
 
     def SetQuantity(self, value):
-        quantity = value / self.cashDenomination.quantityMultiple
+        quantity = value // self.cashDenomination.quantityMultiple
         self.quantityField.SetValue(quantity)
         self.SetTotalValue(quantity)
 
