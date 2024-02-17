@@ -103,6 +103,8 @@ class ColumnDonatorName(ceGUI.Column):
         if row.donatorId is not None:
             donator = self.config.GetCachedRowByPK(Models.Donators,
                     row.donatorId)
+            if donator.assignedNumber is not None:
+                return f"{donator.name} ({donator.assignedNumber})"
             return donator.name
 
     def VerifyValueOnChange(self, row, rawValue):
